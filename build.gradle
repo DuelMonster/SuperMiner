@@ -1,0 +1,260 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+    }
+}
+
+plugins {
+    id 'com.matthewprenger.cursegradle' version '1.0.8'
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+group = "duelmonster.superminer"
+archivesBaseName = "SuperMiner"
+
+def bIncreaseRevision = false
+def recommended = false
+def mod_major = 0
+def mod_minor = 0
+def mod_revision = 0
+def mod_build = 0
+def curseKey = ''
+def curseId = ''
+
+// this makes gradle recognise and use build.properties
+ext.configFile = file "build.properties"
+configFile.withReader {
+	// Load config.  It shall from now be referenced as simply config or project.config
+	def props = new Properties()
+	props.load(it)
+	
+	// Get Version details
+	mod_major = props['mod_major'].toInteger()
+	mod_minor = props['mod_minor'].toInteger()
+	mod_revision = props['mod_revision'].toInteger()
+	
+	recommended = props['recommended'].toBoolean()
+	
+	curseId = props['curse_id'].toString()
+	curseKey = props['curse_api_key'].toString()
+	
+	// Increment the build number
+	mod_build = props['mod_build'].toInteger() + 1
+	
+	if (mod_build >= 2000) {
+		mod_build = 1
+
+		mod_revision += 1
+		props['mod_revision'] = mod_revision.toString()
+	} else if (bIncreaseRevision) {
+		mod_revision += 1
+		props['mod_revision'] = mod_revision.toString()
+	}
+	
+	props['mod_build'] = mod_build.toString()
+	props.store(configFile.newWriter(), null)
+	
+	project.ext.config = new ConfigSlurper().parse props
+}
+
+def mod_version = mod_major + "." + mod_minor + "." + mod_revision + "." + String.format("%03d", mod_build)
+version = mod_version
+
+println ""
+println "=================================================="
+println "Compiling " + archivesBaseName + " MC: " + config.mc_version + " | Forge: " + config.forge_version + " | Mod: " + mod_version
+println "=================================================="
+
+// Setup the forge minecraft plugin data. Specify the preferred forge/minecraft version here
+minecraft {
+	version = config.mc_version + "-" + config.forge_version // grab latest forge
+	mappings = config.mappings_version
+	runDir = "Debug"
+	
+	replace '@mod_version@', mod_version
+	replace '@mc_version@', config.mc_version
+	replaceIn 'SuperMiner_Core.java'
+	
+	makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+}
+
+def root = project.projectDir.parentFile
+def modSource = file("${buildDir}/modSource")
+sourceSets {
+    main {
+        java {
+            srcDir new File(root, "src")
+        }
+        resources {
+            srcDir new File(root, "resources")
+        }
+    }
+	// This source set will contain all sources that we filter 
+	filtered { 
+		java { 
+			srcDirs = [modSource]
+		} 
+	} 
+}
+
+// copy the main sources and filter any '$version' occurences. 
+task processVersion (type: Copy) { 
+	from('src/main/java')
+	into modSource
+	
+	expand	'mc_version'	:project.config.mc_version, 
+			'forge_version'	:project.config.forge_version, 
+			'mod_version'	:project.version
+}
+
+processResources
+{
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mc_version", config.mc_version
+
+    // replace stuff in mcmod.info, nothing else
+	from(sourceSets.main.resources.srcDirs) {
+		include 'mcmod.info'
+		include 'mod_version.json'
+		
+        // replace version info
+		expand	'mc_version'	:project.config.mc_version, 
+				'forge_version'	:project.config.forge_version, 
+				'mod_version'	:project.version
+	}
+	
+	// copy everything else, thats not the mcmod.info
+	from(sourceSets.main.resources.srcDirs) {
+		exclude 'mcmod.info'
+		exclude 'mod_version.json'
+		include 'assets/**/*.*'
+	}
+}
+
+version = "[${project.minecraft.version}]-${project.version}"
+
+sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
+
+jar.doFirst {
+    sourceSets.main.output.resourcesDir = "/does/not/exist"
+}
+jar {
+	exclude '**/mod_version.json'
+	exclude '**/SuperMiner.pdn'
+}
+jar.doLast {
+    sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
+}
+
+task srcJar(type: Jar) {
+    from sourceSets.main.java
+    classifier = 'src'
+}
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'dev'
+}
+
+// tell the compileJava task to compile the filtered source 
+compileJava.source = sourceSets.filtered.java
+compileJava.dependsOn processVersion
+
+build.dependsOn srcJar, deobfJar
+
+// Tell the artifact system about our extra jars
+artifacts {
+    archives srcJar, deobfJar
+}
+
+import groovy.json.JsonSlurper
+import groovy.json.JsonBuilder
+
+class versionObject {
+	String mc_version	// "Minecraft 1.7.10",
+	String modVersion	//"1.7.10-2.1.1.191",
+	String changeLog	// [ "" ],
+	String updateURL	//"https://goo.gl/eXK1QD",
+	String isDirectLink	//"false",
+	String newFileName	//""
+}
+
+task updateVersionFile << {
+	dependsOn build
+
+	// **********  Update forge_update json file ********** \\
+	JsonSlurper slurper = new JsonSlurper()
+	def forgeUpdate_slurper
+	file('forge_update.json').withReader { reader -> forgeUpdate_slurper = slurper.parse(reader) }
+
+	JsonBuilder forgeUpdate_builder = new JsonBuilder( forgeUpdate_slurper )
+
+	def mcLatest = config.mc_version + "-latest"
+	forgeUpdate_builder.content.promos["$mcLatest"] = mod_version
+	forgeUpdate_builder.content["$config.mc_version"]["$mod_version"] = ""
+
+	if (recommended) {
+		def mcRecom = "" + config.mc_version + "-recommended"
+		forgeUpdate_builder.content.promos["$mcRecom"] = mod_version
+	}
+
+	file('forge_update.json').write(forgeUpdate_builder.toPrettyString())
+
+	println "Version Info updated:  forge_update.json"
+	println "=================================================="
+	println ""
+}
+
+task release(type: Copy) {
+	dependsOn "updateVersion"
+	
+	from('build/classes/main') {
+		include 'mod_version.json'
+	}
+	into "~Release/Version/"
+	
+	from('build/libs') {
+		include '*.jar'
+	}
+	into "~Release/"
+}
+
+gradle.taskGraph.whenReady {taskGraph ->
+    if (taskGraph.hasTask("curseforge")) {
+        bIncreaseRevision = true
+    } else {
+        bIncreaseRevision = false
+    }
+}
+
+tasks.curseforge.dependsOn release
+
+curseforge {	
+	apiKey = curseKey
+
+	project {
+		id = curseId
+		
+		changelogType = 'markdown'
+		changelog = file('Change_v2.x.log')
+		
+		releaseType = 'release'
+		
+		addGameVersion config.mc_version
+
+		mainArtifact jar
+	}
+}
