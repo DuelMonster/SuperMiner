@@ -1,0 +1,12 @@
+{
+	"versionList": [
+		{
+			"mc_version":"Minecraft ${mc_version}",
+			"modVersion":"${mc_version}-${mod_version}",
+			"changeLog": [ "" ],
+			"updateURL":"https://goo.gl/eXK1QD",
+			"isDirectLink":"false",
+			"newFileName":""
+		}
+	]
+}
