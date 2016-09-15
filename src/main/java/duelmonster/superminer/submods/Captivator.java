@@ -1,0 +1,150 @@
+package duelmonster.superminer.submods;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cpw.mods.fml.client.FMLClientHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.common.network.FMLEventChannel;
+import cpw.mods.fml.common.network.FMLNetworkEvent;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import duelmonster.superminer.SuperMiner_Core;
+import duelmonster.superminer.config.SettingsCaptivator;
+import duelmonster.superminer.events.PlayerEvents;
+import duelmonster.superminer.network.packets.PacketIDs;
+import duelmonster.superminer.objects.Globals;
+import io.netty.buffer.Unpooled;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityXPOrb;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.client.C17PacketCustomPayload;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
+
+@Mod(	modid = Captivator.MODID
+	  , name = Captivator.MODName
+	  , version = SuperMiner_Core.VERSION
+	  , acceptedMinecraftVersions = SuperMiner_Core.MCVERSION
+	)
+public class Captivator {
+	public static final String MODID = "superminer_captivator";
+	public static final String MODName = "Captivator";
+	
+	public static final String ChannelName = MODID.substring(0, (MODID.length() < 20 ? MODID.length() : 20));
+
+	private long packetEnableTime = System.currentTimeMillis() + Globals.packetWaitMilliSec;
+	
+	public static boolean bShouldSyncSettings = true;
+	
+	private static List<Object> lItemIDs = null;
+
+	@Mod.EventHandler
+	public void init(FMLInitializationEvent evt) {
+		FMLEventChannel eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(ChannelName);
+		eventChannel.register(this);
+		
+		FMLCommonHandler.instance().bus().register(this);
+	}
+	
+	public static void syncConfig() {
+		SettingsCaptivator.bEnabled = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.captivator.enabled"), MODID, SettingsCaptivator.bEnabledDefault, Globals.localize("superminer.captivator.enabled.desc"));
+		SettingsCaptivator.bAllowInGUI = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.captivator.allow_in_gui"), MODID, SettingsCaptivator.bAllowInGUIDefault, Globals.localize("superminer.captivator.allow_in_gui.desc"));
+		SettingsCaptivator.fHorizontal = SuperMiner_Core.configFile.getFloat(Globals.localize("superminer.captivator.h_radius"), MODID, SettingsCaptivator.fHorizontalDefault, 0.0F, 128.0F, Globals.localize("superminer.captivator.h_radius.desc"));
+		SettingsCaptivator.fVertical = SuperMiner_Core.configFile.getFloat(Globals.localize("superminer.captivator.v_radius"), MODID, SettingsCaptivator.fVerticalDefault, 0.0F, 128.0F, Globals.localize("superminer.captivator.v_radius.desc"));
+		SettingsCaptivator.bIsWhitelist = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.captivator.whitelist"), MODID, SettingsCaptivator.bIsWhitelistDefault, Globals.localize("superminer.captivator.whitelist.desc"));
+		SettingsCaptivator.lItemIDs = SuperMiner_Core.configFile.getStringList(Globals.localize("superminer.captivator.item_ids"), MODID, SettingsCaptivator.lItemIDDefaults, Globals.localize("superminer.captivator.item_ids.desc"));
+		
+		lItemIDs = Globals.IDListToArray(SettingsCaptivator.lItemIDs, false);
+
+		List<String> order = new ArrayList<String>(6);
+		order.add(Globals.localize("superminer.captivator.enabled"));
+		order.add(Globals.localize("superminer.captivator.allow_in_gui"));
+		order.add(Globals.localize("superminer.captivator.h_radius"));
+		order.add(Globals.localize("superminer.captivator.v_radius"));
+		order.add(Globals.localize("superminer.captivator.whitelist"));
+		order.add(Globals.localize("superminer.captivator.item_ids"));
+		
+		SuperMiner_Core.configFile.setCategoryPropertyOrder(MODID, order);
+		
+		if (!bShouldSyncSettings) bShouldSyncSettings = SuperMiner_Core.configFile.hasChanged();
+	}
+
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void tickEvent(TickEvent.ClientTickEvent event) {
+		if (!PlayerEvents.IsPlayerInWorld() || 
+				!SettingsCaptivator.bEnabled || 
+				!TickEvent.Phase.END.equals(event.phase) || 
+				Excavator.isExcavating() || 
+				Shaftanator.isExcavating() || 
+				Veinator.isMiningVein()) return;
+
+		Minecraft minecraft = FMLClientHandler.instance().getClient();
+		if (minecraft.thePlayer == null || minecraft.theWorld == null || minecraft.isGamePaused()) return;
+		if (!SettingsCaptivator.bAllowInGUI && !minecraft.inGameHasFocus) return;
+
+		if (bShouldSyncSettings) {
+			Globals.sendPacket(new C17PacketCustomPayload(ChannelName, SettingsCaptivator.writePacketData()));
+			bShouldSyncSettings = false;
+		}
+		
+		EntityPlayer player = minecraft.thePlayer;
+		if (null == player || player.isDead || player.isPlayerSleeping()) return;
+
+		World world = minecraft.theWorld;
+		if (null != world && System.currentTimeMillis() >= this.packetEnableTime && player.getHealth() > 0.0F) {
+			
+			List<Entity> list = Globals.getNearbyEntities(world, player.boundingBox.expand(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal));
+			if (null == list || list.isEmpty()) return;
+			
+			for (Object entity : list)
+				if (!((Entity)entity).isDead && 
+					(entity instanceof EntityXPOrb || 
+					(lItemIDs.isEmpty() || 
+						Globals.isIdInList(((EntityItem)entity).getEntityItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist))) {
+					this.packetEnableTime = (System.currentTimeMillis() + Globals.packetWaitMilliSec);
+	
+					PacketBuffer packetData = new PacketBuffer(Unpooled.buffer());
+					packetData.writeInt(PacketIDs.BLOCKINFO.value());
+					
+					Globals.sendPacket(new C17PacketCustomPayload(ChannelName, packetData));
+				}
+		}
+	}
+
+	@SubscribeEvent
+	public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
+		PacketBuffer payLoad = new PacketBuffer(event.packet.payload());
+		int iPacketID = payLoad.copy().readInt();
+		
+		if (iPacketID == PacketIDs.Settings_Captivator.value())
+			SettingsCaptivator.readPacketData(payLoad);
+		
+		else if (SettingsCaptivator.bEnabled) {
+			EntityPlayer player = ((NetHandlerPlayServer)event.handler).playerEntity;
+			if (null == player) return;
+
+			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+			if (null == server) return;
+
+			World world = server.worldServerForDimension(player.dimension);
+			
+			List<Entity> list = Globals.getNearbyEntities(world, player.boundingBox.expand(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal));
+			if (null == list || list.isEmpty()) return;
+			
+			for (Entity entity : list)
+				if (!((Entity)entity).isDead && (entity instanceof EntityXPOrb || (lItemIDs == null || lItemIDs.isEmpty() || Globals.isIdInList(((EntityItem)entity).getEntityItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist)))
+					((Entity)entity).onCollideWithPlayer(player);
+		}
+	}
+}
