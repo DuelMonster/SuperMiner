@@ -115,7 +115,7 @@ So you found a :bug: in the code?  Think you can make it more efficient :dash:? 
 Experienced a crash :bomb:?  Have a suggestion?  Found a :bug:?  Create an issue now!
 
 1. Make sure your issue hasn't already been answered or fixed by [searching for it](https://github.com/DuelMonster/SuperMiner/search?q=&type=Issues).  Also think about whether your issue is a valid one before submitting it.
-	* Please do not open an issue to ask a question-that is for [DuelMonster's Twitter](https://twitter.com//) or the [forums](http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2372329-superminer-making-mining-easier).
+	* Please do not open an issue to ask a question-that is for [DuelMonster's Twitter](https://twitter.com/DuelMonster/) or the [forums](http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2372329-superminer-making-mining-easier).
 2. Go to [the issues page](https://github.com/DuelMonster/SuperMiner/issues).
 3. Click `New Issue` right below `Star` and `Fork`.
 4. Enter your Issue's title (something that summarizes your issue), and then create a detailed description ("Hey DuelMonster, could you add/change xxx?" or "Hey, found a problem with ...").
