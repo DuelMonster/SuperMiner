@@ -108,7 +108,7 @@ So you found a :bug: in the code?  Think you can make it more efficient :dash:? 
 3. Make the changes that you want to and commit them.
 	* If you're making changes locally, you'll have to execute `git commit -a` and `git push` in your command line.
 4. Click `Pull Request` at the right-hand side of the gray bar directly below your fork's name.
-5. Click `Click to create a pull request for this comparison`, enter your PR's title, and create a detailed description telling pahimar what you changed.
+5. Click `Click to create a pull request for this comparison`, enter your PR's title, and create a detailed description telling DuelMonster what you changed.
 6. Click `Send pull request`, and wait for feedback! :boom:
 
 #### Creating an Issue
