@@ -1,3 +1,4 @@
+
 buildscript {
     repositories {
         jcenter()
@@ -31,6 +32,14 @@ def mod_minor = 0
 def mod_revision = 0
 def mod_build = 0
 def curseId = ''
+
+gradle.taskGraph.whenReady {taskGraph ->
+    if (taskGraph.hasTask("curseforge")) {
+        bIncreaseRevision = true
+    } else {
+        bIncreaseRevision = false
+    }
+}
 
 // this makes gradle recognise and use build.properties
 ext.configFile = file "build.properties"
@@ -191,8 +200,6 @@ class versionObject {
 }
 
 task updateVersionFile << {
-	dependsOn build
-
 	// **********  Update forge_update json file ********** \\
 	JsonSlurper slurper = new JsonSlurper()
 	def forgeUpdate_slurper
@@ -217,7 +224,7 @@ task updateVersionFile << {
 }
 
 task release(type: Copy) {
-	dependsOn "updateVersion"
+	dependsOn updateVersionFile, build
 	
 	from('build/classes/main') {
 		include 'mod_version.json'
@@ -230,18 +237,10 @@ task release(type: Copy) {
 	into "~Release/"
 }
 
-gradle.taskGraph.whenReady {taskGraph ->
-    if (taskGraph.hasTask("curseforge")) {
-        bIncreaseRevision = true
-    } else {
-        bIncreaseRevision = false
-    }
-}
-
 tasks.curseforge.dependsOn release
 
 curseforge {
-	apiKey = apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
+	apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
 
 	project {
 		id = curseId
@@ -255,4 +254,10 @@ curseforge {
 
 		mainArtifact jar
 	}
+}
+
+task APIKeyTest << {
+	println "=================================================="
+	println project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : "NOT FOUND:  project.curseForgeApiKey"
+	println "=================================================="
 }
