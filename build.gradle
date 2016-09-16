@@ -30,7 +30,6 @@ def mod_major = 0
 def mod_minor = 0
 def mod_revision = 0
 def mod_build = 0
-def curseKey = ''
 def curseId = ''
 
 // this makes gradle recognise and use build.properties
@@ -48,7 +47,6 @@ configFile.withReader {
 	recommended = props['recommended'].toBoolean()
 	
 	curseId = props['curse_id'].toString()
-	curseKey = props['curse_api_key'].toString()
 	
 	// Increment the build number
 	mod_build = props['mod_build'].toInteger() + 1
@@ -243,13 +241,13 @@ gradle.taskGraph.whenReady {taskGraph ->
 tasks.curseforge.dependsOn release
 
 curseforge {	
-	apiKey = curseKey
+	apiKey = apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
 
 	project {
 		id = curseId
 		
 		changelogType = 'markdown'
-		changelog = file('Change_v2.x.log')
+		changelog = file('Change_v2.x.md')
 		
 		releaseType = 'release'
 		
