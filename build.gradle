@@ -25,21 +25,13 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 group = "duelmonster.superminer"
 archivesBaseName = "SuperMiner"
 
-def bIncreaseRevision = false
 def recommended = false
 def mod_major = 0
 def mod_minor = 0
 def mod_revision = 0
+def mod_prev_revision = 0
 def mod_build = 0
 def curseId = ''
-
-gradle.taskGraph.whenReady {taskGraph ->
-    if (taskGraph.hasTask("curseforge")) {
-        bIncreaseRevision = true
-    } else {
-        bIncreaseRevision = false
-    }
-}
 
 // this makes gradle recognise and use build.properties
 ext.configFile = file "build.properties"
@@ -52,6 +44,7 @@ configFile.withReader {
 	mod_major = props['mod_major'].toInteger()
 	mod_minor = props['mod_minor'].toInteger()
 	mod_revision = props['mod_revision'].toInteger()
+	mod_prev_revision = mod_revision
 	
 	recommended = props['recommended'].toBoolean()
 	
@@ -63,9 +56,6 @@ configFile.withReader {
 	if (mod_build >= 2000) {
 		mod_build = 1
 
-		mod_revision += 1
-		props['mod_revision'] = mod_revision.toString()
-	} else if (bIncreaseRevision) {
 		mod_revision += 1
 		props['mod_revision'] = mod_revision.toString()
 	}
@@ -152,6 +142,7 @@ processResources
 }
 
 version = "[${project.minecraft.version}]-${project.version}"
+def modLatest = "[$config.mc_version]-$mod_version"
 
 sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
 
@@ -192,49 +183,90 @@ import groovy.json.JsonBuilder
 
 class versionObject {
 	String mc_version	// "Minecraft 1.7.10",
-	String modVersion	//"1.7.10-2.1.1.191",
+	String modVersion	// "1.7.10-2.1.1.191",
 	String changeLog	// [ "" ],
-	String updateURL	//"https://goo.gl/eXK1QD",
-	String isDirectLink	//"false",
-	String newFileName	//""
+	String updateURL	// "https://goo.gl/gPqNSF",
+	String isDirectLink	// "false",
+	String newFileName	// ""
 }
 
-task updateVersionFile << {
-	// **********  Update forge_update json file ********** \\
+task updateVersionInfo << {
+
+	// **********  Update forge_update json file  ********** \\
+	
 	JsonSlurper slurper = new JsonSlurper()
 	def forgeUpdate_slurper
 	file('forge_update.json').withReader { reader -> forgeUpdate_slurper = slurper.parse(reader) }
 
 	JsonBuilder forgeUpdate_builder = new JsonBuilder( forgeUpdate_slurper )
-
-	def mcLatest = config.mc_version + "-latest"
-	forgeUpdate_builder.content.promos["$mcLatest"] = mod_version
-	forgeUpdate_builder.content["$config.mc_version"]["$mod_version"] = ""
+	
+	def mcLatest = "" + config.mc_version + "-latest"
+	forgeUpdate_builder.content.promos["$mcLatest"] = modLatest
+	forgeUpdate_builder.content["$config.mc_version"]["$modLatest"] = ""
 
 	if (recommended) {
 		def mcRecom = "" + config.mc_version + "-recommended"
-		forgeUpdate_builder.content.promos["$mcRecom"] = mod_version
+		forgeUpdate_builder.content.promos["$mcRecom"] = modLatest
 	}
 
 	file('forge_update.json').write(forgeUpdate_builder.toPrettyString())
 
+	println "=================================================="
 	println "Version Info updated:  forge_update.json"
 	println "=================================================="
 	println ""
+	
+	// **********  End forge_update json file  ********** \\
+	
+	// **********  Increase the Revision number for Release  ********** \\
+	
+	configFile.withReader {
+		// Load config.  It shall from now be referenced as simply config or project.config
+		def props = new Properties()
+		props.load(it)
+		
+		if (mod_revision == mod_prev_revision) {
+			mod_revision += 1
+			props['mod_revision'] = mod_revision.toString()
+			props.store(configFile.newWriter(), null)
+		}
+		
+		project.ext.config = new ConfigSlurper().parse props
+	}
+	
+	// **********  End Revision update  ********** \\
 }
 
 task release(type: Copy) {
-	dependsOn updateVersionFile, build
+	dependsOn updateVersionInfo, build
 	
 	from('build/classes/main') {
 		include 'mod_version.json'
 	}
-	into "~Release/Version/"
-	
 	from('build/libs') {
 		include '*.jar'
 	}
 	into "~Release/"
+	
+	// **********  Submit new version to the mods.io repository  ********** \\
+	
+    def curlPost = ['curl',	'-H', 'X-API-Key: ',
+							'-X', 'POST',
+							'-F', "body='{
+									  \"version\": {
+										\"name\": \"$modLatest\",
+										\"minecraft\": \"$config.mc_version\",
+										\"changelog\": \"\"
+									  },
+									  \"current\": \"true\"
+									  \"filename\": \"$archivesBaseName-$modLatest.jar\"
+									}'",
+							'-F', 'file='@~Release/$archivesBaseName-$modLatest.jar',
+							"\"https://mods.io/mods/1217/versions/create.json\""].execute()
+
+    def json = new JsonSlurper().parseText(curlPost.text))
+	
+	// **********  End mods.io submission  ********** \\
 }
 
 tasks.curseforge.dependsOn release

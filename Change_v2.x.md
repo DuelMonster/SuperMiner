@@ -1,4 +1,9 @@
 #### **2.1.4:**
+> | Shaftanator: | ---
+> | --- | ---
+> | _FIX_: | Solved an issue that was causing the Auto Illumination to fail when using Shaftanator.
+
+#### **2.1.3.055:**
 > | Veinator: | ---
 > | --- | ---
 > | _FIX_: | Solved an issue that would cause loss of ores when using Veinator and a tool that is below the ores harvest level.
@@ -64,7 +69,7 @@
 
 > | Substitutor: | ---
 > | --- | ---
-> | _FIX_: | Solved an issue where Substitutor was swapping tools even tho the tool being used was valid.
+> | _FIX_: | Solved an issue where Substitutor was swapping tools even though the tool being used was valid.
 
 > | Veinator: | ---
 > | --- | ---
@@ -96,7 +101,7 @@
 
 > | Veinator: | ---
 > | --- | ---
-> | _FIX_: | Solved a NullPointerException error within Veinator while the game was being initialized along side supported mods.
+> | _FIX_: | Solved a NullPointerException error within Veinator while the game was being initialised along side supported mods.
 
 #### **2.0.0:**
 > | Core: | ---
