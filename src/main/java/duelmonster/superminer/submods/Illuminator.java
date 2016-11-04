@@ -296,7 +296,6 @@ public class Illuminator {
             }
 	}
 	
-	@SideOnly(Side.CLIENT)
 	public static void PlaceTorch(Minecraft mc, EntityPlayer player) {
 		if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
 			BlockPos oPos = mc.objectMouseOver.getBlockPos();
