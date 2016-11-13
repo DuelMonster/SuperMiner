@@ -1,23 +1,23 @@
 
 buildscript {
-    repositories {
-        jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-    }
+	repositories {
+		jcenter()
+		maven {
+			name = "forge"
+			url = "http://files.minecraftforge.net/maven"
+		}
+		maven {
+			name = "sonatype"
+			url = "https://oss.sonatype.org/content/repositories/snapshots/"
+		}
+	}
+	dependencies {
+		classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+	}
 }
 
 plugins {
-    id 'com.matthewprenger.cursegradle' version '1.0.8'
+	id 'com.matthewprenger.cursegradle' version '1.0.8'
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -33,13 +33,13 @@ def mod_prev_revision = 0
 def mod_build = 0
 def curseId = ''
 
-gradle.taskGraph.whenReady {taskGraph ->
-    if (taskGraph.hasTask("curseforge")) {
-        bIncreaseRevision = true
-    } else {
-        bIncreaseRevision = false
-    }
-}
+//gradle.taskGraph.whenReady {taskGraph ->
+//	if (taskGraph.hasTask("curseforge")) {
+//		bIncreaseRevision = true
+//	} else {
+//		bIncreaseRevision = false
+//	}
+//}
 
 // this makes gradle recognise and use build.properties
 ext.configFile = file "build.properties"
@@ -98,14 +98,14 @@ minecraft {
 def root = project.projectDir.parentFile
 def modSource = file("${buildDir}/modSource")
 sourceSets {
-    main {
-        java {
-            srcDir new File(root, "src")
-        }
-        resources {
-            srcDir new File(root, "resources")
-        }
-    }
+	main {
+		java {
+			srcDir new File(root, "src")
+		}
+		resources {
+			srcDir new File(root, "resources")
+		}
+	}
 	// This source set will contain all sources that we filter 
 	filtered { 
 		java { 
@@ -126,16 +126,16 @@ task processVersion (type: Copy) {
 
 processResources
 {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mc_version", config.mc_version
+	// this will ensure that this task is redone when the versions change.
+	inputs.property "version", project.version
+	inputs.property "mc_version", config.mc_version
 
-    // replace stuff in mcmod.info, nothing else
+	// replace stuff in mcmod.info, nothing else
 	from(sourceSets.main.resources.srcDirs) {
 		include 'mcmod.info'
 		include 'mod_version.json'
 		
-        // replace version info
+		// replace version info
 		expand	'mc_version'	:project.config.mc_version, 
 				'forge_version'	:project.config.forge_version, 
 				'mod_version'	:project.version
@@ -155,24 +155,24 @@ def modLatest = "[$config.mc_version]-$mod_version"
 sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
 
 jar.doFirst {
-    sourceSets.main.output.resourcesDir = "/does/not/exist"
+	sourceSets.main.output.resourcesDir = "/does/not/exist"
 }
 jar {
 	exclude '**/mod_version.json'
 	exclude '**/SuperMiner.pdn'
 }
 jar.doLast {
-    sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
+	sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
 }
 
 task srcJar(type: Jar) {
-    from sourceSets.main.java
-    classifier = 'src'
+	from sourceSets.main.java
+	classifier = 'src'
 }
 
 task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'dev'
+	from sourceSets.main.output
+	classifier = 'dev'
 }
 
 // tell the compileJava task to compile the filtered source 
@@ -183,7 +183,7 @@ build.dependsOn srcJar, deobfJar
 
 // Tell the artifact system about our extra jars
 artifacts {
-    archives srcJar, deobfJar
+	archives srcJar, deobfJar
 }
 
 import groovy.json.JsonSlurper
@@ -258,21 +258,13 @@ task release(type: Copy) {
 	
 	// **********  Submit new version to the mods.io repository  ********** \\
 	
-    def curlPost = ['curl',	'-H', 'X-API-Key: ',
-							'-X', 'POST',
-							'-F', "body='{
-									  \"version\": {
-										\"name\": \"$modLatest\",
-										\"minecraft\": \"$config.mc_version\",
-										\"changelog\": \"\"
-									  },
-									  \"current\": \"true\"
-									  \"filename\": \"$archivesBaseName-$modLatest.jar\"
-									}'",
-							'-F', 'file='@~Release/$archivesBaseName-$modLatest.jar',
-							"\"https://mods.io/mods/1217/versions/create.json\""].execute()
-
-    def json = new JsonSlurper().parseText(curlPost.text))
+//	def curlPost = ['curl',	'-H', 'X-API-Key: ',
+//							'-X', 'POST',
+//							'-F', "body='{ \"version\": { \"name\": \"$modLatest\", \"minecraft\": \"$config.mc_version\", \"changelog\": \"\" }, \"current\": \"true\" \"filename\": \"$archivesBaseName-$modLatest.jar\" }'",
+//							'-F', "file='@~Release/$archivesBaseName-$modLatest.jar'",
+//							'"https://mods.io/mods/1217/versions/create.json"'].execute()
+//
+//	def json = new JsonSlurper().parseText(curlPost.text)
 	
 	// **********  End mods.io submission  ********** \\
 }

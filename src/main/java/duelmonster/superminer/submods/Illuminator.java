@@ -216,21 +216,15 @@ public class Illuminator {
 			world.setBlockState(oPos, Blocks.TORCH.getDefaultState().withProperty(BlockTorch.FACING, sideHit));
         	Globals.playSound(world, SoundEvents.BLOCK_WOOD_HIT, oPos);
         	
-        	if (isInMainInventory) {
-	        	player.inventory.mainInventory[iTorchIndx].stackSize--;
-				if (player.inventory.mainInventory[iTorchIndx].stackSize <= 0) {
-					player.inventory.mainInventory[iTorchIndx] = null;
-					lastTorchLocation = null;
-					iTorchStackCount--;
-				}
-        	} else {
-	        	player.inventory.offHandInventory[iTorchIndx].stackSize--;
-				if (player.inventory.offHandInventory[iTorchIndx].stackSize <= 0) {
-					player.inventory.offHandInventory[iTorchIndx] = null;
-					lastTorchLocation = null;
-					iTorchStackCount--;
-				}
-        	}
+    		ItemStack torchStack = (isInMainInventory ? player.inventory.mainInventory[iTorchIndx].copy() : player.inventory.offHandInventory[iTorchIndx].copy());
+    		torchStack.stackSize = torchStack.stackSize--;
+    		if (torchStack.stackSize <= 0) {
+				player.inventory.mainInventory[iTorchIndx] = null;
+				lastTorchLocation = null;
+				iTorchStackCount--;
+			} else {
+				player.inventory.mainInventory[iTorchIndx] = torchStack;
+			}
 
 			if (iTorchStackCount == 0)
 				player.addChatMessage(new TextComponentString("§5[SuperMiner] §6Illuminator: §c" + Globals.localize("superminer.illuminator.no_torches")));
