@@ -87,8 +87,7 @@ public class Illuminator {
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
 		if (!PlayerEvents.IsPlayerInWorld() || 
-				!SettingsIlluminator.bEnabled || 
-				!TickEvent.Phase.END.equals(event.phase)) return;
+			!TickEvent.Phase.END.equals(event.phase)) return;
 		
 		Minecraft mc = FMLClientHandler.instance().getClient();
 		if (!mc.inGameHasFocus || mc.isGamePaused()) return;
@@ -102,54 +101,55 @@ public class Illuminator {
 		if (null == player || player.isDead || player.isPlayerSleeping()) return;
 
 		World world = mc.theWorld;
-		if (world != null)
+		if (world != null) {
 			if (KeyBindings.illuminator_place.isPressed())
 				Illuminator.PlaceTorch(mc, player);
 			else if (bIsPlacingTorch)
 				bIsPlacingTorch = false;
-			else if (Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
+			else if (SettingsIlluminator.bEnabled || Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
 			
-			int x = (int)(player.getEntityBoundingBox().minX + 0.5F);
-			int y = (int)player.getEntityBoundingBox().minY;
-			int z = (int)(player.getEntityBoundingBox().minZ + 0.5F);
-			
-			BlockPos oPos = new BlockPos(x, y, z);
-			IBlockState state = world.getBlockState(oPos.down());
-			
-			if (!world.isAirBlock(oPos)
-				&& !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-				x = (int)(player.getEntityBoundingBox().minX - 0.5F);
-				z = (int)(player.getEntityBoundingBox().minZ - 0.5F);
+				int x = (int)(player.getEntityBoundingBox().minX + 0.5F);
+				int y = (int)player.getEntityBoundingBox().minY;
+				int z = (int)(player.getEntityBoundingBox().minZ + 0.5F);
 				
-				oPos = new BlockPos(x, y, z);
-				state = world.getBlockState(oPos.down());
+				BlockPos oPos = new BlockPos(x, y, z);
+				IBlockState state = world.getBlockState(oPos.down());
 				
 				if (!world.isAirBlock(oPos)
 					&& !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-					x = (int)(player.getEntityBoundingBox().minX + 0.5F);
+					x = (int)(player.getEntityBoundingBox().minX - 0.5F);
 					z = (int)(player.getEntityBoundingBox().minZ - 0.5F);
-
+					
 					oPos = new BlockPos(x, y, z);
 					state = world.getBlockState(oPos.down());
 					
 					if (!world.isAirBlock(oPos)
 						&& !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-						x = (int)(player.getEntityBoundingBox().minX - 0.5F);
-						z = (int)(player.getEntityBoundingBox().minZ + 0.5F);
-
+						x = (int)(player.getEntityBoundingBox().minX + 0.5F);
+						z = (int)(player.getEntityBoundingBox().minZ - 0.5F);
+	
 						oPos = new BlockPos(x, y, z);
 						state = world.getBlockState(oPos.down());
+						
+						if (!world.isAirBlock(oPos)
+							&& !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
+							x = (int)(player.getEntityBoundingBox().minX - 0.5F);
+							z = (int)(player.getEntityBoundingBox().minZ + 0.5F);
+	
+							oPos = new BlockPos(x, y, z);
+							state = world.getBlockState(oPos.down());
+						}
 					}
 				}
-			}
-			
-			// If the current light level is below the limit...
-			if (world.getLight(oPos) <= SettingsIlluminator.iLowestLightLevel
-				&& world.isAirBlock(oPos)
-				&& state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-
-				Globals.sendPacket(new CPacketCustomPayload(ChannelName, new IlluminatorPacket(oPos).writePacketData()));
-
+				
+				// If the current light level is below the limit...
+				if (world.getLight(oPos) <= SettingsIlluminator.iLowestLightLevel
+					&& world.isAirBlock(oPos)
+					&& state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
+	
+					Globals.sendPacket(new CPacketCustomPayload(ChannelName, new IlluminatorPacket(oPos).writePacketData()));
+	
+				}
 			}
 		} else lastTorchLocation = null;
 	}
@@ -175,7 +175,7 @@ public class Illuminator {
 			IlluminatorPacket iPacket = new IlluminatorPacket();
 			iPacket.readPacketData(payLoad);
 
-			Illuminate(((NetHandlerPlayServer)event.getHandler()).playerEntity, iPacket.oPos, EnumFacing.UP);
+			Illuminate(((NetHandlerPlayServer)event.getHandler()).playerEntity, iPacket.oPos, iPacket.sideHit);
 		}
 	}
 
@@ -186,7 +186,6 @@ public class Illuminator {
 		World world = server.worldServerForDimension(player.dimension);
 		if (world == null) return;
 
-		boolean isInMainInventory = true;
 		int iTorchStackCount = 0;
 		int iTorchIndx = -1;
 		
@@ -195,17 +194,16 @@ public class Illuminator {
 			ItemStack stack = player.inventory.mainInventory[i];
 			if (stack != null && stack.getItem().equals(Item.getItemFromBlock(Blocks.TORCH))) {
 				iTorchStackCount++;
-				if (iTorchIndx == -1) iTorchIndx = i;
+				iTorchIndx = player.inventory.getSlotFor(stack);
 			}
 		}
 		
 		if (iTorchIndx == -1) {
-			isInMainInventory = false;
 			for (int i = 0; i < player.inventory.offHandInventory.length; i++) {
 				ItemStack stack = player.inventory.offHandInventory[i];
 				if (stack != null && stack.getItem().equals(Item.getItemFromBlock(Blocks.TORCH))) {
 					iTorchStackCount++;
-					if (iTorchIndx == -1) iTorchIndx = i;
+					iTorchIndx = player.inventory.getSlotFor(stack);
 				}
 			}
 		}
@@ -216,21 +214,12 @@ public class Illuminator {
 			world.setBlockState(oPos, Blocks.TORCH.getDefaultState().withProperty(BlockTorch.FACING, sideHit));
         	Globals.playSound(world, SoundEvents.BLOCK_WOOD_HIT, oPos);
         	
-        	if (isInMainInventory) {
-	        	player.inventory.mainInventory[iTorchIndx].stackSize--;
-				if (player.inventory.mainInventory[iTorchIndx].stackSize <= 0) {
-					player.inventory.mainInventory[iTorchIndx] = null;
-					lastTorchLocation = null;
-					iTorchStackCount--;
-				}
-        	} else {
-	        	player.inventory.offHandInventory[iTorchIndx].stackSize--;
-				if (player.inventory.offHandInventory[iTorchIndx].stackSize <= 0) {
-					player.inventory.offHandInventory[iTorchIndx] = null;
-					lastTorchLocation = null;
-					iTorchStackCount--;
-				}
-        	}
+			ItemStack torchStack = player.inventory.decrStackSize(iTorchIndx, 1);
+			
+			if (torchStack.stackSize <= 0) {
+				lastTorchLocation = null;
+				iTorchStackCount--;
+			}
 
 			if (iTorchStackCount == 0)
 				player.addChatMessage(new TextComponentString("§5[SuperMiner] §6Illuminator: §c" + Globals.localize("superminer.illuminator.no_torches")));
@@ -296,27 +285,32 @@ public class Illuminator {
             }
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public static void PlaceTorch(Minecraft mc, EntityPlayer player) {
 		if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
 			BlockPos oPos = mc.objectMouseOver.getBlockPos();
-			
-			if (mc.objectMouseOver.sideHit == EnumFacing.DOWN)
-				return;
-			else if (mc.objectMouseOver.sideHit == EnumFacing.UP)
-				oPos = oPos.up();
-			else if (mc.objectMouseOver.sideHit == EnumFacing.NORTH)
-				oPos = oPos.north();
-			else if (mc.objectMouseOver.sideHit == EnumFacing.SOUTH)
-				oPos = oPos.south();
-			else if (mc.objectMouseOver.sideHit == EnumFacing.EAST)
-				oPos = oPos.east();
-			else if (mc.objectMouseOver.sideHit == EnumFacing.WEST)
-				oPos = oPos.west();
-
-			IBlockState state = mc.theWorld.getBlockState(oPos.down());
-			if (state.getBlock().canPlaceTorchOnTop(state, mc.theWorld, oPos.down()) ||
-				state.getBlock().canPlaceBlockOnSide(mc.theWorld, oPos, mc.objectMouseOver.sideHit))
-				Illuminate(player, oPos, mc.objectMouseOver.sideHit);
+			if (mc.theWorld.getBlockState(oPos).getBlock() != Blocks.TORCH) {
+				EnumFacing sideHit = mc.objectMouseOver.sideHit;
+				BlockPos oSidePos = mc.objectMouseOver.getBlockPos();
+				
+				if (sideHit == EnumFacing.DOWN)
+					return;
+				else if (sideHit == EnumFacing.UP)
+					oSidePos = oPos.up();
+				else if (sideHit == EnumFacing.NORTH)
+					oSidePos = oPos.north();
+				else if (sideHit == EnumFacing.SOUTH)
+					oSidePos = oPos.south();
+				else if (sideHit == EnumFacing.EAST)
+					oSidePos = oPos.east();
+				else if (sideHit == EnumFacing.WEST)
+					oSidePos = oPos.west();
+	
+				if (mc.theWorld.getBlockState(oPos).getBlock().isReplaceable(mc.theWorld, oPos) && mc.theWorld.getBlockState(oPos.down()).isSideSolid(mc.theWorld, oPos.down(), EnumFacing.UP))
+					Globals.sendPacket(new CPacketCustomPayload(ChannelName, (new IlluminatorPacket(oPos, EnumFacing.UP)).writePacketData()));
+				else if (mc.theWorld.isAirBlock(oSidePos) && mc.theWorld.getBlockState(oPos).isSideSolid(mc.theWorld, oPos, sideHit))
+					Globals.sendPacket(new CPacketCustomPayload(ChannelName, (new IlluminatorPacket(oSidePos, sideHit)).writePacketData()));
+			}
 		}
 	}
 }
