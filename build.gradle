@@ -32,6 +32,20 @@ def mod_revision = 0
 def mod_prev_revision = 0
 def mod_build = 0
 def curseId = ''
+def curseForgeApiKey = ''
+def modsioApiKey = ''
+
+def userGradleScript = file("..\\${System.getProperty("user.name")}.properties") 
+if (userGradleScript.exists()) { 
+	//apply from: userGradleScript 
+	userGradleScript.withReader {
+		// Load User Specific Settings.
+		def props = new Properties()
+		props.load(it)
+		curseForgeApiKey = props['curseForgeApiKey'].toString()
+		modsioApiKey = props['modsioApiKey'].toString()
+	}
+}
 
 //gradle.taskGraph.whenReady {taskGraph ->
 //	if (taskGraph.hasTask("curseforge")) {
@@ -272,7 +286,7 @@ task release(type: Copy) {
 tasks.curseforge.dependsOn release
 
 curseforge {
-	apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
+	apiKey = curseForgeApiKey
 
 	project {
 		id = curseId
@@ -290,6 +304,6 @@ curseforge {
 
 task APIKeyTest << {
 	println "=================================================="
-	println project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : "NOT FOUND:  project.curseForgeApiKey"
+	println curseForgeApiKey != '' ? curseForgeApiKey : "NOT FOUND:  curseForgeApiKey"
 	println "=================================================="
 }
