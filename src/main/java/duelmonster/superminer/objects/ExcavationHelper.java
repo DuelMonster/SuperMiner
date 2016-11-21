@@ -104,29 +104,29 @@ public class ExcavationHelper {
 							while (SuperMiner_Core.isMCTicking()) try { Thread.sleep(1); } catch (InterruptedException e) { }
 							
 							// Double check that the block isn't air
-							if (!world.isAirBlock(workingPos))
-								player.theItemInWorldManager.tryHarvestBlock(workingPos);
-						}
+							if (!world.isAirBlock(workingPos)) {
+								boolean bHarvested = player.theItemInWorldManager.tryHarvestBlock(workingPos);
 	
-						// Illuminate the new shaft if enabled and Illuminator is enabled
-						if (this.bAutoIlluminate() && workingPos.getY() == this.iLowestY) {
-							// Setup the Illuminator data packet
-							IlluminatorPacket iPacket = new IlluminatorPacket();
-							iPacket.oPos = new BlockPos (this.sideHit == EnumFacing.SOUTH ? workingPos.south().west() : 
-														(this.sideHit == EnumFacing.NORTH ? workingPos.north().west() : 
-														(this.sideHit == EnumFacing.EAST ? workingPos.east().north() : 
-														(this.sideHit == EnumFacing.WEST ? workingPos.west().north() : 
-															workingPos))));
-							iPacket.playerID = player.getEntityId();
-							
-							// Add the data packet into a NBTTagCompound
-							NBTTagCompound nbt = new NBTTagCompound();
-							nbt.setByteArray("IlluminateShaftData", iPacket.writePacketData().array());
-							
-							// Send the data packet onto Illuminator for processing 
-							FMLInterModComms.sendRuntimeMessage(Shaftanator.MODID, "superminer_illuminator", "IlluminateShaft", nbt);
+								// Illuminate the new shaft if enabled and Illuminator is enabled
+								if (bHarvested && this.bAutoIlluminate() && workingPos.getY() == this.iLowestY) {
+									// Setup the Illuminator data packet
+									IlluminatorPacket iPacket = new IlluminatorPacket();
+									iPacket.oPos = new BlockPos (this.sideHit == EnumFacing.SOUTH ? workingPos.south() : 
+																(this.sideHit == EnumFacing.NORTH ? workingPos.north() : 
+																(this.sideHit == EnumFacing.EAST ? workingPos.east() : 
+																(this.sideHit == EnumFacing.WEST ? workingPos.west() : 
+																	workingPos))));
+									iPacket.playerID = player.getEntityId();
+									
+									// Add the data packet into a NBTTagCompound
+									NBTTagCompound nbt = new NBTTagCompound();
+									nbt.setByteArray("IlluminateShaftData", iPacket.writePacketData().array());
+									
+									// Send the data packet onto Illuminator for processing 
+									FMLInterModComms.sendRuntimeMessage(Shaftanator.MODID, "superminer_illuminator", "IlluminateShaft", nbt);
+								}
+							}
 						}
-						
 					}
 				}
 		}

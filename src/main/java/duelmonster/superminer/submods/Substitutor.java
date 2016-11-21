@@ -191,10 +191,10 @@ public class Substitutor {
 			ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
 			
 			// Abort Substitution if the current Item is valid for the attacking block
-			if (SettingsSubstitutor.bIgnoreIfValidTool
+			/*if (SettingsSubstitutor.bIgnoreIfValidTool
 				&& mc.thePlayer.getCurrentEquippedItem().canHarvestBlock(world.getBlockState(oPos).getBlock()))
-				return;
-	
+				return;*/
+
 			for (int i = 0; i < 9; i++) {
 				if (i == iSubstitueTool) continue;
 				
@@ -217,7 +217,7 @@ public class Substitutor {
 			
 		} catch (Throwable e) {
 			//throwException("Error switching weapons", e, false);
-			System.out.println("Error switching weapons - " + e.getMessage());
+			System.out.println("Error switching tools - " + e.getMessage());
 		}
 	}
 	
@@ -265,8 +265,12 @@ public class Substitutor {
 
 		float currentDigSpeed = SubstitutionHelper.getDigSpeed(CurrentTool, state);
 		float compareDigSpeed = SubstitutionHelper.getDigSpeed(CompareTool, state);
-
-		if (compareDigSpeed > currentDigSpeed) return true;
+		
+		boolean currentToolDamageable = SubstitutionHelper.isItemStackDamageable(CurrentTool);
+		boolean compareToolDamageable = SubstitutionHelper.isItemStackDamageable(CompareTool);
+		
+		if (currentToolDamageable && !compareToolDamageable && compareDigSpeed >= currentDigSpeed) return true;
+		else if (compareDigSpeed >= currentDigSpeed) return true;
 		else if (compareDigSpeed < currentDigSpeed) return false;
 
 		if (SettingsSubstitutor.bFavourSilkTouch) {
@@ -299,8 +303,8 @@ public class Substitutor {
 			else if (compareLevel < currentLevel) return false;
 		}
 
-		boolean currentToolDamageable = SubstitutionHelper.isItemStackDamageable(CurrentTool);
-		boolean compareToolDamageable = SubstitutionHelper.isItemStackDamageable(CompareTool);
+		//boolean currentToolDamageable = SubstitutionHelper.isItemStackDamageable(CurrentTool);
+		//boolean compareToolDamageable = SubstitutionHelper.isItemStackDamageable(CompareTool);
 		
 //		if (compareToolDamageable && !currentToolDamageable) return false;
 //		else if (currentToolDamageable && !compareToolDamageable) return true;

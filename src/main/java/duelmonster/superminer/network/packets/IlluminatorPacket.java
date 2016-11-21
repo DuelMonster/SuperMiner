@@ -2,6 +2,7 @@ package duelmonster.superminer.network.packets;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.BlockPos;
 
 public class IlluminatorPacket {
@@ -9,14 +10,20 @@ public class IlluminatorPacket {
 	
 	public int packetID = IlluminatorPacket.PACKETID_ILLUMINATOR;
 	public BlockPos oPos;
+	public EnumFacing sideHit = EnumFacing.UP;
 	public int playerID = 0;
 	
 	public IlluminatorPacket() {}
 	public IlluminatorPacket(BlockPos oPos) { this.oPos = oPos; }
+	public IlluminatorPacket(BlockPos oPos, EnumFacing sideHit) {
+		this.oPos = oPos;
+		this.sideHit = sideHit;
+	}
 		
 	public void readPacketData(PacketBuffer oBuffer) {
 		this.packetID = oBuffer.readInt();
 		this.oPos = BlockPos.fromLong(oBuffer.readLong());
+		this.sideHit = EnumFacing.getFront(oBuffer.readInt());
 		this.playerID = oBuffer.readInt();
 	}
 
@@ -25,6 +32,7 @@ public class IlluminatorPacket {
 		
 		oBuffer.writeInt(this.packetID);
 		oBuffer.writeLong(this.oPos.toLong());
+		oBuffer.writeInt(this.sideHit.getIndex());
 		oBuffer.writeInt(this.playerID);
 
 		return oBuffer;

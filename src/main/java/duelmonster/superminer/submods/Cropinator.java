@@ -208,7 +208,7 @@ public class Cropinator {
 				&& hasWaterSource(world, blockPos)) {
 				
 				world.setBlockState(blockPos, Blocks.farmland.getStateFromMeta(7), 2);
-	        	Globals.playSound(world, Blocks.farmland.stepSound, blockPos);
+				Globals.playSound(world, Blocks.farmland.stepSound, blockPos);
 				
 				if (blockAbove instanceof IPlantable) {
 
@@ -245,8 +245,8 @@ public class Cropinator {
 				
 				if (oBlock != null && 
 					oBlock != Blocks.air && 
-					(oBlock == Blocks.grass || oBlock == Blocks.dirt || 
-					(oBlock == Blocks.farmland && !oBlock.isFertile(world, blockPos))))
+					(oBlock == Blocks.grass || oBlock == Blocks.dirt))
+					//(oBlock == Blocks.farmland && !oBlock.isFertile(world, blockPos))))
 				
 					oPacket.lstPositions.offer(blockPos);
 			}
@@ -272,7 +272,7 @@ public class Cropinator {
 		if (world == null) return;
 		
 		getCrops(world, oPacket);
-		
+
 		ItemStack curItem = player.getHeldItem();
 		
 		int iFarmableFound = oPacket.lstPositions.size();
@@ -300,7 +300,7 @@ public class Cropinator {
 				
 				world.setBlockState(blockPos, newState, 2);
 				Globals.playSound(world, blkCrop.stepSound, blockPos);
-				
+
 				// Apply Item damage every 4 crops harvested.  This makes item damage 1/4 per crop
 				if (iFarmed > 0 && (iFarmed % 4 == 0 || iFarmed >= iFarmableFound)
 					&& curItem != null && curItem.isItemStackDamageable())

@@ -11,6 +11,7 @@ import duelmonster.superminer.network.packets.IlluminatorPacket;
 import duelmonster.superminer.network.packets.PacketIDs;
 import duelmonster.superminer.objects.Globals;
 import io.netty.buffer.Unpooled;
+import net.minecraft.block.BlockTorch;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -85,8 +86,7 @@ public class Illuminator {
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
 		if (!PlayerEvents.IsPlayerInWorld() || 
-				!SettingsIlluminator.bEnabled || 
-				!TickEvent.Phase.END.equals(event.phase)) return;
+			!TickEvent.Phase.END.equals(event.phase)) return;
 		
 		Minecraft mc = FMLClientHandler.instance().getClient();
 		if (!mc.inGameHasFocus || mc.isGamePaused()) return;
@@ -100,54 +100,55 @@ public class Illuminator {
 		if (null == player || player.isDead || player.isPlayerSleeping()) return;
 
 		World world = mc.theWorld;
-		if (world != null)
+		if (world != null) {
 			if (KeyBindings.illuminator_place.isPressed())
 				Illuminator.PlaceTorch(mc, player);
 			else if (bIsPlacingTorch)
 				bIsPlacingTorch = false;
-			else if (Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
+			else if (SettingsIlluminator.bEnabled || Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
 			
-			int x = (int)(player.getEntityBoundingBox().minX + 0.5F);
-			int y = (int)player.getEntityBoundingBox().minY;
-			int z = (int)(player.getEntityBoundingBox().minZ + 0.5F);
-			
-			BlockPos oPos = new BlockPos(x, y, z);
-			IBlockState state = world.getBlockState(oPos.down());
-			
-			if (!world.isAirBlock(oPos)
-				&& !state.getBlock().canPlaceTorchOnTop(world, oPos.down())) {
-				x = (int)(player.getEntityBoundingBox().minX - 0.5F);
-				z = (int)(player.getEntityBoundingBox().minZ - 0.5F);
+				int x = (int)(player.getEntityBoundingBox().minX + 0.5F);
+				int y = (int)player.getEntityBoundingBox().minY;
+				int z = (int)(player.getEntityBoundingBox().minZ + 0.5F);
 				
-				oPos = new BlockPos(x, y, z);
-				state = world.getBlockState(oPos.down());
+				BlockPos oPos = new BlockPos(x, y, z);
+				IBlockState state = world.getBlockState(oPos.down());
 				
 				if (!world.isAirBlock(oPos)
 					&& !state.getBlock().canPlaceTorchOnTop(world, oPos.down())) {
-					x = (int)(player.getEntityBoundingBox().minX + 0.5F);
+					x = (int)(player.getEntityBoundingBox().minX - 0.5F);
 					z = (int)(player.getEntityBoundingBox().minZ - 0.5F);
-
+					
 					oPos = new BlockPos(x, y, z);
 					state = world.getBlockState(oPos.down());
 					
 					if (!world.isAirBlock(oPos)
 						&& !state.getBlock().canPlaceTorchOnTop(world, oPos.down())) {
-						x = (int)(player.getEntityBoundingBox().minX - 0.5F);
-						z = (int)(player.getEntityBoundingBox().minZ + 0.5F);
-
+						x = (int)(player.getEntityBoundingBox().minX + 0.5F);
+						z = (int)(player.getEntityBoundingBox().minZ - 0.5F);
+	
 						oPos = new BlockPos(x, y, z);
 						state = world.getBlockState(oPos.down());
+						
+						if (!world.isAirBlock(oPos)
+							&& !state.getBlock().canPlaceTorchOnTop(world, oPos.down())) {
+							x = (int)(player.getEntityBoundingBox().minX - 0.5F);
+							z = (int)(player.getEntityBoundingBox().minZ + 0.5F);
+	
+							oPos = new BlockPos(x, y, z);
+							state = world.getBlockState(oPos.down());
+						}
 					}
 				}
-			}
-			
-			// If the current light level is below the limit...
-			if (world.getLight(oPos) <= SettingsIlluminator.iLowestLightLevel
-				&& world.isAirBlock(oPos)
-				&& state.getBlock().canPlaceTorchOnTop(world, oPos.down())) {
-
-				Globals.sendPacket(new C17PacketCustomPayload(ChannelName, new IlluminatorPacket(oPos).writePacketData()));
-
+				
+				// If the current light level is below the limit...
+				if (world.getLight(oPos) <= SettingsIlluminator.iLowestLightLevel
+					&& world.isAirBlock(oPos)
+					&& state.getBlock().canPlaceTorchOnTop(world, oPos.down())) {
+	
+					Globals.sendPacket(new C17PacketCustomPayload(ChannelName, new IlluminatorPacket(oPos).writePacketData()));
+	
+				}
 			}
 		} else lastTorchLocation = null;
 	}
@@ -173,7 +174,7 @@ public class Illuminator {
 			IlluminatorPacket iPacket = new IlluminatorPacket();
 			iPacket.readPacketData(payLoad);
 
-			Illuminate(((NetHandlerPlayServer)event.handler).playerEntity, iPacket.oPos, EnumFacing.UP);
+			Illuminate(((NetHandlerPlayServer)event.handler).playerEntity, iPacket.oPos, iPacket.sideHit);
 		}
 	}
 
@@ -192,25 +193,25 @@ public class Illuminator {
 			ItemStack stack = player.inventory.mainInventory[i];
 			if (stack != null && stack.getItem().equals(Item.getItemFromBlock(Blocks.torch))) {
 				iTorchStackCount++;
-				if (iTorchIndx == -1) iTorchIndx = i;
+				iTorchIndx = i;
 			}
 		}
 		
 		if (iTorchIndx >= 0 && !oPos.equals(lastTorchLocation)) {
 			lastTorchLocation = new BlockPos(oPos);
 			
-			world.setBlockState(oPos, Blocks.torch.getDefaultState());
+			world.setBlockState(oPos, Blocks.torch.getDefaultState().withProperty(BlockTorch.FACING, sideHit));
         	Globals.playSound(world, "dig.wood", oPos);
         	
-        	player.inventory.mainInventory[iTorchIndx].stackSize--;
-        	
-			if (player.inventory.mainInventory[iTorchIndx].stackSize <= 0) {
-				player.inventory.mainInventory[iTorchIndx] = null;
+			ItemStack torchStack = player.inventory.decrStackSize(iTorchIndx, 1);
+			
+			if (torchStack.stackSize <= 0) {
 				lastTorchLocation = null;
 				iTorchStackCount--;
-				if (iTorchStackCount == 0)
-					player.addChatMessage(new ChatComponentText("§5[SuperMiner] §6Illuminator: §c" + Globals.localize("superminer.illuminator.no_torches")));
 			}
+
+			if (iTorchStackCount == 0)
+				player.addChatMessage(new ChatComponentText("§5[SuperMiner] §6Illuminator: §c" + Globals.localize("superminer.illuminator.no_torches")));
 		}
 	}
 	
@@ -273,27 +274,32 @@ public class Illuminator {
             }
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public static void PlaceTorch(Minecraft mc, EntityPlayer player) {
 		if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK) {
 			BlockPos oPos = mc.objectMouseOver.getBlockPos();
-			
-			if (mc.objectMouseOver.sideHit == EnumFacing.DOWN)
-				return;
-			else if (mc.objectMouseOver.sideHit == EnumFacing.UP)
-				oPos = oPos.up();
-			else if (mc.objectMouseOver.sideHit == EnumFacing.NORTH)
-				oPos = oPos.north();
-			else if (mc.objectMouseOver.sideHit == EnumFacing.SOUTH)
-				oPos = oPos.south();
-			else if (mc.objectMouseOver.sideHit == EnumFacing.EAST)
-				oPos = oPos.east();
-			else if (mc.objectMouseOver.sideHit == EnumFacing.WEST)
-				oPos = oPos.west();
+			if (mc.theWorld.getBlockState(oPos).getBlock() != Blocks.torch) {
+				EnumFacing sideHit = mc.objectMouseOver.sideHit;
+				BlockPos oSidePos = mc.objectMouseOver.getBlockPos();
+				
+				if (sideHit == EnumFacing.DOWN)
+					return;
+				else if (sideHit == EnumFacing.UP)
+					oSidePos = oPos.up();
+				else if (sideHit == EnumFacing.NORTH)
+					oSidePos = oPos.north();
+				else if (sideHit == EnumFacing.SOUTH)
+					oSidePos = oPos.south();
+				else if (sideHit == EnumFacing.EAST)
+					oSidePos = oPos.east();
+				else if (sideHit == EnumFacing.WEST)
+					oSidePos = oPos.west();
 
-			IBlockState state = mc.theWorld.getBlockState(oPos.down());
-			if (state.getBlock().canPlaceTorchOnTop(mc.theWorld, oPos.down()) ||
-				state.getBlock().canPlaceBlockOnSide(mc.theWorld, oPos, mc.objectMouseOver.sideHit))
-				Illuminate(player, oPos, mc.objectMouseOver.sideHit);
+				if (mc.theWorld.getBlockState(oPos).getBlock().isReplaceable(mc.theWorld, oPos) && mc.theWorld.getBlockState(oPos.down()).getBlock().isSideSolid(mc.theWorld, oPos.down(), EnumFacing.UP))
+					Globals.sendPacket(new C17PacketCustomPayload(ChannelName, (new IlluminatorPacket(oPos, EnumFacing.UP)).writePacketData()));
+				else if (mc.theWorld.isAirBlock(oSidePos) && mc.theWorld.getBlockState(oPos).getBlock().isSideSolid(mc.theWorld, oPos, sideHit))
+					Globals.sendPacket(new C17PacketCustomPayload(ChannelName, (new IlluminatorPacket(oSidePos, sideHit)).writePacketData()));
+			}
 		}
 	}
 }
