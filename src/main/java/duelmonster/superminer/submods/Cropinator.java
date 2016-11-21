@@ -247,8 +247,8 @@ public class Cropinator {
 				
 				if (oBlock != null && 
 					oBlock != Blocks.air && 
-					(oBlock == Blocks.grass || oBlock == Blocks.dirt || 
-					(oBlock == Blocks.farmland && !oBlock.isFertile(world, blockPos))))
+					(oBlock == Blocks.grass || oBlock == Blocks.dirt))
+					//(oBlock == Blocks.farmland && !oBlock.isFertile(world, blockPos))))
 				
 					oPacket.lstPositions.offer(blockPos);
 			}
