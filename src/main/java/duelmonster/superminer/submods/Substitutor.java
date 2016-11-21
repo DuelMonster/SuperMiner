@@ -193,10 +193,10 @@ public class Substitutor {
 			ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
 			
 			// Abort Substitution if the current Item is valid for the attacking block
-			if (SettingsSubstitutor.bIgnoreIfValidTool
+			/*if (SettingsSubstitutor.bIgnoreIfValidTool
 				&& mc.thePlayer.getCurrentEquippedItem().getItem().canHarvestBlock(world.getBlock(oPos.getX(), oPos.getY(), oPos.getZ()), null))
-				return;
-	
+				return;*/
+
 			for (int i = 0; i < 9; i++) {
 				if (i == iSubstitueTool) continue;
 				
@@ -219,7 +219,7 @@ public class Substitutor {
 			
 		} catch (Throwable e) {
 			//throwException("Error switching weapons", e, false);
-			System.out.println("Error switching weapons - " + e.getMessage());
+			System.out.println("Error switching tools - " + e.getMessage());
 		}
 	}
 	
@@ -242,6 +242,7 @@ public class Substitutor {
 			if (mc.thePlayer.inventory.currentItem != iSubstitueWeapon) {
 				if (System.getProperty("DEBUG") != null) Globals.NotifyClient(" " + MODName + " = Switching item from {" + mc.thePlayer.inventory.currentItem + "} to {" + iSubstitueWeapon + "}");
 				mc.thePlayer.inventory.currentItem = iSubstitueWeapon;
+				mc.thePlayer.openContainer.detectAndSendChanges();
 				
 //				if (SettingsSubstitutor.bSwitchbackEnabled)
 //					bSwitchback = true;
@@ -266,8 +267,12 @@ public class Substitutor {
 		int metadata = world.getBlockMetadata(oPos.getX(), oPos.getY(), oPos.getZ());
 		float currentDigSpeed = SubstitutionHelper.getDigSpeed(CurrentTool, block, metadata);
 		float compareDigSpeed = SubstitutionHelper.getDigSpeed(CompareTool, block, metadata);
-
-		if (compareDigSpeed > currentDigSpeed) return true;
+		
+		boolean currentToolDamageable = SubstitutionHelper.isItemStackDamageable(CurrentTool);
+		boolean compareToolDamageable = SubstitutionHelper.isItemStackDamageable(CompareTool);
+		
+		if (currentToolDamageable && !compareToolDamageable && compareDigSpeed >= currentDigSpeed) return true;
+		else if (compareDigSpeed >= currentDigSpeed) return true;
 		else if (compareDigSpeed < currentDigSpeed) return false;
 
 		if (SettingsSubstitutor.bFavourSilkTouch) {
@@ -300,8 +305,8 @@ public class Substitutor {
 			else if (compareLevel < currentLevel) return false;
 		}
 
-		boolean currentToolDamageable = SubstitutionHelper.isItemStackDamageable(CurrentTool);
-		boolean compareToolDamageable = SubstitutionHelper.isItemStackDamageable(CompareTool);
+		//boolean currentToolDamageable = SubstitutionHelper.isItemStackDamageable(CurrentTool);
+		//boolean compareToolDamageable = SubstitutionHelper.isItemStackDamageable(CompareTool);
 		
 //		if (compareToolDamageable && !currentToolDamageable) return false;
 //		else if (currentToolDamageable && !compareToolDamageable) return true;

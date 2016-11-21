@@ -39,6 +39,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 @Mod(	modid = Illuminator.MODID
 	  , name = Illuminator.MODName
@@ -84,8 +85,7 @@ public class Illuminator {
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
 		if (!PlayerEvents.IsPlayerInWorld() || 
-				!SettingsIlluminator.bEnabled || 
-				!TickEvent.Phase.END.equals(event.phase)) return;
+			!TickEvent.Phase.END.equals(event.phase)) return;
 		
 		Minecraft mc = FMLClientHandler.instance().getClient();
 		if (!mc.inGameHasFocus || mc.isGamePaused()) return;
@@ -99,50 +99,51 @@ public class Illuminator {
 		if (null == player || player.isDead || player.isPlayerSleeping()) return;
 
 		World world = mc.theWorld;
-		if (world != null)
+		if (world != null) {
 			if (KeyBindings.illuminator_place.isPressed())
 				Illuminator.PlaceTorch(mc, player);
 			else if (bIsPlacingTorch)
 				bIsPlacingTorch = false;
-			else if (Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
+			else if (SettingsIlluminator.bEnabled || Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
 			
-			int x = (int)(player.boundingBox.minX + 0.5F);
-			int y = (int)player.boundingBox.minY;
-			int z = (int)(player.boundingBox.minZ + 0.5F);
-			
-			BlockPos oPos = new BlockPos(x, y, z);
-			
-			if (!world.isAirBlock(oPos.getX(), oPos.getY(), oPos.getZ())
-				|| !world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
-				x = (int)(player.boundingBox.minX - 0.5F);
-				z = (int)(player.boundingBox.minZ - 0.5F);
+				int x = (int)(player.boundingBox.minX + 0.5F);
+				int y = (int)player.boundingBox.minY;
+				int z = (int)(player.boundingBox.minZ + 0.5F);
 				
-				oPos = new BlockPos(x, y, z);
+				BlockPos oPos = new BlockPos(x, y, z);
 				
 				if (!world.isAirBlock(oPos.getX(), oPos.getY(), oPos.getZ())
-						|| !world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
-					x = (int)(player.boundingBox.minX + 0.5F);
+					&& !world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
+					x = (int)(player.boundingBox.minX - 0.5F);
 					z = (int)(player.boundingBox.minZ - 0.5F);
-
+					
 					oPos = new BlockPos(x, y, z);
 					
 					if (!world.isAirBlock(oPos.getX(), oPos.getY(), oPos.getZ())
-							|| !world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
-						x = (int)(player.boundingBox.minX - 0.5F);
-						z = (int)(player.boundingBox.minZ + 0.5F);
-
+						&& !world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
+						x = (int)(player.boundingBox.minX + 0.5F);
+						z = (int)(player.boundingBox.minZ - 0.5F);
+	
 						oPos = new BlockPos(x, y, z);
+						
+						if (!world.isAirBlock(oPos.getX(), oPos.getY(), oPos.getZ())
+							&& !world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
+							x = (int)(player.boundingBox.minX - 0.5F);
+							z = (int)(player.boundingBox.minZ + 0.5F);
+	
+							oPos = new BlockPos(x, y, z);
+						}
 					}
 				}
-			}
-			
-			// If the current light level is below the limit...
-			if (world.getBlockLightValue(oPos.getX(), oPos.getY(), oPos.getZ()) <= SettingsIlluminator.iLowestLightLevel
-				&& world.isAirBlock(oPos.getX(), oPos.getY(), oPos.getZ())
-				&& world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
-
-				Globals.sendPacket(new C17PacketCustomPayload(ChannelName, new IlluminatorPacket(oPos).writePacketData()));
-
+				
+				// If the current light level is below the limit...
+				if (world.getBlockLightValue(oPos.getX(), oPos.getY(), oPos.getZ()) <= SettingsIlluminator.iLowestLightLevel
+					&& world.isAirBlock(oPos.getX(), oPos.getY(), oPos.getZ())
+					&& world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
+	
+					Globals.sendPacket(new C17PacketCustomPayload(ChannelName, new IlluminatorPacket(oPos).writePacketData()));
+	
+				}
 			}
 		} else lastTorchLocation = null;
 	}
@@ -168,7 +169,7 @@ public class Illuminator {
 			IlluminatorPacket iPacket = new IlluminatorPacket();
 			iPacket.readPacketData(payLoad);
 
-			Illuminate(((NetHandlerPlayServer)event.handler).playerEntity, iPacket.oPos, EnumFacing.UP);
+			Illuminate(((NetHandlerPlayServer)event.handler).playerEntity, iPacket.oPos, iPacket.sideHit);
 		}
 	}
 
@@ -187,25 +188,35 @@ public class Illuminator {
 			ItemStack stack = player.inventory.mainInventory[i];
 			if (stack != null && stack.getItem().equals(Item.getItemFromBlock(Blocks.torch))) {
 				iTorchStackCount++;
-				if (iTorchIndx == -1) iTorchIndx = i;
+				iTorchIndx = i;
 			}
 		}
 		
 		if (iTorchIndx >= 0 && !oPos.equals(lastTorchLocation)) {
 			lastTorchLocation = new BlockPos(oPos);
 			
-        	world.setBlock(oPos.getX(), oPos.getY(), oPos.getZ(), Blocks.torch, 5, 2);
+			int torchFacing = 5;
+			if (sideHit == EnumFacing.NORTH)
+				torchFacing = 4;
+			else if (sideHit == EnumFacing.SOUTH)
+				torchFacing = 3;
+			else if (sideHit == EnumFacing.WEST)
+				torchFacing = 2;
+			else if (sideHit == EnumFacing.EAST)
+				torchFacing = 1;
+			
+        	world.setBlock(oPos.getX(), oPos.getY(), oPos.getZ(), Blocks.torch, torchFacing, 2);
         	Globals.playSound(world, Blocks.torch.stepSound, oPos);
         	
-        	player.inventory.mainInventory[iTorchIndx].stackSize--;
-        	
-			if (player.inventory.mainInventory[iTorchIndx].stackSize <= 0) {
-				player.inventory.mainInventory[iTorchIndx] = null;
+			ItemStack torchStack = player.inventory.decrStackSize(iTorchIndx, 1);
+			
+			if (torchStack.stackSize <= 0) {
 				lastTorchLocation = null;
 				iTorchStackCount--;
-				if (iTorchStackCount == 0)
-					player.addChatMessage(new ChatComponentText("§5[SuperMiner] §6Illuminator: §c" + Globals.localize("superminer.illuminator.no_torches")));
 			}
+
+			if (iTorchStackCount == 0)
+				player.addChatMessage(new ChatComponentText("§5[SuperMiner] §6Illuminator: §c" + Globals.localize("superminer.illuminator.no_torches")));
 		}
 	}
 	
@@ -233,21 +244,21 @@ public class Illuminator {
 				BlockPos oPos = new BlockPos(x, y, z);
 				
 				if (!world.isAirBlock(oPos.getX(), oPos.getY(), oPos.getZ())
-					|| !world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
+					&& !world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
 					x = (int)(iPacket.oPos.getX() - 0.5F);
 					z = (int)(iPacket.oPos.getZ() - 0.5F);
 					
 					oPos = new BlockPos(x, y, z);
 					
 					if (!world.isAirBlock(oPos.getX(), oPos.getY(), oPos.getZ())
-							|| !world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
+						&& !world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
 						x = (int)(iPacket.oPos.getX() + 0.5F);
 						z = (int)(iPacket.oPos.getZ() - 0.5F);
 
 						oPos = new BlockPos(x, y, z);
 						
 						if (!world.isAirBlock(oPos.getX(), oPos.getY(), oPos.getZ())
-								|| !world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
+							&& !world.getBlock(oPos.getX(), oPos.down().getY(), oPos.getZ()).canPlaceTorchOnTop(world, oPos.getX(), oPos.down().getY(), oPos.getZ())) {
 							x = (int)(iPacket.oPos.getX() - 0.5F);
 							z = (int)(iPacket.oPos.getZ() + 0.5F);
 
@@ -255,7 +266,7 @@ public class Illuminator {
 						}
 					}
 				}
-				
+
 				// Ensure the current light level is below the limit...
 				if (world.getBlockLightValue(oPos.getX(), oPos.getY(), oPos.getZ()) <= SettingsIlluminator.iLowestLightLevel 
 					&& world.isAirBlock(oPos.getX(), oPos.getY(), oPos.getZ())
@@ -264,32 +275,34 @@ public class Illuminator {
             }
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public static void PlaceTorch(Minecraft mc, EntityPlayer player) {
 		if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK) {
-            int x = mc.objectMouseOver.blockX;
-            int y = mc.objectMouseOver.blockY;
-            int z = mc.objectMouseOver.blockZ;
+			BlockPos oPos = new BlockPos(mc.objectMouseOver.blockX, mc.objectMouseOver.blockY, mc.objectMouseOver.blockZ);
+			if (mc.theWorld.getBlock(oPos.getX(), oPos.getY(), oPos.getZ()) != Blocks.torch) {
+				EnumFacing sideHit = EnumFacing.getFront(mc.objectMouseOver.sideHit);
+				BlockPos oSidePos = new BlockPos(oPos);
+				
+				if (sideHit == EnumFacing.DOWN)
+					return;
+				else if (sideHit == EnumFacing.UP)
+					oSidePos = oPos.up();
+				else if (sideHit == EnumFacing.NORTH)
+					oSidePos = oPos.north();
+				else if (sideHit == EnumFacing.SOUTH)
+					oSidePos = oPos.south();
+				else if (sideHit == EnumFacing.EAST)
+					oSidePos = oPos.east();
+				else if (sideHit == EnumFacing.WEST)
+					oSidePos = oPos.west();
 
-			BlockPos oPos = new BlockPos(x, y, z);
-			
-			if (mc.objectMouseOver.sideHit == EnumFacing.DOWN.getIndex())
-				return;
-			else if (mc.objectMouseOver.sideHit == EnumFacing.UP.getIndex())
-				oPos = oPos.up();
-			else if (mc.objectMouseOver.sideHit == EnumFacing.NORTH.getIndex())
-				oPos = oPos.north();
-			else if (mc.objectMouseOver.sideHit == EnumFacing.SOUTH.getIndex())
-				oPos = oPos.south();
-			else if (mc.objectMouseOver.sideHit == EnumFacing.EAST.getIndex())
-				oPos = oPos.east();
-			else if (mc.objectMouseOver.sideHit == EnumFacing.WEST.getIndex())
-				oPos = oPos.west();
-
-			BlockPos oPosDown = oPos.down();
-    		Block block = mc.theWorld.getBlock(oPosDown.getX(), oPosDown.getY(), oPosDown.getZ());
-			if (block.canPlaceTorchOnTop(mc.theWorld, oPosDown.getX(), oPosDown.getY(), oPosDown.getZ()) ||
-				block.canPlaceBlockOnSide(mc.theWorld, oPos.getX(), oPos.getY(), oPos.getZ(), mc.objectMouseOver.sideHit))
-				Illuminate(player, oPos, EnumFacing.getFromSideHit(mc.objectMouseOver.sideHit));
+				BlockPos oPosDown = oPos.down();
+	    		Block block = mc.theWorld.getBlock(oPosDown.getX(), oPosDown.getY(), oPosDown.getZ());
+				if (mc.theWorld.getBlock(oPos.getX(), oPos.getY(), oPos.getZ()).isReplaceable(mc.theWorld, oPos.getX(), oPos.getY(), oPos.getZ()) && block.isSideSolid(mc.theWorld, oPosDown.getX(), oPosDown.getY(), oPosDown.getZ(), ForgeDirection.UP))
+					Globals.sendPacket(new C17PacketCustomPayload(ChannelName, (new IlluminatorPacket(oPos, EnumFacing.UP)).writePacketData()));
+				else if (mc.theWorld.isAirBlock(oSidePos.getX(), oSidePos.getY(), oSidePos.getZ()) && block.isSideSolid(mc.theWorld, oPos.getX(), oPos.getY(), oPos.getZ(), ForgeDirection.getOrientation(sideHit.getIndex())))
+					Globals.sendPacket(new C17PacketCustomPayload(ChannelName, (new IlluminatorPacket(oSidePos, sideHit)).writePacketData()));
+			}
 		}
 	}
 }

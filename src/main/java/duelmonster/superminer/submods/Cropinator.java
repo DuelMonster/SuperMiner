@@ -206,7 +206,7 @@ public class Cropinator {
 				&& hasWaterSource(world, blockPos)) {
 				
 				world.setBlock(blockPos.getX(), blockPos.getY(), blockPos.getZ(), Blocks.farmland, 7, 2);
-	        	Globals.playSound(world, Blocks.farmland.stepSound, blockPos);
+				Globals.playSound(world, Blocks.farmland.stepSound, blockPos);
 				
 				if (blockAbove instanceof IPlantable) {
 
@@ -244,8 +244,8 @@ public class Cropinator {
 				
 				if (oBlock != null && 
 					oBlock != Blocks.air && 
-					(oBlock == Blocks.grass || oBlock == Blocks.dirt || 
-					(oBlock == Blocks.farmland && !oBlock.isFertile(world, blockPos.getX(), blockPos.getY(), blockPos.getZ()))))
+					(oBlock == Blocks.grass || oBlock == Blocks.dirt))
+					//(oBlock == Blocks.farmland && !oBlock.isFertile(world, blockPos.getX(), blockPos.getY(), blockPos.getZ()))))
 				
 					oPacket.lstPositions.offer(blockPos);
 			}

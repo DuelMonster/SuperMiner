@@ -1,4 +1,24 @@
 #### **2.1.3:**
+> | Cropinator: | ---
+> | --- | ---
+> | _FIX_: | Solved an issue that would tile aready tiled dirt that resulted in the crops being thrown out of the farmland.
+
+> | Illuminator: | ---
+> | --- | ---
+> | _FIX_: | Torch placement code changed to Client side only.  This caused a server to crash when SuperMiner was installed.  Thanks to GodsVictory for the fix.
+> | _FIX_: | Solved an infiniate torch bug.  When using the Torch placement keybind the size of the torch stack would decrease but when picking up the stack from your inventory the previous skack size would be restored.
+> | _CHANGE_: | Modified Torch placement keybind to work even when Illuminator is disabled.
+> | _CHANGE_: | Various improvments made to the placement of Torches.
+
+> | Shaftanator: | ---
+> | --- | ---
+> | _FIX_: | Solved an issue that was causing the Auto Illumination to fail when using Shaftanator.
+
+> | Substitutor: | ---
+> | --- | ---
+> | _CHANGE_: | Switch to non-damageable Tool if current Tool has same harvest speed.  This keeps you from using a Tool for unintended purposes that wastes durability.  Thanks to GodsVictory for the code change.
+
+#### **2.1.2.199:**
 > | Veinator: | ---
 > | --- | ---
 > | _FIX_: | Solved an issue that would cause loss of ores when using Veinator and a tool that is below the ores harvest level.
