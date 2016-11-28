@@ -22,7 +22,7 @@ plugins {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-group					= "duelmonster.superminer"
+group						= "duelmonster.superminer"
 archivesBaseName	= "SuperMiner"
 
 def recommended			= false
@@ -43,7 +43,7 @@ if (userGradleScript.exists()) {
 		def props = new Properties()
 		props.load(it)
 		curseForgeApiKey	= props['curseForgeApiKey'].toString()
-		modsioApiKey		= props['modsioApiKey'].toString()
+		modsioApiKey			= props['modsioApiKey'].toString()
 	}
 }
 
@@ -57,7 +57,7 @@ configFile.withReader {
 	// Get Version details
 	mod_major				= props['mod_major'].toInteger()
 	mod_minor				= props['mod_minor'].toInteger()
-	mod_revision				= props['mod_revision'].toInteger()
+	mod_revision			= props['mod_revision'].toInteger()
 	mod_prev_revision	= mod_revision
 	
 	recommended = props['recommended'].toBoolean()
@@ -154,7 +154,7 @@ processResources
 	}
 }
 
-version				= "[${project.minecraft.version}]-${project.version}"
+version			= "[${project.minecraft.version}]-${project.version}"
 def modLatest	= "[$config.mc_version]-$mod_version"
 
 sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
@@ -200,7 +200,7 @@ task updateVersionInfo << {
 	
 	JsonSlurper slurper = new JsonSlurper()
 	def forgeUpdate_slurper
-	file('..\\forge_update.json').withReader { reader -> forgeUpdate_slurper = slurper.parse(reader) }
+	file('../forge_update.json').withReader { reader -> forgeUpdate_slurper = slurper.parse(reader) }
 
 	JsonBuilder forgeUpdate_builder = new JsonBuilder( forgeUpdate_slurper )
 	
@@ -213,7 +213,7 @@ task updateVersionInfo << {
 		forgeUpdate_builder.content.promos["$mcRecom"] = modLatest
 	}
 
-	file('..\\forge_update.json').write(forgeUpdate_builder.toPrettyString())
+	file('../forge_update.json').write(forgeUpdate_builder.toPrettyString())
 
 	println "=================================================="
 	println "Version Info updated:  forge_update.json"

@@ -111,11 +111,12 @@ public class ExcavationHelper {
 								if (bHarvested && this.bAutoIlluminate() && workingPos.getY() == this.iLowestY) {
 									// Setup the Illuminator data packet
 									IlluminatorPacket iPacket = new IlluminatorPacket();
-									iPacket.oPos = new BlockPos (this.sideHit == EnumFacing.SOUTH ? workingPos.south() : 
+									iPacket.oPos = new BlockPos(workingPos);
+																/*(this.sideHit == EnumFacing.SOUTH ? workingPos.south() : 
 																(this.sideHit == EnumFacing.NORTH ? workingPos.north() : 
 																(this.sideHit == EnumFacing.EAST ? workingPos.east() : 
 																(this.sideHit == EnumFacing.WEST ? workingPos.west() : 
-																	workingPos))));
+																	workingPos))));*/
 									iPacket.playerID = player.getEntityId();
 									
 									// Add the data packet into a NBTTagCompound

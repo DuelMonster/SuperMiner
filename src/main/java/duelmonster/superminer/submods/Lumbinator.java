@@ -147,10 +147,10 @@ public class Lumbinator {
 			bShouldSyncSettings = false;
 		}
 
-		EntityPlayer player = mc.thePlayer;
+		EntityPlayer player = mc.player;
 		if (null == player) return;
 
-		World world = mc.theWorld;
+		World world = mc.world;
 		if (world != null) {
 			IBlockState state = null;
 			Block block = null;
@@ -231,7 +231,7 @@ public class Lumbinator {
 
 		ItemStack oEquippedItem = oPlayer.getHeldItemMainhand();
 		if (oEquippedItem == null
-			|| oEquippedItem.stackSize <= 0
+			|| oEquippedItem.getCount() <= 0
 			|| !Globals.isIdInList(oEquippedItem.getItem(), myGlobals.lToolIDs)
 			|| !Globals.isIdInList(block, myGlobals.lBlockIDs))
 			return false;
@@ -260,7 +260,7 @@ public class Lumbinator {
 			
 			boolean bBelowGot = false;
 			
-			while (yLevel < oPlayer.worldObj.getHeight()) {
+			while (yLevel < oPlayer.world.getHeight()) {
 				for (int xPos = iMinX; xPos <= iMaxX; xPos++)
 					for (int zPos = iMinZ; zPos <= iMaxZ; zPos++)
 						bIsTree = oTreeHelper.processPosition(currentPacket, new BlockPos(xPos, yLevel, zPos), bIsTree);
@@ -308,10 +308,10 @@ public class Lumbinator {
 				oPlayer.openContainer.detectAndSendChanges();
 			}
 			
-			Globals.stackItems(oPlayer.worldObj, oPlayer, new AxisAlignedBB(currentPacket.oPos.getX(), currentPacket.oPos.getZ(), currentPacket.oPos.getZ(), currentPacket.oPos.getX(), currentPacket.oPos.getZ(), currentPacket.oPos.getZ()).expand(8, 8, 8));
+			Globals.stackItems(oPlayer.world, oPlayer, new AxisAlignedBB(currentPacket.oPos.getX(), currentPacket.oPos.getZ(), currentPacket.oPos.getZ(), currentPacket.oPos.getX(), currentPacket.oPos.getZ(), currentPacket.oPos.getZ()).expand(8, 8, 8));
 			
 			if (SettingsLumbinator.bGatherDrops) {
-				List<Entity> list = Globals.getNearbyEntities(oPlayer.worldObj, oPlayer.getEntityBoundingBox().expand(8, 8, 8));
+				List<Entity> list = Globals.getNearbyEntities(oPlayer.world, oPlayer.getEntityBoundingBox().expand(8, 8, 8));
 				if (null != list && !list.isEmpty())
 					for (Entity entity : list)
 						if (!entity.isDead)
@@ -329,7 +329,7 @@ public class Lumbinator {
 		BlockPos blockPos = currentPacket.positions.poll();
 		if (blockPos == null) return false;
 		
-		IBlockState state = oPlayer.worldObj.getBlockState(blockPos);
+		IBlockState state = oPlayer.world.getBlockState(blockPos);
 		Block block = state.getBlock();
 		boolean bIsLeaves = state.getMaterial() == Material.LEAVES && Globals.isIdInList(block, myGlobals.lLeafIDs);
 
@@ -337,10 +337,10 @@ public class Lumbinator {
 		
 		boolean bRtrn = false;
 		// Double check that the block isn't air
-		if (!oPlayer.worldObj.isAirBlock(blockPos)) {
+		if (!oPlayer.world.isAirBlock(blockPos)) {
 			if (bIsLeaves && !SettingsLumbinator.bLeavesAffectDurability) {
 				// Set ItemStack in the current slot to null to ensure the leaves don't affect durability
-				oPlayer.inventory.setInventorySlotContents(iHeldSlot, null);
+				oPlayer.inventory.removeStackFromSlot(iHeldSlot);
 				oPlayer.openContainer.detectAndSendChanges();
 			}
 			

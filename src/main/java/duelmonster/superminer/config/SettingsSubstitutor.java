@@ -48,7 +48,7 @@ public class SettingsSubstitutor {
 		if (iCount > 0) {
 			SettingsSubstitutor.saExcludedBlockIDs = new String[iCount];
 			for (int i = 0; i < iCount; i++)
-				SettingsSubstitutor.saExcludedBlockIDs[i] = oBuffer.readStringFromBuffer(32767);
+				SettingsSubstitutor.saExcludedBlockIDs[i] = oBuffer.readString(32767);
 		}
 	}
 

@@ -58,14 +58,14 @@ public class SettingsExcavator {
 		if (iCount > 0) {
 			SettingsExcavator.lToolIDs = new ArrayList<String>(iCount);
 			for (int i = 0; i < iCount; i++)
-				SettingsExcavator.lToolIDs.add(i, oBuffer.readStringFromBuffer(32767));
+				SettingsExcavator.lToolIDs.add(i, oBuffer.readString(32767));
 		}
 		
 		iCount = oBuffer.readInt();
 		if (iCount > 0) {
 			SettingsExcavator.lShovelIDs = new ArrayList<String>(iCount);
 			for (int i = 0; i < iCount; i++)
-				SettingsExcavator.lShovelIDs.add(i, oBuffer.readStringFromBuffer(32767));
+				SettingsExcavator.lShovelIDs.add(i, oBuffer.readString(32767));
 		}
 	}
 

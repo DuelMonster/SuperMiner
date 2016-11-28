@@ -23,12 +23,12 @@ import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -61,12 +61,7 @@ public class Substitutor {
 	private static boolean bSwitchback = true;
 	private static int iSubstitueTool = -99;
 	private static int iPrevItem = -99;
-	
-	private static final int ATTACKSTAGE_NONE		= 0;
-	private static final int ATTACKSTAGE_ATTACKING	= 1;
-	private static final int ATTACKSTAGE_STOPPED	= 2;
 
-	private int attackStage = ATTACKSTAGE_NONE;
 	private EntityLivingBase entityAttacking = null;
 	
 	@Mod.EventHandler
@@ -117,13 +112,13 @@ public class Substitutor {
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
 		if (!PlayerEvents.IsPlayerInWorld() ||
-				!SettingsSubstitutor.bEnabled || 
-				!TickEvent.Phase.START.equals(event.phase) || 
-				Excavator.isExcavating() ||
-				Illuminator.isPlacingTorch() || 
-				Shaftanator.isExcavating() || 
-				Veinator.isMiningVein()) return;
-		
+			!SettingsSubstitutor.bEnabled || 
+			!TickEvent.Phase.START.equals(event.phase) || 
+			Excavator.isExcavating() ||
+			Illuminator.isPlacingTorch() || 
+			Shaftanator.isExcavating() || 
+			Veinator.isMiningVein()) return;
+	
 		Minecraft mc = FMLClientHandler.instance().getClient();
 		if (!mc.inGameHasFocus || mc.isGamePaused() || mc.playerController.isInCreativeMode()) return;
 
@@ -132,19 +127,11 @@ public class Substitutor {
 			bShouldSyncSettings = false;
 		}
 		
-		EntityPlayer player = mc.thePlayer;
+		EntityPlayer player = mc.player;
 		if (null == player || player.isDead || player.isPlayerSleeping()) return;
 
-		World world = mc.theWorld;
+		World world = mc.world;
 		if (null == world) return;
-		
-//		if (attackStage == ATTACKSTAGE_STOPPED) {
-//			//mc.thePlayer.swingArm();
-//			mc.playerController.attackEntity(mc.thePlayer, entityAttacking);
-//			attackStage = ATTACKSTAGE_NONE;
-//			entityAttacking = null;
-//			return;
-//		}
 		
 		boolean isAttacking = Globals.isAttacking(mc); 
 		if (!isAttacking && wasAttacking && bSwitchback && player.inventory.currentItem != iPrevItem) {
@@ -171,44 +158,30 @@ public class Substitutor {
 		wasAttacking = isAttacking;
 	}
 
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void onEntityAttack(AttackEntityEvent event) {
-		if (!event.getEntity().worldObj.isRemote) return;
-		
-		if (attackStage == ATTACKSTAGE_ATTACKING && entityAttacking == event.getTarget()) {
-			attackStage = ATTACKSTAGE_STOPPED;
-			event.setCanceled(true);
-		} else if (attackStage != ATTACKSTAGE_STOPPED) {
-			entityAttacking = null;
-			attackStage = ATTACKSTAGE_NONE;
-		}
-	}
-	
 	private void SubstitueTool(World world, BlockPos oPos) {
 		try {
 			iSubstitueTool = iPrevItem;
 			Minecraft mc = FMLClientHandler.instance().getClient();
-			ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
+			NonNullList<ItemStack> inventory = mc.player.inventory.mainInventory;
 			
 			// Abort Substitution if the current Item is valid for the attacking block
 			/*if (SettingsSubstitutor.bIgnoreIfValidTool
-				&& mc.thePlayer.getHeldItemMainhand() != null
-				&& mc.thePlayer.getHeldItemMainhand().canHarvestBlock(world.getBlockState(oPos)))
+				&& mc.player.getHeldItemMainhand() != null
+				&& mc.player.getHeldItemMainhand().canHarvestBlock(world.getBlockState(oPos)))
 				return;*/
 
 			for (int i = 0; i < 9; i++) {
 				if (i == iSubstitueTool) continue;
 				
-				if (inventory[i] != null && determineTool(inventory[iSubstitueTool], inventory[i], world, oPos))
+				if (inventory.get(i) != null && determineTool(inventory.get(iSubstitueTool), inventory.get(i), world, oPos))
 					iSubstitueTool = i;
 			}
 	
-			if (!SettingsSubstitutor.bIgnoreIfValidTool || !SubstitutionHelper.isSameTool(inventory[iPrevItem], inventory[iSubstitueTool])) {
-				if (mc.thePlayer.inventory.currentItem != iSubstitueTool) {
-					if (System.getProperty("DEBUG") != null) Globals.NotifyClient(" " + MODName + " = Switching item from {" + mc.thePlayer.inventory.currentItem + "} to {" + iSubstitueTool + "}");
-					mc.thePlayer.inventory.currentItem = iSubstitueTool;
-					mc.thePlayer.openContainer.detectAndSendChanges();
+			if (!SettingsSubstitutor.bIgnoreIfValidTool || !SubstitutionHelper.isSameTool(inventory.get(iPrevItem), inventory.get(iSubstitueTool))) {
+				if (mc.player.inventory.currentItem != iSubstitueTool) {
+					if (System.getProperty("DEBUG") != null) Globals.NotifyClient(" " + MODName + " = Switching item from {" + mc.player.inventory.currentItem + "} to {" + iSubstitueTool + "}");
+					mc.player.inventory.currentItem = iSubstitueTool;
+					mc.player.openContainer.detectAndSendChanges();
 
 					if (SettingsSubstitutor.bSwitchbackEnabled)
 						bSwitchback = true;
@@ -227,26 +200,22 @@ public class Substitutor {
 		if (SettingsSubstitutor.bIgnorePassiveMobs && !(entity instanceof EntityMob)) return;
 		try {
 			entityAttacking = entity;
-			attackStage = ATTACKSTAGE_ATTACKING;
 			Minecraft mc = FMLClientHandler.instance().getClient();
-			ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
+			NonNullList<ItemStack> inventory = mc.player.inventory.mainInventory;
 			int iSubstitueWeapon = iPrevItem;
 
 			for (int i = 0; i < 9; i++) {
 				if (i == iSubstitueWeapon) continue;
 
-				if (determineWeapon(inventory[iSubstitueWeapon], inventory[i], entity))
+				if (determineWeapon(inventory.get(iSubstitueWeapon), inventory.get(i), entity))
 					iSubstitueWeapon = i;
 			}
 
-			if (mc.thePlayer.inventory.currentItem != iSubstitueWeapon) {
-				if (System.getProperty("DEBUG") != null) Globals.NotifyClient(" " + MODName + " = Switching item from {" + mc.thePlayer.inventory.currentItem + "} to {" + iSubstitueWeapon + "}");
-				mc.thePlayer.inventory.currentItem = iSubstitueWeapon;
-				mc.thePlayer.openContainer.detectAndSendChanges();
+			if (mc.player.inventory.currentItem != iSubstitueWeapon) {
+				if (System.getProperty("DEBUG") != null) Globals.NotifyClient(" " + MODName + " = Switching item from {" + mc.player.inventory.currentItem + "} to {" + iSubstitueWeapon + "}");
+				mc.player.inventory.currentItem = iSubstitueWeapon;
+				mc.player.openContainer.detectAndSendChanges();
 				
-//				if (SettingsSubstitutor.bSwitchbackEnabled)
-//					bSwitchback = true;
-//				else
 				iPrevItem = iSubstitueWeapon;
 			}
 		} catch (Throwable e) {
@@ -348,10 +317,10 @@ public class Substitutor {
 			int compareWeaponHits;
 
 			if (currentWeaponDamage == 0) currentWeaponHits = Integer.MAX_VALUE;
-			else currentWeaponHits = MathHelper.ceiling_double_int(entityAttacking.getMaxHealth() / currentWeaponDamage);
+			else currentWeaponHits = MathHelper.ceil(entityAttacking.getMaxHealth() / currentWeaponDamage);
 
 			if (compareWeaponDamage == 0) compareWeaponHits = Integer.MAX_VALUE;
-			else compareWeaponHits = MathHelper.ceiling_double_int(entityAttacking.getMaxHealth() / compareWeaponDamage);
+			else compareWeaponHits = MathHelper.ceil(entityAttacking.getMaxHealth() / compareWeaponDamage);
 
 			if (compareWeaponHits < currentWeaponHits) return true;
 			else if (compareWeaponHits > currentWeaponHits) return false;

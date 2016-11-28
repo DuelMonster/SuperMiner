@@ -52,20 +52,20 @@ public class SubstitutionHelper {
 	public static float getBlockStrength(ItemStack itemstack, World world, BlockPos oPos) {
 		IBlockState state = world.getBlockState(oPos);
 		ChangeHeldItem(itemstack);
-		float strength = state.getPlayerRelativeBlockHardness(mc.thePlayer, world, oPos);
+		float strength = state.getPlayerRelativeBlockHardness(mc.player, world, oPos);
 		RestoreHeldItem();
 		return strength;
 	}
 	
 	public static int getAdjustedBlockStrength(double blockStrength){
-		return (blockStrength <= 0 ? Integer.MIN_VALUE : -MathHelper.ceiling_double_int(1D / blockStrength));
+		return (blockStrength <= 0 ? Integer.MIN_VALUE : -MathHelper.ceil(1D / blockStrength));
 	}
 	
 	public static float getEfficiency(float digSpeed, ItemStack itemstack) {
 		if (digSpeed <= 1.5F) return digSpeed;
 		
 		ChangeHeldItem(itemstack);
-		float efficiencyLevel = EnchantmentHelper.getEfficiencyModifier(mc.thePlayer);
+		float efficiencyLevel = EnchantmentHelper.getEfficiencyModifier(mc.player);
 		RestoreHeldItem();
 		
 		if (efficiencyLevel == 0) return digSpeed;
@@ -78,12 +78,12 @@ public class SubstitutionHelper {
 		Block block = state.getBlock();
 
 		ChangeHeldItem(null);
-		boolean noTool = mc.thePlayer.canHarvestBlock(state);
+		boolean noTool = mc.player.canHarvestBlock(state);
 		RestoreHeldItem();
 		if (noTool) return 0;
 
 		ChangeHeldItem(itemstack);
-		boolean canHarvest = block.canHarvestBlock(mc.theWorld, oPos, mc.thePlayer);
+		boolean canHarvest = block.canHarvestBlock(mc.world, oPos, mc.player);
 		RestoreHeldItem();
 		return (canHarvest ? 1 : -1);
 	}
@@ -95,7 +95,7 @@ public class SubstitutionHelper {
 		
 		int metadata = block.getMetaFromState(state);
 
-		boolean silkHarvest = block.canSilkHarvest(world, oPos, state, mc.thePlayer);
+		boolean silkHarvest = block.canSilkHarvest(world, oPos, state, mc.player);
 		if (!silkHarvest) return false;
 		
 		Random zeroRandom = new NotSoRandom(true);
@@ -133,23 +133,23 @@ public class SubstitutionHelper {
 	}
 	
 	private static void ChangeHeldItem(ItemStack itemstack) {
-		int iSlot = mc.thePlayer.inventory.currentItem;
+		int iSlot = mc.player.inventory.currentItem;
 		
-		prevHeldItem = mc.thePlayer.inventory.mainInventory[iSlot];
-		mc.thePlayer.inventory.mainInventory[iSlot] = itemstack;
+		prevHeldItem = mc.player.inventory.mainInventory.get(iSlot);
+		mc.player.inventory.mainInventory.set(iSlot, itemstack);
 		
-		if (prevHeldItem != null) mc.thePlayer.getAttributeMap().removeAttributeModifiers(prevHeldItem.getAttributeModifiers(null));
-		if (itemstack != null) mc.thePlayer.getAttributeMap().applyAttributeModifiers(itemstack.getAttributeModifiers(null));
+		if (prevHeldItem != null) mc.player.getAttributeMap().removeAttributeModifiers(prevHeldItem.getAttributeModifiers(null));
+		if (itemstack != null) mc.player.getAttributeMap().applyAttributeModifiers(itemstack.getAttributeModifiers(null));
 	}
 
 	private static void RestoreHeldItem() {
-		int iSlot = mc.thePlayer.inventory.currentItem;
+		int iSlot = mc.player.inventory.currentItem;
 		
-		ItemStack itemstack = mc.thePlayer.inventory.mainInventory[iSlot];
-		mc.thePlayer.inventory.mainInventory[iSlot] = prevHeldItem;
+		ItemStack itemstack = mc.player.inventory.mainInventory.get(iSlot);
+		mc.player.inventory.mainInventory.set(iSlot, prevHeldItem);
 		
-		if (itemstack != null) mc.thePlayer.getAttributeMap().removeAttributeModifiers(itemstack.getAttributeModifiers(null));
-		if (prevHeldItem != null) mc.thePlayer.getAttributeMap().applyAttributeModifiers(prevHeldItem.getAttributeModifiers(null));
+		if (itemstack != null) mc.player.getAttributeMap().removeAttributeModifiers(itemstack.getAttributeModifiers(null));
+		if (prevHeldItem != null) mc.player.getAttributeMap().applyAttributeModifiers(prevHeldItem.getAttributeModifiers(null));
 	}
 
 	private static void ChangeWorldRandom(World world, Random random) {
@@ -296,17 +296,17 @@ public class SubstitutionHelper {
 	public static double getVanillaStackDamage(ItemStack itemStack, EntityLivingBase entity) {
 		ChangeHeldItem(itemStack);
 		
-		double attackDamage = mc.thePlayer.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
+		double attackDamage = mc.player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
 		// getEnchantmentModifierDamage or getEnchantmentModifierLiving
 		double enchantModifier = EnchantmentHelper.getModifierForCreature(itemStack, entity.getCreatureAttribute());
 
 		if (attackDamage > 0.0D || enchantModifier > 0.0D) {
-			boolean isCritical = mc.thePlayer.fallDistance > 0.0F &&
-								!mc.thePlayer.onGround &&
-								!mc.thePlayer.isOnLadder() &&
-								!mc.thePlayer.isInWater() &&
-								!mc.thePlayer.isPotionActive(MobEffects.BLINDNESS) &&
-								 mc.thePlayer.getRidingEntity() == null;
+			boolean isCritical = mc.player.fallDistance > 0.0F &&
+								!mc.player.onGround &&
+								!mc.player.isOnLadder() &&
+								!mc.player.isInWater() &&
+								!mc.player.isPotionActive(MobEffects.BLINDNESS) &&
+								 mc.player.getRidingEntity() == null;
 
 			if (isCritical && attackDamage > 0) attackDamage *= 1.5D;
 
@@ -323,7 +323,7 @@ public class SubstitutionHelper {
      * @return true if at least some items were moved
      */
 	public static boolean transferStackFromTo(Container container, Minecraft mc, int slotFrom, int slotTo) {
-        EntityPlayer player = mc.thePlayer;
+        EntityPlayer player = mc.player;
 
         // Left click to take items
         mc.playerController.windowClick(container.windowId, slotFrom, 0, ClickType.PICKUP, player);
@@ -332,14 +332,14 @@ public class SubstitutionHelper {
         if (player.inventory.getItemStack() == null) return false;
 
         boolean bRtrn = true;
-        int size = player.inventory.getItemStack().stackSize;
+        int size = player.inventory.getItemStack().getCount();
 
         // Left click on the target slot to put the items to it
         mc.playerController.windowClick(container.windowId, slotTo, 0, ClickType.PICKUP, player);
 
         // If there are items left in the cursor, then return them back to the original slot
         if (player.inventory.getItemStack() != null) {
-        	bRtrn = player.inventory.getItemStack().stackSize != size;
+        	bRtrn = player.inventory.getItemStack().getCount() != size;
 
             // Left click again on the from-slot to return the rest of the items to it
             mc.playerController.windowClick(container.windowId, slotFrom, 0, ClickType.PICKUP, player);

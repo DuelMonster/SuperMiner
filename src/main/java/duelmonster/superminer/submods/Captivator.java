@@ -91,7 +91,7 @@ public class Captivator {
 				Veinator.isMiningVein()) return;
 
 		Minecraft minecraft = FMLClientHandler.instance().getClient();
-		if (minecraft.thePlayer == null || minecraft.theWorld == null || minecraft.isGamePaused()) return;
+		if (minecraft.player == null || minecraft.world == null || minecraft.isGamePaused()) return;
 		if (!SettingsCaptivator.bAllowInGUI && !minecraft.inGameHasFocus) return;
 
 		if (bShouldSyncSettings) {
@@ -99,10 +99,10 @@ public class Captivator {
 			bShouldSyncSettings = false;
 		}
 		
-		EntityPlayer player = minecraft.thePlayer;
+		EntityPlayer player = minecraft.player;
 		if (null == player || player.isDead || player.isPlayerSleeping()) return;
 
-		World world = minecraft.theWorld;
+		World world = minecraft.world;
 		if (null != world && System.currentTimeMillis() >= this.packetEnableTime && player.getHealth() > 0.0F) {
 			
 			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal));

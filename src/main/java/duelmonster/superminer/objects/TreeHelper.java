@@ -35,7 +35,7 @@ public class TreeHelper {
 		if (oFirstLeafPos != null) {
 			int yLevel = oFirstLeafPos.getY();
 
-			for (int yLeaf = yLevel; yLeaf < oPlayer.worldObj.getHeight(); yLeaf++) {
+			for (int yLeaf = yLevel; yLeaf < oPlayer.world.getHeight(); yLeaf++) {
 				String sUID = "";
 				boolean bIsValidWood = false, bIsValidLeaf = false; 
 				int iWidthPlusX = 0, iWidthMinusX = 0;
@@ -93,11 +93,11 @@ public class TreeHelper {
 	}
 	
 	public String getLeafName(SMPacket currentPacket) {
-		for (int yLeaf = currentPacket.oPos.getY() - 1; yLeaf < oPlayer.worldObj.getHeight(); yLeaf++)
+		for (int yLeaf = currentPacket.oPos.getY() - 1; yLeaf < oPlayer.world.getHeight(); yLeaf++)
 			for (int xLeaf = -1; xLeaf < 1; xLeaf++)
 				for (int zLeaf = -1; zLeaf < 1; zLeaf++) {
 					BlockPos nextPos = new BlockPos(currentPacket.oPos.getX() + xLeaf, yLeaf, currentPacket.oPos.getZ() + zLeaf);
-					IBlockState nextState = oPlayer.worldObj.getBlockState(nextPos);
+					IBlockState nextState = oPlayer.world.getBlockState(nextPos);
 					Block nextBlock = nextState.getBlock();
 					
 					if (nextState.getMaterial() == Material.LEAVES && Globals.isIdInList(nextBlock, myGlobals.lLeafIDs)) {
@@ -110,7 +110,7 @@ public class TreeHelper {
 	}
 	
 	public String getUniqueIdentifier(BlockPos oPos) {
-		IBlockState state = oPlayer.worldObj.getBlockState(oPos);
+		IBlockState state = oPlayer.world.getBlockState(oPos);
 		return getUniqueIdentifier(state, state.getBlock().getMetaFromState(state));
 	}
 	public String getUniqueIdentifier(IBlockState state, int iMetadata) {
@@ -154,7 +154,7 @@ public class TreeHelper {
 	}
 	
 	public boolean processPosition(SMPacket currentPacket, BlockPos nextPos, boolean bIsTree) {
-		IBlockState nextState = oPlayer.worldObj.getBlockState(nextPos);
+		IBlockState nextState = oPlayer.world.getBlockState(nextPos);
 		Block nextBlock = nextState.getBlock();
 
 		if (nextBlock != null && nextBlock != Blocks.AIR && ensureIsConnectedToTree(currentPacket, nextPos)) {

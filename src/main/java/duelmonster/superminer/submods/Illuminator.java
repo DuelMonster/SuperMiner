@@ -97,16 +97,16 @@ public class Illuminator {
 			bShouldSyncSettings = false;
 		}
 
-		EntityPlayer player = mc.thePlayer;
+		EntityPlayer player = mc.player;
 		if (null == player || player.isDead || player.isPlayerSleeping()) return;
 
-		World world = mc.theWorld;
+		World world = mc.world;
 		if (world != null) {
 			if (KeyBindings.illuminator_place.isPressed())
 				Illuminator.PlaceTorch(mc, player);
 			else if (bIsPlacingTorch)
 				bIsPlacingTorch = false;
-			else if (SettingsIlluminator.bEnabled || Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
+			else if (SettingsIlluminator.bEnabled && Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
 			
 				int x = (int)(player.getEntityBoundingBox().minX + 0.5F);
 				int y = (int)player.getEntityBoundingBox().minY;
@@ -190,8 +190,8 @@ public class Illuminator {
 		int iTorchIndx = -1;
 		
 		// Locate the players torches
-		for (int i = 0; i < player.inventory.mainInventory.length; i++) {
-			ItemStack stack = player.inventory.mainInventory[i];
+		for (int i = 0; i < player.inventory.mainInventory.size(); i++) {
+			ItemStack stack = player.inventory.mainInventory.get(i);
 			if (stack != null && stack.getItem().equals(Item.getItemFromBlock(Blocks.TORCH))) {
 				iTorchStackCount++;
 				iTorchIndx = player.inventory.getSlotFor(stack);
@@ -199,8 +199,8 @@ public class Illuminator {
 		}
 		
 		if (iTorchIndx == -1) {
-			for (int i = 0; i < player.inventory.offHandInventory.length; i++) {
-				ItemStack stack = player.inventory.offHandInventory[i];
+			for (int i = 0; i < player.inventory.offHandInventory.size(); i++) {
+				ItemStack stack = player.inventory.offHandInventory.get(i);
 				if (stack != null && stack.getItem().equals(Item.getItemFromBlock(Blocks.TORCH))) {
 					iTorchStackCount++;
 					iTorchIndx = player.inventory.getSlotFor(stack);
@@ -216,13 +216,13 @@ public class Illuminator {
         	
 			ItemStack torchStack = player.inventory.decrStackSize(iTorchIndx, 1);
 			
-			if (torchStack.stackSize <= 0) {
+			if (torchStack.getCount() <= 0) {
 				lastTorchLocation = null;
 				iTorchStackCount--;
 			}
 
 			if (iTorchStackCount == 0)
-				player.addChatMessage(new TextComponentString("§5[SuperMiner] §6Illuminator: §c" + Globals.localize("superminer.illuminator.no_torches")));
+				player.sendMessage(new TextComponentString("§5[SuperMiner] §6Illuminator: §c" + Globals.localize("superminer.illuminator.no_torches")));
 		}
 	}
 	
@@ -289,7 +289,7 @@ public class Illuminator {
 	public static void PlaceTorch(Minecraft mc, EntityPlayer player) {
 		if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
 			BlockPos oPos = mc.objectMouseOver.getBlockPos();
-			if (mc.theWorld.getBlockState(oPos).getBlock() != Blocks.TORCH) {
+			if (mc.world.getBlockState(oPos).getBlock() != Blocks.TORCH) {
 				EnumFacing sideHit = mc.objectMouseOver.sideHit;
 				BlockPos oSidePos = mc.objectMouseOver.getBlockPos();
 				
@@ -306,9 +306,9 @@ public class Illuminator {
 				else if (sideHit == EnumFacing.WEST)
 					oSidePos = oPos.west();
 	
-				if (mc.theWorld.getBlockState(oPos).getBlock().isReplaceable(mc.theWorld, oPos) && mc.theWorld.getBlockState(oPos.down()).isSideSolid(mc.theWorld, oPos.down(), EnumFacing.UP))
+				if (mc.world.getBlockState(oPos).getBlock().isReplaceable(mc.world, oPos) && mc.world.getBlockState(oPos.down()).isSideSolid(mc.world, oPos.down(), EnumFacing.UP))
 					Globals.sendPacket(new CPacketCustomPayload(ChannelName, (new IlluminatorPacket(oPos, EnumFacing.UP)).writePacketData()));
-				else if (mc.theWorld.isAirBlock(oSidePos) && mc.theWorld.getBlockState(oPos).isSideSolid(mc.theWorld, oPos, sideHit))
+				else if (mc.world.isAirBlock(oSidePos) && mc.world.getBlockState(oPos).isSideSolid(mc.world, oPos, sideHit))
 					Globals.sendPacket(new CPacketCustomPayload(ChannelName, (new IlluminatorPacket(oSidePos, sideHit)).writePacketData()));
 			}
 		}

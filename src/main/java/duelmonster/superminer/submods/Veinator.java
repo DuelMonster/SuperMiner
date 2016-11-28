@@ -168,10 +168,10 @@ public class Veinator {
 			bShouldSyncSettings = false;
 		}
 		
-		EntityPlayer player = mc.thePlayer;
+		EntityPlayer player = mc.player;
 		if (null == player || player.isDead || player.isPlayerSleeping()) return;
 
-		World world = mc.theWorld;
+		World world = mc.world;
 		if (world != null) {
 			
 			IBlockState state = null;
@@ -261,20 +261,18 @@ public class Veinator {
 		myGlobals.clearHistory();
 	}
 
-	@SuppressWarnings("deprecation")
 	private static boolean isAllowedToMine(EntityPlayer player, SMPacket p) {
-        IBlockState state = player.worldObj.getBlockState(p.oPos);
+        IBlockState state = player.world.getBlockState(p.oPos);
 		Block block = state.getBlock();
 		if (null == block || Blocks.AIR == block || Blocks.BEDROCK == block) return false;
 
-        state = block.getActualState(state, player.worldObj, p.oPos);
 		ItemStack oEquippedItem = player.getHeldItemMainhand();
 		if (state.getMaterial().isToolNotRequired() ||
 			oEquippedItem == null || 
-			oEquippedItem.stackSize <= 0 ||
+			oEquippedItem.getCount() <= 0 ||
 			!Globals.isIdInList(oEquippedItem.getItem(), myGlobals.lToolIDs) ||
 			!oEquippedItem.canHarvestBlock(state) ||
-			!ForgeHooks.canToolHarvestBlock(player.worldObj, p.oPos, oEquippedItem)) return false;
+			!ForgeHooks.canToolHarvestBlock(player.world, p.oPos, oEquippedItem)) return false;
 
 		if (p.flag_rs) return Globals.isIdInList(Blocks.REDSTONE_ORE, myGlobals.lBlockIDs) || Globals.isIdInList(Blocks.LIT_REDSTONE_ORE, myGlobals.lBlockIDs);
 

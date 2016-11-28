@@ -31,14 +31,14 @@ public class SettingsVeinator {
 		if (iCount > 0) {
 			SettingsVeinator.lToolIDs = new ArrayList<String>(iCount);
 			for (int i = 0; i < iCount; i++)
-				SettingsVeinator.lToolIDs.add(i, oBuffer.readStringFromBuffer(32767));
+				SettingsVeinator.lToolIDs.add(i, oBuffer.readString(32767));
 		}
 		
 		iCount = oBuffer.readInt();
 		if (iCount > 0) {
 			SettingsVeinator.lOreIDs = new ArrayList<String>(iCount);
 			for (int i = 0; i < iCount; i++)
-				SettingsVeinator.lOreIDs.add(i, oBuffer.readStringFromBuffer(32767));
+				SettingsVeinator.lOreIDs.add(i, oBuffer.readString(32767));
 		}
 	}
 
