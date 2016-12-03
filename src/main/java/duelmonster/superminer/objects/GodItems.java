@@ -62,7 +62,7 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 
 		// Sword: "/give @p 276 1 0 {Unbreakable:1,ench:[{id:16,lvl:10},{id:21,lvl:10}]}"
 		oItemStack = new ItemStack(Items.DIAMOND_SWORD);
@@ -74,7 +74,7 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		
 		// Pickaxe: "/give @p 278 1 0 {Unbreakable:1,ench:[{id:32,lvl:6},{id:35,lvl:10}]}"
 		oItemStack = new ItemStack(Items.DIAMOND_PICKAXE);
@@ -86,7 +86,7 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		
 		// Pickaxe: "/give @p 278 1 0 {Unbreakable:1,ench:[{id:32,lvl:6},{id:33,lvl:1}]}"
 		oItemStack = new ItemStack(Items.DIAMOND_PICKAXE);
@@ -98,7 +98,7 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		
 		// Bow: "/give @p 261 1 0 {Unbreakable:1,ench:[{id:48,lvl:10},{id:50,lvl:10},{id:51,lvl:10}]}"   -   KnockBack = ",{id:49,lvl:10}"
 		oItemStack = new ItemStack(Items.BOW);
@@ -111,13 +111,13 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		// Single Arrow: /give @p 262 1
 		oItemStack = new ItemStack(Items.ARROW);
 		oItemStack.stackSize = 1;
 		oItemStack.setStackDisplayName("Firestarter Ammo");
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		
 		// Shovel: "/give @p 277 1 0 {Unbreakable:1,ench:[{id:32,lvl:10},{id:35,lvl:10}]}"
 		oItemStack = new ItemStack(Items.DIAMOND_SHOVEL);
@@ -129,7 +129,7 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		
 		// Axe: "/give @p 279 1 0 {Unbreakable:1,ench:[{id:32,lvl:10},{id:35,lvl:10}]}"
 		oItemStack = new ItemStack(Items.DIAMOND_AXE);
@@ -141,7 +141,7 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		
 		// Helmet: "/give @p 310 1 0 {Unbreakable:1,ench:[{id:0,lvl:10},{id:1,lvl:10},{id:5,lvl:10},{id:6,lvl:1}]}"
 		oItemStack = new ItemStack(Items.DIAMOND_HELMET);
@@ -155,7 +155,7 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		
 		// Chestplate: "/give @p 311 1 0 {Unbreakable:1,ench:[{id:0,lvl:10},{id:1,lvl:10}]}"
 		oItemStack = new ItemStack(Items.DIAMOND_CHESTPLATE);
@@ -167,7 +167,7 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		
 		// Leggings: "/give @p 312 1 0 {Unbreakable:1,ench:[{id:0,lvl:10},{id:1,lvl:10}]}"
 		oItemStack = new ItemStack(Items.DIAMOND_LEGGINGS);
@@ -179,7 +179,7 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		
 		// Boots: "/give @p 313 1 0 {Unbreakable:1,ench:[{id:0,lvl:10},{id:1,lvl:10},{id:2,lvl:10}]}"
 		oItemStack = new ItemStack(Items.DIAMOND_BOOTS);
@@ -193,7 +193,7 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 
 		// Fishing Rod: "/give @p 346 64 0 {Unbreakable:1,ench:[{id:61,lvl:100},{id:62,lvl:8}]}"
 		oItemStack = new ItemStack(Items.FISHING_ROD);
@@ -205,7 +205,7 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 
 		// Fishing Rod: "/give @p 346 64 0 {Unbreakable:1,ench:[{id:62,lvl:8}]}"
 		oItemStack = new ItemStack(Items.FISHING_ROD);
@@ -216,7 +216,7 @@ public class GodItems {
 			oItemStack.setTagCompound(new NBTTagCompound());
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
-		world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		
 		// Hoe: "/give @p 293 1 0 {Unbreakable:1}"
 		// Shears: "/give @p 359 1 0 {Unbreakable:1,ench:[{id:32,lvl:10}]}"

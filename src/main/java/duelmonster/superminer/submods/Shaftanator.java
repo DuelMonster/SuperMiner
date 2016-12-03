@@ -117,10 +117,10 @@ public class Shaftanator {
 			bShouldSyncSettings = false;
 		}
 		
-		EntityPlayer player = mc.thePlayer;
+		EntityPlayer player = mc.player;
 		if (null == player || player.isDead || player.isPlayerSleeping()) return;
 		
-		World world = mc.theWorld;
+		World world = mc.world;
 		if (world != null) {
 			
 			bToggled = KeyBindings.shaftanator_toggle.isKeyDown();

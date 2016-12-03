@@ -45,21 +45,21 @@ public class SettingsLumbinator {
 		if (iCount > 0) {
 			SettingsLumbinator.lToolIDs = new ArrayList<String>(iCount);
 			for (int i = 0; i < iCount; i++)
-				SettingsLumbinator.lToolIDs.add(i, oBuffer.readStringFromBuffer(32767));
+				SettingsLumbinator.lToolIDs.add(i, oBuffer.readString(32767));
 		}
 		
 		iCount = oBuffer.readInt();
 		if (iCount > 0) {
 			SettingsLumbinator.lWoodIDs = new ArrayList<String>(iCount);
 			for (int i = 0; i < iCount; i++)
-				SettingsLumbinator.lWoodIDs.add(i, oBuffer.readStringFromBuffer(32767));
+				SettingsLumbinator.lWoodIDs.add(i, oBuffer.readString(32767));
 		}
 		
 		iCount = oBuffer.readInt();
 		if (iCount > 0) {
 			SettingsLumbinator.lLeafIDs = new ArrayList<String>(iCount);
 			for (int i = 0; i < iCount; i++)
-				SettingsLumbinator.lLeafIDs.add(i, oBuffer.readStringFromBuffer(32767));
+				SettingsLumbinator.lLeafIDs.add(i, oBuffer.readString(32767));
 		}
 	}
 

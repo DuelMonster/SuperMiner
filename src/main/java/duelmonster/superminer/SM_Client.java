@@ -20,9 +20,9 @@ public class SM_Client extends SM_Proxy {
   
   public boolean isClientSideAvailable() { return true; }
   
-  public EntityPlayer getClientPlayer() { return FMLClientHandler.instance().getClient().thePlayer; }
+  public EntityPlayer getClientPlayer() { return FMLClientHandler.instance().getClient().player; }
   
-  public World getClientWorld() { return FMLClientHandler.instance().getClient().theWorld; }
+  public World getClientWorld() { return FMLClientHandler.instance().getClient().world; }
   
   public void exectuteClientCode(IClientCode clientCode) {
     clientCode.exectuteClientCode();
