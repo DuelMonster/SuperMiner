@@ -34,7 +34,7 @@ public class SettingsCaptivator {
 		if (iCount > 0) {
 			SettingsCaptivator.lItemIDs = new String[iCount];
 			for (int i = 0; i < iCount; i++)
-				SettingsCaptivator.lItemIDs[i] = oBuffer.readStringFromBuffer(32767);
+				SettingsCaptivator.lItemIDs[i] = oBuffer.readString(32767);
 		}
 	}
 

@@ -25,6 +25,7 @@ import net.minecraft.block.BlockRotatedPillar;
 import net.minecraft.block.BlockStone;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
@@ -42,12 +43,10 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryNamespaced;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
-@SuppressWarnings("deprecation")
 public class Globals {
     private static Gson gson = new Gson();
     
@@ -309,8 +308,10 @@ public class Globals {
 	}
 
 	public static String localize(String key) {
-		if (I18n.canTranslate(key)) return I18n.translateToLocal(key);
-		else return I18n.translateToFallback(key);
+		if (I18n.hasKey(key))
+			return I18n.format(key);
+		else
+			return key;
 	}
 	
     public static boolean isWithinRange(BlockPos sourcePos, BlockPos targetPos, int range) {

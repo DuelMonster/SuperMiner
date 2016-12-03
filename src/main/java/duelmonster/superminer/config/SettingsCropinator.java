@@ -29,7 +29,7 @@ public class SettingsCropinator {
 		if (iCount > 0) {
 			SettingsCropinator.lHoeIDs = new ArrayList<String>(iCount);
 			for (int i = 0; i < iCount; i++)
-				SettingsCropinator.lHoeIDs.add(i, oBuffer.readStringFromBuffer(32767));
+				SettingsCropinator.lHoeIDs.add(i, oBuffer.readString(32767));
 		}
 	}
 

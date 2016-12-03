@@ -157,10 +157,10 @@ public class Excavator {
 			bShouldSyncSettings = false;
 		}
 
-		EntityPlayer player = mc.thePlayer;
+		EntityPlayer player = mc.player;
 		if (null == player || player.isDead || player.isPlayerSleeping()) return;
 		
-		World world = mc.theWorld;
+		World world = mc.world;
 		if (world != null) {
 			
 			bToggled = KeyBindings.excavator_toggle.isKeyDown();
@@ -324,7 +324,7 @@ public class Excavator {
 					curItem.damageItem(1, player);
 
 				if (curItem.getMaxDamage() <= 0) {
-					player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+					player.inventory.removeStackFromSlot(player.inventory.currentItem);
 					player.openContainer.detectAndSendChanges();
 					break;
 				}

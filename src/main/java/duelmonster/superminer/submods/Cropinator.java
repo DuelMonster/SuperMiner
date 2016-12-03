@@ -112,17 +112,17 @@ public class Cropinator {
 				!TickEvent.Phase.END.equals(event.phase)) return;
 
 		Minecraft mc = FMLClientHandler.instance().getClient();
-		if (mc.thePlayer == null || mc.theWorld == null || mc.isGamePaused() || !mc.inGameHasFocus) return;
+		if (mc.player == null || mc.world == null || mc.isGamePaused() || !mc.inGameHasFocus) return;
 
 		if (bShouldSyncSettings) {
 			Globals.sendPacket(new CPacketCustomPayload(ChannelName, SettingsCropinator.writePacketData()));
 			bShouldSyncSettings = false;
 		}
 		
-		EntityPlayer player = mc.thePlayer;
+		EntityPlayer player = mc.player;
 		if (null == player || player.isDead || player.isPlayerSleeping()) return;
 		
-		World world = mc.theWorld;
+		World world = mc.world;
 		if (world != null) {
 			
 			IBlockState state = null;
@@ -224,7 +224,7 @@ public class Cropinator {
 					curItem.damageItem(1, player);
 				
 				if (curItem.getMaxDamage() <= 0) {
-					player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+					player.inventory.removeStackFromSlot(player.inventory.currentItem);
 					player.openContainer.detectAndSendChanges();
 					break;
 				}
@@ -317,7 +317,7 @@ public class Cropinator {
 					curItem.damageItem(1, player);
 				
 				if (curItem.getMaxDamage() <= 0) {
-					player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+					player.inventory.removeStackFromSlot(player.inventory.currentItem);
 					player.openContainer.detectAndSendChanges();
 					break;
 				}
