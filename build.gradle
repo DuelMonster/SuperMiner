@@ -22,18 +22,18 @@ plugins {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-group						= "duelmonster.superminer"
+group			= "duelmonster.superminer"
 archivesBaseName	= "SuperMiner"
 
-def recommended			= false
-def mod_major				= 0
-def mod_minor				= 0
-def mod_revision			= 0
+def recommended		= false
+def mod_major		= 0
+def mod_minor		= 0
+def mod_revision	= 0
 def mod_prev_revision	= 0
-def mod_build				= 0
-def curseId					= ''
-def curseForgeApiKey		= ''
-def modsioApiKey			= ''
+def mod_build		= 0
+def curseId		= ''
+def curseForgeApiKey	= ''
+def modsioApiKey	= ''
 
 def userGradleScript = file("..\\${System.getProperty("user.name")}.properties") 
 if (userGradleScript.exists()) { 
@@ -43,7 +43,7 @@ if (userGradleScript.exists()) {
 		def props = new Properties()
 		props.load(it)
 		curseForgeApiKey	= props['curseForgeApiKey'].toString()
-		modsioApiKey			= props['modsioApiKey'].toString()
+		modsioApiKey		= props['modsioApiKey'].toString()
 	}
 }
 
@@ -55,9 +55,9 @@ configFile.withReader {
 	props.load(it)
 	
 	// Get Version details
-	mod_major				= props['mod_major'].toInteger()
-	mod_minor				= props['mod_minor'].toInteger()
-	mod_revision			= props['mod_revision'].toInteger()
+	mod_major		= props['mod_major'].toInteger()
+	mod_minor		= props['mod_minor'].toInteger()
+	mod_revision		= props['mod_revision'].toInteger()
 	mod_prev_revision	= mod_revision
 	
 	recommended = props['recommended'].toBoolean()
@@ -125,7 +125,7 @@ task processVersion (type: Copy) {
 	from('src/main/java')
 	into modSource
 	
-	expand	'mc_version'		:project.config.mc_version, 
+	expand	'mc_version'	:project.config.mc_version, 
 				'forge_version'	:project.config.forge_version, 
 				'mod_version'	:project.version
 }
@@ -141,7 +141,7 @@ processResources
 		include 'mcmod.info'
 		
 		// replace version info
-		expand	'mc_version'		:project.config.mc_version, 
+		expand	'mc_version'	:project.config.mc_version, 
 					'forge_version'	:project.config.forge_version, 
 					'mod_version'	:project.version
 	}
@@ -154,8 +154,8 @@ processResources
 	}
 }
 
-version			= "[${project.minecraft.version}]-${project.version}"
-def modLatest	= "[$config.mc_version]-$mod_version"
+version		= "[${project.minecraft.version}]-${project.version}"
+def modLatest	= "$mod_version" //"[$config.mc_version]-$mod_version"
 
 sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
 

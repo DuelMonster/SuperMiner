@@ -1,3 +1,16 @@
+#### **2.1.5:**
+> | Illuminator: | ---
+> | --- | ---
+> | _FIX_: | Solved an issue that caused a torch to be placed while walking, regardless of whether or not your are using a tool.
+
+> | Substitutor: | ---
+> | --- | ---
+> | _FIX_: | Sovled an issue that caused using tools to stop working on a laptops mouse pad.
+
+> | Veinator: | ---
+> | --- | ---
+> | _FIX_: | Rewrote Ore Vein detection algorithm to solve an issue that caused Veinator to only drop a maximum of 2 ore blocks of a vein.
+
 #### **2.1.4:**
 > | Cropinator: | ---
 > | --- | ---

@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import duelmonster.superminer.SuperMiner_Core;
 import duelmonster.superminer.config.SettingsExcavator;
 import duelmonster.superminer.config.SettingsShaftanator;
+import duelmonster.superminer.config.SettingsVeinator;
 import duelmonster.superminer.network.packets.IlluminatorPacket;
 import duelmonster.superminer.network.packets.SMPacket;
 import duelmonster.superminer.submods.Shaftanator;
@@ -111,12 +112,9 @@ public class ExcavationHelper {
 								if (bHarvested && this.bAutoIlluminate() && workingPos.getY() == this.iLowestY) {
 									// Setup the Illuminator data packet
 									IlluminatorPacket iPacket = new IlluminatorPacket();
-									iPacket.oPos = new BlockPos(workingPos);
-																/*(this.sideHit == EnumFacing.SOUTH ? workingPos.south() : 
-																(this.sideHit == EnumFacing.NORTH ? workingPos.north() : 
-																(this.sideHit == EnumFacing.EAST ? workingPos.east() : 
-																(this.sideHit == EnumFacing.WEST ? workingPos.west() : 
-																	workingPos))));*/
+									iPacket.oPos = new BlockPos( this.sideHit == EnumFacing.EAST ? workingPos.north() : 
+																(this.sideHit == EnumFacing.WEST ? workingPos.north() : 
+																 workingPos));
 									iPacket.playerID = player.getEntityId();
 									
 									// Add the data packet into a NBTTagCompound
@@ -462,12 +460,25 @@ public class ExcavationHelper {
 		}
 	}
 
-	public void FinalizeExcavation() {
-//		Globals.stackItems(world, player, 
-//				AxisAlignedBB.fromBounds(	oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ(), 
-//											oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ()
-//										).expand(SettingsExcavator.iBlockRadius + 2, SettingsExcavator.iBlockRadius + 2, SettingsExcavator.iBlockRadius + 2));
+ 	public void getOreVein() {
+		oPositions.offer(oInitialPos);
 		
+		BlockPos oPos;
+					
+		for (int iSearchRadius = 1; iSearchRadius <= 8; iSearchRadius++)
+			for (int zOffset = -iSearchRadius; zOffset <= iSearchRadius; zOffset++)
+				for (int xOffset = -iSearchRadius; xOffset <= iSearchRadius; xOffset++)
+					for (int yOffset = -iSearchRadius; yOffset <= iSearchRadius; yOffset++) {
+						oPos = new BlockPos(oInitialPos.getX() + xOffset, oInitialPos.getY() + yOffset, oInitialPos.getZ() + zOffset);
+						
+						if (Globals.checkBlock(world.getBlockState(oPos), oPacket)) {
+							AddCoordsToList(oPos);
+						}
+					}
+		
+	}	
+	
+	public void FinalizeExcavation() {
 		if (SettingsExcavator.bGatherDrops) {
 			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(SettingsExcavator.iBlockRadius + 2, SettingsExcavator.iBlockRadius + 2, SettingsExcavator.iBlockRadius + 2));
 			if (null != list && !list.isEmpty())
@@ -478,18 +489,6 @@ public class ExcavationHelper {
 	}
 	
 	public void FinalizeShaft() {
-//		Globals.stackItems(	world, player, 
-//				AxisAlignedBB.fromBounds(	(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH 
-//												? iWidthStart : iLengthStart), 
-//											iFeetPos, 
-//											(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH 
-//													? iLengthStart : iWidthStart), 
-//											(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH 
-//													? iWidthEnd : iLengthEnd),
-//											iFeetPos + SettingsShaftanator.iShaftHeight, 
-//											(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH 
-//													? iLengthEnd : iWidthEnd)));
-		
 		if (SettingsShaftanator.bGatherDrops) {
 			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(	(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH
 																											? SettingsShaftanator.iShaftWidth + 2 : SettingsShaftanator.iShaftLength + 4), 
@@ -500,5 +499,17 @@ public class ExcavationHelper {
 				for (Entity entity : list)
 					if (!entity.isDead)
 						entity.setPosition(oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ());
-		}	}
+		}
+	}
+
+	public void FinalizeVeination() {
+		if (SettingsVeinator.bGatherDrops) {
+			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(16, 16, 16));
+			if (null != list && !list.isEmpty())
+				for (Entity entity : list)
+					if (!entity.isDead)
+						entity.setPosition(oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ());
+		}
+	}
+	
 }
