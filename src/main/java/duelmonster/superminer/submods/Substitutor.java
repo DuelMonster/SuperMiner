@@ -27,7 +27,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -60,12 +59,7 @@ public class Substitutor {
 	private static boolean bSwitchback = true;
 	private static int iSubstitueTool = -99;
 	private static int iPrevItem = -99;
-	
-	private static final int ATTACKSTAGE_NONE		= 0;
-	private static final int ATTACKSTAGE_ATTACKING	= 1;
-	private static final int ATTACKSTAGE_STOPPED	= 2;
 
-	private int attackStage = ATTACKSTAGE_NONE;
 	private EntityLivingBase entityAttacking = null;
 	
 	@Mod.EventHandler
@@ -116,13 +110,13 @@ public class Substitutor {
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
 		if (!PlayerEvents.IsPlayerInWorld() ||
-				!SettingsSubstitutor.bEnabled || 
-				!TickEvent.Phase.START.equals(event.phase) || 
-				Excavator.isExcavating() ||
-				Illuminator.isPlacingTorch() || 
-				Shaftanator.isExcavating() || 
-				Veinator.isMiningVein()) return;
-		
+			!SettingsSubstitutor.bEnabled || 
+			!TickEvent.Phase.START.equals(event.phase) || 
+			Excavator.isExcavating() ||
+			Illuminator.isPlacingTorch() || 
+			Shaftanator.isExcavating() || 
+			Veinator.isMiningVein()) return;
+	
 		Minecraft mc = FMLClientHandler.instance().getClient();
 		if (!mc.inGameHasFocus || mc.isGamePaused() || mc.playerController.isInCreativeMode()) return;
 
@@ -136,14 +130,6 @@ public class Substitutor {
 
 		World world = mc.theWorld;
 		if (null == world) return;
-		
-//		if (attackStage == ATTACKSTAGE_STOPPED) {
-//			//mc.thePlayer.swingArm();
-//			mc.playerController.attackEntity(mc.thePlayer, entityAttacking);
-//			attackStage = ATTACKSTAGE_NONE;
-//			entityAttacking = null;
-//			return;
-//		}
 		
 		boolean isAttacking = Globals.isAttacking(mc); 
 		if (!isAttacking && wasAttacking && bSwitchback && player.inventory.currentItem != iPrevItem) {
@@ -170,20 +156,6 @@ public class Substitutor {
 		wasAttacking = isAttacking;
 	}
 
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void onEntityAttack(AttackEntityEvent event) {
-		if (!event.entity.worldObj.isRemote) return;
-		
-		if (attackStage == ATTACKSTAGE_ATTACKING && entityAttacking == event.target) {
-			attackStage = ATTACKSTAGE_STOPPED;
-			event.setCanceled(true);
-		} else if (attackStage != ATTACKSTAGE_STOPPED) {
-			entityAttacking = null;
-			attackStage = ATTACKSTAGE_NONE;
-		}
-	}
-	
 	private void SubstitueTool(World world, BlockPos oPos) {
 		try {
 			iSubstitueTool = iPrevItem;
@@ -225,7 +197,6 @@ public class Substitutor {
 		if (SettingsSubstitutor.bIgnorePassiveMobs && !(entity instanceof EntityMob)) return;
 		try {
 			entityAttacking = entity;
-			attackStage = ATTACKSTAGE_ATTACKING;
 			Minecraft mc = FMLClientHandler.instance().getClient();
 			ItemStack[] inventory = mc.thePlayer.inventory.mainInventory;
 			int iSubstitueWeapon = iPrevItem;
@@ -242,9 +213,6 @@ public class Substitutor {
 				mc.thePlayer.inventory.currentItem = iSubstitueWeapon;
 				mc.thePlayer.openContainer.detectAndSendChanges();
 				
-//				if (SettingsSubstitutor.bSwitchbackEnabled)
-//					bSwitchback = true;
-//				else
 				iPrevItem = iSubstitueWeapon;
 			}
 		} catch (Throwable e) {

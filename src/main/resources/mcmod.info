@@ -12,8 +12,6 @@
         "logoFile": "assets/superminer/SuperMiner.png",
         "screenshots": [],
         "parent": "",
-        "requiredMods": ["Forge"],
-        "dependencies": ["Forge"],
         "dependants": [ "superminer_captivator","superminer_cropinator","superminer_excavator","superminer_illuminator","superminer_lumbinator","superminer_shaftanator","superminer_substitutor","superminer_veinator" ],
         "useDependencyInformation": true
     },{
@@ -27,8 +25,8 @@
         "logoFile": "assets/superminer/logo_captivator.png",
         "screenshots": [],
         "parent": "superminer_core",
-        "requiredMods": ["Forge", "superminer_core"],
-        "dependencies": ["Forge", "superminer_core"],
+        "requiredMods": ["superminer_core"],
+        "dependencies": ["superminer_core"],
         "useDependencyInformation": true
     },{
         "modid": "superminer_cropinator",
@@ -41,8 +39,8 @@
         "logoFile": "assets/superminer/logo_captivator.png",
         "screenshots": [],
         "parent": "superminer_core",
-        "requiredMods": ["Forge", "superminer_core"],
-        "dependencies": ["Forge", "superminer_core"],
+        "requiredMods": ["superminer_core"],
+        "dependencies": ["superminer_core"],
         "useDependencyInformation": true
     },{
         "modid": "superminer_excavator",
@@ -55,8 +53,8 @@
         "logoFile": "assets/superminer/logo_excavator.png",
         "screenshots": [],
         "parent": "superminer_core",
-        "requiredMods": ["Forge", "superminer_core"],
-        "dependencies": ["Forge", "superminer_core"],
+        "requiredMods": ["superminer_core"],
+        "dependencies": ["superminer_core"],
         "useDependencyInformation": true
     },{
         "modid": "superminer_illuminator",
@@ -69,8 +67,8 @@
         "logoFile": "assets/superminer/logo_illuminator.png",
         "screenshots": [],
         "parent": "superminer_core",
-        "requiredMods": ["Forge", "superminer_core"],
-        "dependencies": ["Forge", "superminer_core"],
+        "requiredMods": ["superminer_core"],
+        "dependencies": ["superminer_core"],
         "useDependencyInformation": true
     },{
         "modid": "superminer_lumbinator",
@@ -83,8 +81,8 @@
         "logoFile": "assets/superminer/logo_lumbinator.png",
         "screenshots": [],
         "parent": "superminer_core",
-        "requiredMods": ["Forge", "superminer_core"],
-        "dependencies": ["Forge", "superminer_core"],
+        "requiredMods": ["superminer_core"],
+        "dependencies": ["superminer_core"],
         "useDependencyInformation": true
     },{
         "modid": "superminer_shaftanator",
@@ -97,8 +95,8 @@
         "logoFile": "assets/superminer/logo_shaftanator.png",
         "screenshots": [],
         "parent": "superminer_core",
-        "requiredMods": ["Forge", "superminer_core"],
-        "dependencies": ["Forge", "superminer_core"],
+        "requiredMods": ["superminer_core"],
+        "dependencies": ["superminer_core"],
         "useDependencyInformation": true
     },{
         "modid": "superminer_substitutor",
@@ -111,8 +109,8 @@
         "logoFile": "assets/superminer/logo_substitutor.png",
         "screenshots": [],
         "parent": "superminer_core",
-        "requiredMods": ["Forge", "superminer_core"],
-        "dependencies": ["Forge", "superminer_core"],
+        "requiredMods": ["superminer_core"],
+        "dependencies": ["superminer_core"],
         "useDependencyInformation": true
     },{
         "modid": "superminer_veinator",
@@ -125,8 +123,8 @@
         "logoFile": "assets/superminer/logo_veinator.png",
         "screenshots": [],
         "parent": "superminer_core",
-        "requiredMods": ["Forge", "superminer_core"],
-        "dependencies": ["Forge", "superminer_core"],
+        "requiredMods": ["superminer_core"],
+        "dependencies": ["superminer_core"],
         "useDependencyInformation": true
     }]
 }
