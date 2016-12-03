@@ -22,18 +22,18 @@ plugins {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-group = "duelmonster.superminer"
-archivesBaseName = "SuperMiner"
+group			= "duelmonster.superminer"
+archivesBaseName	= "SuperMiner"
 
-def recommended = false
-def mod_major = 0
-def mod_minor = 0
-def mod_revision = 0
-def mod_prev_revision = 0
-def mod_build = 0
-def curseId = ''
-def curseForgeApiKey = ''
-def modsioApiKey = ''
+def recommended		= false
+def mod_major		= 0
+def mod_minor		= 0
+def mod_revision	= 0
+def mod_prev_revision	= 0
+def mod_build		= 0
+def curseId		= ''
+def curseForgeApiKey	= ''
+def modsioApiKey	= ''
 
 def userGradleScript = file("..\\${System.getProperty("user.name")}.properties") 
 if (userGradleScript.exists()) { 
@@ -42,18 +42,10 @@ if (userGradleScript.exists()) {
 		// Load User Specific Settings.
 		def props = new Properties()
 		props.load(it)
-		curseForgeApiKey = props['curseForgeApiKey'].toString()
-		modsioApiKey = props['modsioApiKey'].toString()
+		curseForgeApiKey	= props['curseForgeApiKey'].toString()
+		modsioApiKey		= props['modsioApiKey'].toString()
 	}
 }
-
-//gradle.taskGraph.whenReady {taskGraph ->
-//	if (taskGraph.hasTask("curseforge")) {
-//		bIncreaseRevision = true
-//	} else {
-//		bIncreaseRevision = false
-//	}
-//}
 
 // this makes gradle recognise and use build.properties
 ext.configFile = file "build.properties"
@@ -63,10 +55,10 @@ configFile.withReader {
 	props.load(it)
 	
 	// Get Version details
-	mod_major = props['mod_major'].toInteger()
-	mod_minor = props['mod_minor'].toInteger()
-	mod_revision = props['mod_revision'].toInteger()
-	mod_prev_revision = mod_revision
+	mod_major		= props['mod_major'].toInteger()
+	mod_minor		= props['mod_minor'].toInteger()
+	mod_revision		= props['mod_revision'].toInteger()
+	mod_prev_revision	= mod_revision
 	
 	recommended = props['recommended'].toBoolean()
 	
@@ -134,8 +126,8 @@ task processVersion (type: Copy) {
 	into modSource
 	
 	expand	'mc_version'	:project.config.mc_version, 
-			'forge_version'	:project.config.forge_version, 
-			'mod_version'	:project.version
+				'forge_version'	:project.config.forge_version, 
+				'mod_version'	:project.version
 }
 
 processResources
@@ -147,12 +139,11 @@ processResources
 	// replace stuff in mcmod.info, nothing else
 	from(sourceSets.main.resources.srcDirs) {
 		include 'mcmod.info'
-		include 'mod_version.json'
 		
 		// replace version info
 		expand	'mc_version'	:project.config.mc_version, 
-				'forge_version'	:project.config.forge_version, 
-				'mod_version'	:project.version
+					'forge_version'	:project.config.forge_version, 
+					'mod_version'	:project.version
 	}
 	
 	// copy everything else, thats not the mcmod.info
@@ -163,8 +154,8 @@ processResources
 	}
 }
 
-version = "[${project.minecraft.version}]-${project.version}"
-def modLatest = "[$config.mc_version]-$mod_version"
+version		= "[${project.minecraft.version}]-${project.version}"
+def modLatest	= "$mod_version" //"[$config.mc_version]-$mod_version"
 
 sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
 
@@ -203,22 +194,13 @@ artifacts {
 import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 
-class versionObject {
-	String mc_version	// "Minecraft 1.7.10",
-	String modVersion	// "1.7.10-2.1.1.191",
-	String changeLog	// [ "" ],
-	String updateURL	// "https://goo.gl/gPqNSF",
-	String isDirectLink	// "false",
-	String newFileName	// ""
-}
-
 task updateVersionInfo << {
 
 	// **********  Update forge_update json file  ********** \\
 	
 	JsonSlurper slurper = new JsonSlurper()
 	def forgeUpdate_slurper
-	file('forge_update.json').withReader { reader -> forgeUpdate_slurper = slurper.parse(reader) }
+	file('../forge_update.json').withReader { reader -> forgeUpdate_slurper = slurper.parse(reader) }
 
 	JsonBuilder forgeUpdate_builder = new JsonBuilder( forgeUpdate_slurper )
 	
@@ -231,7 +213,7 @@ task updateVersionInfo << {
 		forgeUpdate_builder.content.promos["$mcRecom"] = modLatest
 	}
 
-	file('forge_update.json').write(forgeUpdate_builder.toPrettyString())
+	file('../forge_update.json').write(forgeUpdate_builder.toPrettyString())
 
 	println "=================================================="
 	println "Version Info updated:  forge_update.json"
@@ -262,9 +244,6 @@ task updateVersionInfo << {
 task release(type: Copy) {
 	dependsOn updateVersionInfo, build
 	
-	from('build/classes/main') {
-		include 'mod_version.json'
-	}
 	from('build/libs') {
 		include '*.jar'
 	}
