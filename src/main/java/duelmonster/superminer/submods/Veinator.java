@@ -22,12 +22,12 @@ import duelmonster.superminer.config.SettingsVeinator;
 import duelmonster.superminer.events.PlayerEvents;
 import duelmonster.superminer.network.packets.PacketIDs;
 import duelmonster.superminer.network.packets.SMPacket;
+import duelmonster.superminer.objects.ExcavationHelper;
 import duelmonster.superminer.objects.Globals;
 import duelmonster.superminer.util.BlockPos;
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -39,7 +39,6 @@ import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.C17PacketCustomPayload;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -70,13 +69,26 @@ public class Veinator {
 	
 	public static boolean isMiningVein() { return bMiningVein; }
 
+	private static List<ExcavationHelper> myExcavationHelpers = new ArrayList<ExcavationHelper>();
+	private static List<ExcavationHelper> getMyExcavationHelpers() {
+		return new ArrayList<ExcavationHelper>(myExcavationHelpers);
+	}
+    public static Boolean isExcavating() {
+    	boolean bIsExcavating = false;
+    	
+    	for (ExcavationHelper oEH : getMyExcavationHelpers()) 
+    		if (!bIsExcavating)
+    			bIsExcavating = (oEH != null && oEH.isExcavating());
+    	
+    	return bIsExcavating;
+    }
+
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent event) {
 		FMLEventChannel eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(ChannelName);
 		eventChannel.register(this);
 		
 		FMLCommonHandler.instance().bus().register(this);
-		
 	}
 	
 	public static void syncConfig() {
@@ -253,16 +265,30 @@ public class Veinator {
 		}
 	}
 
-	protected static void executeVeinator(SMPacket p, EntityPlayerMP player) {
+	protected static void executeVeinator(SMPacket packet, EntityPlayerMP player) {
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 		if (null == server) return;
 		
 		World world = server.worldServerForDimension(player.dimension);
-		if (!isAllowedToMine(player, p)) return;
+		if (!isAllowedToMine(player, packet)) return;
 
-		mineVein(world, player, p);
+		ExcavationHelper oEH = new ExcavationHelper(world, player, packet);
+		myExcavationHelpers.add(oEH);
+		oEH.getOreVein();
+		if (!oEH.ExcavateSection())
+			oEH.FinalizeVeination();
 		
 		myGlobals.clearHistory();
+	}
+
+	@SubscribeEvent
+	public void tickEvent_Server(TickEvent.ServerTickEvent event) {
+		if (TickEvent.Phase.END.equals(event.phase) && myExcavationHelpers.size() > 0)
+	    	for (ExcavationHelper oEH : getMyExcavationHelpers()) 
+				if (oEH.isExcavating() && !oEH.ExcavateSection()) {
+					oEH.FinalizeVeination();
+					myExcavationHelpers.remove(oEH);
+				}
 	}
 
 	private static boolean isAllowedToMine(EntityPlayer player, SMPacket p) {
@@ -282,49 +308,6 @@ public class Veinator {
 		return Globals.isIdInList(block, myGlobals.lBlockIDs);
 	}
 
-	private static void mineVein(World world, EntityPlayerMP player, SMPacket packet) {
-		bMiningVein = true;
-		
-		myGlobals.checkConnection(world, packet.oPos, packet, true);
-		
-		while (breakBlock(world, player, packet)) { }
-		
-		packet.positions.clear();
-		
-		Globals.stackItems(world, player, AxisAlignedBB.getBoundingBox(packet.oPos.getX(), packet.oPos.getY(), packet.oPos.getZ(), packet.oPos.getX(), packet.oPos.getY(), packet.oPos.getZ()).expand(16, 16, 16));
-		
-		if (SettingsVeinator.bGatherDrops) {
-			List<Entity> list = Globals.getNearbyEntities(world, player.boundingBox.expand(16, 16, 16));
-			if (list != null && !list.isEmpty())
-				for (Entity entity : list)
-					if (!entity.isDead)
-						entity.setPosition(packet.oPos.getX(), packet.oPos.getY(), packet.oPos.getZ());
-		}
-		
-		bMiningVein = false;
-	}
-
-	private static boolean breakBlock(World world, EntityPlayerMP player, SMPacket p) {
-		BlockPos blockPos = p.positions.poll();
-		if (blockPos == null) return false;
-		
-		Block block = world.getBlock(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-
-		if (Globals.checkBlock(block, p)) {
-			p.count += 1;
-			
-			//while (SuperMiner_Core.isMCTicking()) try { Thread.sleep(1); } catch (InterruptedException e) { }
-						
-			// Double check that the block isn't air
-			if (!world.isAirBlock(blockPos.getX(), blockPos.getY(), blockPos.getZ()))
-				player.theItemInWorldManager.tryHarvestBlock(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-			
-			myGlobals.checkConnection(world, blockPos, p, true);
-		}
-		
-		return true;
-	}
-	
 	public void processIMC(final FMLInterModComms.IMCMessage imcMessage) {
         if (imcMessage.key.equalsIgnoreCase("MineVein"))
             if (imcMessage.isNBTMessage()) {

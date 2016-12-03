@@ -104,7 +104,7 @@ public class Illuminator {
 				Illuminator.PlaceTorch(mc, player);
 			else if (bIsPlacingTorch)
 				bIsPlacingTorch = false;
-			else if (SettingsIlluminator.bEnabled || Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
+			else if (SettingsIlluminator.bEnabled && Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
 			
 				int x = (int)(player.boundingBox.minX + 0.5F);
 				int y = (int)player.boundingBox.minY;
