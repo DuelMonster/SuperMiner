@@ -1,3 +1,16 @@
+#### **2.1.4:**
+> | Illuminator: | ---
+> | --- | ---
+> | _FIX_: | Solved an issue that caused a torch to be placed while walking, regardless of whether or not your are using a tool.
+
+> | Substitutor: | ---
+> | --- | ---
+> | _FIX_: | Sovled an issue that caused using tools to stop working on a laptops mouse pad.
+
+> | Veinator: | ---
+> | --- | ---
+> | _FIX_: | Backported the Ore Vein detection algorithm from MC 1.11 version.
+
 #### **2.1.3:**
 > | Cropinator: | ---
 > | --- | ---
