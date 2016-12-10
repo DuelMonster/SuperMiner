@@ -50,7 +50,7 @@ if (userGradleScript.exists()) {
 // this makes gradle recognise and use build.properties
 ext.configFile = file "build.properties"
 configFile.withReader {
-	// Load config.  It shall from now be referenced as simply config or project.config
+	// Load config.
 	def props = new Properties()
 	props.load(it)
 	
@@ -94,8 +94,8 @@ minecraft {
 	//mappings = config.mappings_version
 	runDir = "Debug"
 	
-	replace '@mod_version@', mod_version
-	replace '@mc_version@', config.mc_version
+	replace '${mod_version}', mod_version
+	replace '${mc_version}', config.mc_version
 	replaceIn 'SuperMiner_Core.java'
 	
 	//makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
@@ -166,7 +166,7 @@ processResources
 }
 
 version		= "[${project.minecraft.version}]-${project.version}"
-def modLatest	= "$mod_version" //"[$config.mc_version]-$mod_version"
+def modLatest	= "[$config.mc_version]-$mod_version"
 
 sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
 
@@ -202,6 +202,15 @@ artifacts {
 	archives srcJar, deobfJar
 }
 
+task release(type: Copy) {
+	dependsOn build
+	
+	from('build/libs') {
+		include '*.jar'
+	}
+	into "~Release/"
+}
+
 import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 
@@ -226,17 +235,17 @@ task updateVersionInfo << {
 
 	file('../forge_update.json').write(forgeUpdate_builder.toPrettyString())
 
-	println "=================================================="
-	println "Version Info updated:  forge_update.json"
-	println "=================================================="
 	println ""
+	println "=================================================="
+	println "  Version Info updated:  forge_update.json"
+	println "--------------------------------------------------"
 	
 	// **********  End forge_update json file  ********** \\
 	
 	// **********  Increase the Revision number for Release  ********** \\
 	
 	configFile.withReader {
-		// Load config.  It shall from now be referenced as simply config or project.config
+		// Load config.
 		def props = new Properties()
 		props.load(it)
 		
@@ -249,31 +258,40 @@ task updateVersionInfo << {
 		project.ext.config = new ConfigSlurper().parse props
 	}
 	
+	println "  Revision number Increased from [$mod_prev_revision] to [$mod_revision]"
+	
 	// **********  End Revision update  ********** \\
+	
+	println "=================================================="
+	println ""
 }
 
-task release(type: Copy) {
-	dependsOn updateVersionInfo, build
-	
-	from('build/libs') {
-		include '*.jar'
-	}
-	into "~Release/"
+task mods_io << {
+	finalizedBy updateVersionInfo
 	
 	// **********  Submit new version to the mods.io repository  ********** \\
 	
-//	def curlPost = ['curl',	'-H', 'X-API-Key: ',
-//							'-X', 'POST',
-//							'-F', "body='{ \"version\": { \"name\": \"$modLatest\", \"minecraft\": \"$config.mc_version\", \"changelog\": \"\" }, \"current\": \"true\" \"filename\": \"$archivesBaseName-$modLatest.jar\" }'",
-//							'-F', "file='@~Release/$archivesBaseName-$modLatest.jar'",
-//							'"https://mods.io/mods/1217/versions/create.json"'].execute()
-//
-//	def json = new JsonSlurper().parseText(curlPost.text)
+	def curlPost = ['curl',	'-H', 'X-API-Key: $modsioApiKey',
+							'-X', 'POST',
+							'-F', 'body="{ \"version\": { \"name\": \"$modLatest\", \"minecraft\": \"$config.mc_version\", \"changelog\": \"\" }, \"current\": \"true\" \"filename\": \"$archivesBaseName-$modLatest.jar\" }"',
+							'-F', 'file="@~Release/$archivesBaseName-$modLatest.jar"',
+							'https://mods.io/mods/1217/versions/create.json'].execute()
+
+	//def json_response = new JsonSlurper().parseText(curlPost.text)
+	
+	println ""
+	println "=================================================="
+	println "  mods.io submission response:"
+	println "--------------------------------------------------"
+	println JsonOutput.prettyPrint(curlPost.text) //json_response)
+	println "=================================================="
 	
 	// **********  End mods.io submission  ********** \\
 }
 
+tasks.curseforge.onlyIf { curseForgeApiKey }
 tasks.curseforge.dependsOn release
+tasks.curseforge.finalizedBy mods_io
 
 curseforge {
 	apiKey = curseForgeApiKey
@@ -289,11 +307,15 @@ curseforge {
 		addGameVersion config.mc_version
 
 		mainArtifact jar
+		addArtifact srcJar
+		addArtifact deobfJar
 	}
 }
 
 task APIKeyTest << {
 	println "=================================================="
-	println curseForgeApiKey != '' ? curseForgeApiKey : "NOT FOUND:  curseForgeApiKey"
+	println "  CurseForge API Key: " + (curseForgeApiKey != '' ? curseForgeApiKey : "!! NOT FOUND !!")
+	println "--------------------------------------------------"
+	println "  mods.io API Key: " + (modsioApiKey != '' ? modsioApiKey : "!! NOT FOUND !!")
 	println "=================================================="
 }

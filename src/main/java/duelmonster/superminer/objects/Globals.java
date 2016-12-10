@@ -167,7 +167,7 @@ public class Globals {
 	public static List<Entity> getNearbyEntities(World world, AxisAlignedBB area) {
 		if (!Excavator.isExcavating() && 
 			!Shaftanator.isExcavating() &&
-			!Veinator.isMiningVein()) {
+			!Veinator.isExcavating()) {
 			
 			try{
 				List<?> list = world.getEntitiesWithinAABB(Entity.class, area);

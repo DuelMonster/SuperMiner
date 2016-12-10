@@ -212,8 +212,10 @@ public class Shaftanator {
 		ExcavationHelper oEH = new ExcavationHelper(world, player, packet);
 		myExcavationHelpers.add(oEH);
 		oEH.getShaftBlocks();
-		if (!oEH.ExcavateSection())
+		if (!oEH.ExcavateSection()) {
 			oEH.FinalizeShaft();
+			myExcavationHelpers.remove(oEH);
+		}
 	}
 	
 	@SubscribeEvent
