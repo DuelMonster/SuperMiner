@@ -67,9 +67,6 @@ public class Veinator {
 	
 	private boolean bHungerNotified = false;
 	public static boolean bShouldSyncSettings = true;
-	private static boolean bMiningVein = false;
-	
-	public static boolean isMiningVein() { return bMiningVein; }
 
 	private static List<ExcavationHelper> myExcavationHelpers = new ArrayList<ExcavationHelper>();
 	private static List<ExcavationHelper> getMyExcavationHelpers() {
@@ -218,16 +215,17 @@ public class Veinator {
 				
 			} else bHungerNotified = false;
 			
+			// Removes packets from the history.
 			for (Iterator<SMPacket> attackPackets = myGlobals.attackHistory.iterator(); attackPackets.hasNext();) {
 				SMPacket packet = (SMPacket)attackPackets.next();
 				if (System.nanoTime() - packet.nanoTime >= Globals.attackHistoryDelayNanoTime)
 					attackPackets.remove(); // Removes packet from the history if it has been there too long.
-				else
-				{
-					block = world.getBlockState(new BlockPos(packet.oPos.getX(), packet.oPos.getY(), packet.oPos.getZ())).getBlock();
+				else {
+					block = world.getBlockState(packet.oPos).getBlock();
 					if (block == null || block == Blocks.air) {
 						attackPackets.remove(); // Removes packet from the history.
-
+						packet.block = packet.prevBlock;
+								
 						Globals.sendPacket(new CPacketCustomPayload(ChannelName, packet.writePacketData()));
 					}
 				}
@@ -235,15 +233,6 @@ public class Veinator {
 		}
 	}
 	
-	@SubscribeEvent
-	public void severTickEvent(TickEvent.ServerTickEvent event) {
-		if (!SettingsVeinator.bEnabled || !TickEvent.Phase.END.equals(event.phase)) return;
-		
-		// Retrieve any FMLInterModComm messages that may have been sent from other mods
-		for (final FMLInterModComms.IMCMessage imcMessage : FMLInterModComms.fetchRuntimeMessages(this.instance))
-			processIMC(imcMessage);
-	}
-
 	@SubscribeEvent
 	public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
 		PacketBuffer payLoad = new PacketBuffer(event.getPacket().payload());
@@ -272,15 +261,23 @@ public class Veinator {
 		ExcavationHelper oEH = new ExcavationHelper(world, player, packet);
 		myExcavationHelpers.add(oEH);
 		oEH.getOreVein();
-		if (!oEH.ExcavateSection())
+		if (!oEH.ExcavateSection()) {
 			oEH.FinalizeVeination();
+			myExcavationHelpers.remove(oEH);
+		}
 		
 		myGlobals.clearHistory();
 	}
 
 	@SubscribeEvent
 	public void tickEvent_Server(TickEvent.ServerTickEvent event) {
-		if (TickEvent.Phase.END.equals(event.phase) && myExcavationHelpers.size() > 0)
+		if (!SettingsVeinator.bEnabled || !TickEvent.Phase.END.equals(event.phase)) return;
+		
+		// Retrieve any FMLInterModComm messages that may have been sent from other mods
+		for (final FMLInterModComms.IMCMessage imcMessage : FMLInterModComms.fetchRuntimeMessages(this.instance))
+			processIMC(imcMessage);
+
+		if (myExcavationHelpers.size() > 0)
 	    	for (ExcavationHelper oEH : getMyExcavationHelpers()) 
 				if (oEH.isExcavating() && !oEH.ExcavateSection()) {
 					oEH.FinalizeVeination();
