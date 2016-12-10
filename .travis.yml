@@ -6,7 +6,7 @@ script: ./gradlew build
 sudo: false
 branches:
   only:
-    - (?'MAJOR'0|(?:\d+))(?'MINOR'0|\.(?:\d+))(?'REVISION'0|\.(?:\d+))?
+    - 1.7.10
 
 notifications:
  irc:
