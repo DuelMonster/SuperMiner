@@ -68,11 +68,9 @@ public class Excavator {
 	public static boolean bShouldSyncSettings = true;
 
 	private static List<ExcavationHelper> myExcavationHelpers = new ArrayList<ExcavationHelper>();
-
 	private static List<ExcavationHelper> getMyExcavationHelpers() {
 		return new ArrayList<ExcavationHelper>(myExcavationHelpers);
 	}
-
 	public static Boolean isExcavating() {
 		boolean bIsExcavating = false;
 
@@ -220,7 +218,6 @@ public class Excavator {
 					if (block == null || block == Blocks.AIR) {
 						attackPackets.remove(); // Removes packet from the history.
 						packet.block = packet.prevBlock;
-//						packet.metadata = packet.prevMetadata;
 						packet.bLayerOnlyToggled = bLayerOnlyToggled;
 								
 						Globals.sendPacket(new CPacketCustomPayload(ChannelName, packet.writePacketData()));
@@ -273,8 +270,10 @@ public class Excavator {
 		ExcavationHelper oEH = new ExcavationHelper(world, player, packet);
 		myExcavationHelpers.add(oEH);
 		oEH.getExcavationBlocks();
-		if (!oEH.ExcavateSection())
+		if (!oEH.ExcavateSection()) {
 			oEH.FinalizeExcavation();
+			myExcavationHelpers.remove(oEH);
+		}
 	}
 	
 	@SubscribeEvent

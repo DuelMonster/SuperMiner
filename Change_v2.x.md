@@ -1,4 +1,9 @@
-#### **2.1.5:**
+#### **2.1.7:**
+> | Veinator: | ---
+> | --- | ---
+> | _FIX_: | Found an issue that caused the new Vein detection algorithm to get stuck within an infinite loop if the MineVeins option of Shaftanator was turned on.
+
+#### **2.1.6:**
 > | Illuminator: | ---
 > | --- | ---
 > | _FIX_: | Solved an issue that caused a torch to be placed while walking, regardless of whether or not your are using a tool.
