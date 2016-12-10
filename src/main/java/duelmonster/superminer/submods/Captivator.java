@@ -88,7 +88,7 @@ public class Captivator {
 				!TickEvent.Phase.END.equals(event.phase) || 
 				Excavator.isExcavating() || 
 				Shaftanator.isExcavating() || 
-				Veinator.isMiningVein()) return;
+				Veinator.isExcavating()) return;
 
 		Minecraft minecraft = FMLClientHandler.instance().getClient();
 		if (minecraft.player == null || minecraft.world == null || minecraft.isGamePaused()) return;

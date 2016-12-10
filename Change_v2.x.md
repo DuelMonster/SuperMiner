@@ -1,3 +1,8 @@
+#### **2.1.6:**
+> | Veinator: | ---
+> | --- | ---
+> | _FIX_: | Found an issue that caused the new Vein detection algorithm to get stuck within an infinite loop if the MineVeins option of Shaftanator was turned on.
+
 #### **2.1.5:**
 > | Illuminator: | ---
 > | --- | ---
