@@ -3,6 +3,7 @@ package duelmonster.superminer.objects;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
 
 import duelmonster.superminer.SuperMiner_Core;
 import duelmonster.superminer.config.SettingsExcavator;
@@ -44,9 +45,10 @@ public class ExcavationHelper {
 	int iLengthEnd = 0;
 	int iWidthStart = 0;
 	int iWidthEnd = 0;
+	boolean bCallerIsVeinator = false;
 
 	private boolean bAutoIlluminate() { return SettingsExcavator.bAutoIlluminate || SettingsShaftanator.bAutoIlluminate; }
-	private boolean bMineVeins() { return /*SettingsExcavator.bMineVeins ||*/ SettingsShaftanator.bMineVeins; }
+	private boolean bMineVeins() { return !bCallerIsVeinator && (/*SettingsExcavator.bMineVeins ||*/ SettingsShaftanator.bMineVeins); }
 	
 	public boolean isExcavating() { return bIsExcavating; }
 	
@@ -463,13 +465,15 @@ public class ExcavationHelper {
 	}
 
  	public void getOreVein() {
+ 		bCallerIsVeinator = true;
+ 		
 		oPositions.offer(oInitialPos);
 		
 		BlockPos oPos;
 					
 		for (int iSearchRadius = 1; iSearchRadius <= 8; iSearchRadius++)
-			for (int zOffset = -iSearchRadius; zOffset <= iSearchRadius; zOffset++)
-				for (int xOffset = -iSearchRadius; xOffset <= iSearchRadius; xOffset++)
+			for (int xOffset = -iSearchRadius; xOffset <= iSearchRadius; xOffset++)
+				for (int zOffset = -iSearchRadius; zOffset <= iSearchRadius; zOffset++)
 					for (int yOffset = -iSearchRadius; yOffset <= iSearchRadius; yOffset++) {
 						oPos = new BlockPos(oInitialPos.getX() + xOffset, oInitialPos.getY() + yOffset, oInitialPos.getZ() + zOffset);
 						
@@ -477,7 +481,8 @@ public class ExcavationHelper {
 							AddCoordsToList(oPos);
 						}
 					}
-		
+
+		LogHelper.log(Level.INFO, "Found (" + oPositions.size() + ") blocks in Ore Vein");
 	}	
 	
 	public void FinalizeExcavation() {
@@ -512,6 +517,8 @@ public class ExcavationHelper {
 					if (!entity.isDead)
 						entity.setPosition(oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ());
 		}
+		
+		LogHelper.log(Level.INFO, "Finalized Vein");
 	}
 	
 }

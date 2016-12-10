@@ -10,6 +10,10 @@ import duelmonster.superminer.submods.Lumbinator;
 import duelmonster.superminer.submods.Shaftanator;
 import duelmonster.superminer.submods.Substitutor;
 import duelmonster.superminer.submods.Veinator;
+import net.minecraftforge.common.ForgeVersion;
+import net.minecraftforge.common.ForgeVersion.CheckResult;
+import net.minecraftforge.common.ForgeVersion.Status;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -43,12 +47,10 @@ public class PlayerEvents {
 		if (!bIsPlayerInWorld) {
 			bIsPlayerInWorld = true;
 			
-			if (sLatestVersion.isEmpty())
-				sLatestVersion = Globals.getLatestVerion(SuperMiner_Core.VC_URL);
+			CheckResult verCheck = ForgeVersion.getResult(FMLCommonHandler.instance().findContainerFor(SuperMiner_Core.MODID));
+			if (verCheck.status == Status.OUTDATED)
+				Globals.NotifyClient("§7" + Globals.localize("superminer.version.update") + ": v§a" + verCheck.target.toString());
 			
-			if (!sLatestVersion.isEmpty() && !sLatestVersion.equalsIgnoreCase(SuperMiner_Core.VERSION))
-				Globals.NotifyClient("§7" + Globals.localize("superminer.version.update") + ": v§a" + sLatestVersion);
-	
 			Captivator.bShouldSyncSettings = true;
 			Cropinator.bShouldSyncSettings = true;
 			Excavator.bShouldSyncSettings = true;
