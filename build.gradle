@@ -21,6 +21,7 @@ plugins {
 }
 
 apply plugin: 'forge'
+apply plugin: 'idea'
 
 dependencies {
     compile 'org.jetbrains:annotations:13.0'
@@ -322,4 +323,14 @@ task APIKeyTest << {
 	println "--------------------------------------------------"
 	println "  mods.io API Key: " + (modsioApiKey != '' ? modsioApiKey : "!! NOT FOUND !!")
 	println "=================================================="
+}
+
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+
+    project {
+        vcs = 'Git'
+    }
 }
