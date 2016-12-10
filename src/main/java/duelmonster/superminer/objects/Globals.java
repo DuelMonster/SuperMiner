@@ -1,6 +1,5 @@
 package duelmonster.superminer.objects;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
@@ -9,11 +8,8 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.commons.io.IOUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-
-import com.google.gson.Gson;
 
 import duelmonster.superminer.network.packets.SMPacket;
 import duelmonster.superminer.submods.Excavator;
@@ -49,8 +45,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 @SuppressWarnings("deprecation")
 public class Globals {
-    private static Gson gson = new Gson();
-    
     public static final String ChannelName = "SuperMiner";
     
 	public static String tooHungry() {
@@ -84,13 +78,6 @@ public class Globals {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public BlockingQueue<SMPacket> attackHistory = new LinkedBlockingQueue();
 	
-	public static String getLatestVerion(String sURL){
-		try {
-			return Globals.gson.fromJson(IOUtils.toString(new URL(sURL)), VersionContainer.class).getModVersion();
-		} catch (Exception e) { }
-		return "";
-	}
-
 	public void clearHistory(){
 		iBlocksFound = 0;
 		initalBlockPos = null;
@@ -172,7 +159,7 @@ public class Globals {
 	public static List<Entity> getNearbyEntities(World world, AxisAlignedBB area) {
 		if (!Excavator.isExcavating() && 
 			!Shaftanator.isExcavating() &&
-			!Veinator.isMiningVein()) {
+			!Veinator.isExcavating()) {
 			
 			try{
 				List<?> list = world.getEntitiesWithinAABB(Entity.class, area);
