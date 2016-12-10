@@ -21,6 +21,11 @@ plugins {
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'idea'
+
+dependencies {
+    compile 'org.jetbrains:annotations:13.0'
+}
 
 group			= "duelmonster.superminer"
 archivesBaseName	= "SuperMiner"
@@ -307,4 +312,14 @@ task APIKeyTest << {
 	println "--------------------------------------------------"
 	println "  mods.io API Key: " + (modsioApiKey != '' ? modsioApiKey : "!! NOT FOUND !!")
 	println "=================================================="
+}
+
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+
+    project {
+        vcs = 'Git'
+    }
 }
