@@ -115,7 +115,7 @@ public class Substitutor {
 			Excavator.isExcavating() ||
 			Illuminator.isPlacingTorch() || 
 			Shaftanator.isExcavating() || 
-			Veinator.isMiningVein()) return;
+			Veinator.isExcavating()) return;
 	
 		Minecraft mc = FMLClientHandler.instance().getClient();
 		if (!mc.inGameHasFocus || mc.isGamePaused() || mc.playerController.isInCreativeMode()) return;
