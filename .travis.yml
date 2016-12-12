@@ -10,10 +10,6 @@ script: ./gradlew build
 
 sudo: false
 
-branches:
-  only:
-    - 1.8.9
-
 notifications:
  irc:
   channels:
