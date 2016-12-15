@@ -265,19 +265,20 @@ import groovy.json.JsonOutput
 task mods_io << {
 	// **********  Submit new version to the mods.io repository  ********** \\
 	
-	def curlPost = ['C:/curl/bin/curl',	'-H', 'X-API-Key: $modsioApiKey',
-							'-X', 'POST',
-							'-F', 'body="{ \"version\": { \"name\": \"$modLatest\", \"minecraft\": \"$config.mc_version\", \"changelog\": \"\" }, \"current\": \"true\" \"filename\": \"$archivesBaseName-$modLatest.jar\" }"',
-							'-F', 'file="@~Release/$archivesBaseName-$modLatest.jar"',
-							'"https://mods.io/mods/1217/versions/create.json"'].execute()
+	def curlPost = ['C:/curl/bin/curl',	
+					'-H', 'X-API-Key:', '$modsioApiKey',
+					'-X', 'POST',
+					'-F', 'body="{ \"version\": { \"name\": \"$modLatest\", \"minecraft\": \"$config.mc_version\", \"changelog\": \"\" }, \"current\": \"true\" \"filename\": \"$archivesBaseName-$modLatest.jar\" }"',
+					'-F', 'file="@~Release/$archivesBaseName-$modLatest.jar"',
+					'"https://mods.io/mods/1217/versions/create.json"'].execute()
 
-	//def json_response = new JsonSlurper().parseText(curlPost.text)
+	def json_response = new JsonSlurper().parseText(curlPost.text)
 	
 	println ""
 	println "=================================================="
 	println "  mods.io submission response:"
 	println "--------------------------------------------------"
-	println JsonOutput.prettyPrint(curlPost.text) //json_response)
+	println JsonOutput.prettyPrint(json_response) //curlPost.text) //
 	println "=================================================="
 	
 	// **********  End mods.io submission  ********** \\
