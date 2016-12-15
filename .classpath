@@ -13,7 +13,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/minecraft/net/minecraftforge/forge/1.10.2-12.18.1.2039/stable/29/forgeSrc-1.10.2-12.18.1.2039.jar" sourcepath="C:/Users/DuelMonster/.gradle/caches/minecraft/net/minecraftforge/forge/1.10.2-12.18.1.2039/stable/29/forgeSrc-1.10.2-12.18.1.2039-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar" sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/5991ca87ef1fb5544943d9abc5a9a37583fabe03/annotations-13.0-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/minecraft/net/minecraftforge/forge/1.10.2-12.18.3.2185/stable/29/forgeSrc-1.10.2-12.18.3.2185.jar" sourcepath="C:/Users/DuelMonster/.gradle/caches/minecraft/net/minecraftforge/forge/1.10.2-12.18.3.2185/stable/29/forgeSrc-1.10.2-12.18.3.2185-sources.jar"/>
 	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.1/f7be08ec23c21485b9b5a1cf1654c2ec8c58168d/jsr305-3.0.1.jar" sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.1/a2926c057ca3b662b9db194c869bdbe7d3bb8aef/jsr305-3.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/com.mojang/netty/1.6/4b75825a06139752bd800d9e29c5fd55b8b1b1e4/netty-1.6.jar" sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/com.mojang/netty/1.6/cd01cc3788bac1b1eb9cf2cda02fc7698a5ca1cc/netty-1.6-sources.jar"/>
 	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/oshi-project/oshi-core/1.1/9ddf7b048a8d701be231c0f4f95fd986198fd2d8/oshi-core-1.1.jar" sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/oshi-project/oshi-core/1.1/1ec1ab1e6ac5a1572edfd0dd9ac95e83684b8a65/oshi-core-1.1-sources.jar"/>
@@ -71,8 +72,10 @@
 	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/org.lwjgl.lwjgl/lwjgl-platform/2.9.4-nightly-20150209/931074f46c795d2f7b30ed6395df5715cfd7675b/lwjgl-platform-2.9.4-nightly-20150209-natives-linux.jar"/>
 	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/org.lwjgl.lwjgl/lwjgl-platform/2.9.4-nightly-20150209/bcab850f8f487c3f4c4dbabde778bb82bd1a40ed/lwjgl-platform-2.9.4-nightly-20150209-natives-osx.jar"/>
 	<classpathentry kind="lib" path="C:/$MC/Mod Source/~SuperMiner_v2/Source/1.10.2/libs/BiomesOPlenty-1.10.2-5.0.0.2073-universal.jar"/>
+	<classpathentry kind="lib" path="C:/$MC/Mod Source/~SuperMiner_v2/Source/1.10.2/libs/jei_1.10.2-3.13.6.391.jar"/>
+	<classpathentry kind="lib" path="C:/$MC/Mod Source/~SuperMiner_v2/Source/1.10.2/libs/mysticalagriculture[1.10.2]-1.3.6.jar"/>
 	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/minecraft/deobfedDeps/compileDummy.jar"/>
 	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/minecraft/deobfedDeps/providedDummy.jar"/>
-	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/minecraft/net/minecraftforge/forge/1.10.2-12.18.1.2039/start"/>
+	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/minecraft/net/minecraftforge/forge/1.10.2-12.18.3.2185/start"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

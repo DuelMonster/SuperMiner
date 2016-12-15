@@ -58,4 +58,10 @@ public class IMCMessage {
 		if (sModID != MOD && Loader.isModLoaded(sModID)) FMLInterModComms.sendMessage(sModID, "add" + sBlockType, blockName);
 	}
 
+	public static void addOre(String blockName) {
+		String sModID = MOD + "veinator";
+		
+		if (sModID != MOD && Loader.isModLoaded(sModID)) FMLInterModComms.sendMessage(sModID, "addOre", blockName);
+	}
+
 }
