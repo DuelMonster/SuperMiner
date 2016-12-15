@@ -135,32 +135,43 @@ public class Veinator {
 			            }
         }
 	}
-	
-    @Mod.EventHandler
-    public void imcCallback(FMLInterModComms.IMCEvent event) {
-    	for(final FMLInterModComms.IMCMessage message : event.getMessages())
-        	if (message.isStringMessage()) {
-        		
-        		if(message.key.equalsIgnoreCase("addPickaxe") && !SettingsVeinator.lToolIDs.contains(message.getStringValue())) {
-        			SettingsVeinator.lToolIDs.add(message.getStringValue());
 
-            		SuperMiner_Core.configFile.get(MODID, Globals.localize("superminer.veinator.tool_ids"), SettingsVeinator.lToolIDDefaults.toArray(new String[0]), Globals.localize("superminer.veinator.tool_ids.desc")).set(SettingsVeinator.lToolIDs.toArray(new String[0]));
-            		SuperMiner_Core.configFile.save();
-            		
-        			try {
-        				int id = Integer.parseInt(message.getStringValue());
-        				myGlobals.lToolIDs.add(Item.REGISTRY.getObjectById(id));
-        			} catch (NumberFormatException e) {
-						Item item = Item.REGISTRY.getObject(new ResourceLocation(message.getStringValue()));
+	@Mod.EventHandler
+	public void imcCallback(FMLInterModComms.IMCEvent event) {
+		for (final FMLInterModComms.IMCMessage message : event.getMessages())
+			if (message.isStringMessage()) {
+				String sID = message.getStringValue();
+
+				if (message.key.equalsIgnoreCase("addPickaxe") && !SettingsVeinator.lToolIDs.contains(sID)) {
+					SettingsVeinator.lToolIDs.add(sID);
+
+					SuperMiner_Core.configFile.get(MODID, Globals.localize("superminer.veinator.tool_ids"), SettingsVeinator.lToolIDDefaults.toArray(new String[0]), Globals.localize("superminer.veinator.tool_ids.desc")).set(SettingsVeinator.lToolIDs.toArray(new String[0]));
+					SuperMiner_Core.configFile.save();
+
+					try {
+						int id = Integer.parseInt(sID);
+						myGlobals.lToolIDs.add(Item.REGISTRY.getObjectById(id));
+					} catch (NumberFormatException e) {
+						Item item = Item.REGISTRY.getObject(new ResourceLocation(sID));
 						if (item != null) myGlobals.lToolIDs.add(item);
-        			}
-        		}
-//        		else if(message.key.equalsIgnoreCase("addOre"))
-//        			mySettings.lOreIDs.add(message.getStringValue());
-        		
-        	}
-    }
-    
+					}
+				} else if (message.key.equalsIgnoreCase("addOre") && !SettingsVeinator.lOreIDs.contains(sID)) {
+					SettingsVeinator.lOreIDs.add(sID);
+
+					SuperMiner_Core.configFile.get(MODID, Globals.localize("superminer.veinator.ore_ids"), SettingsVeinator.lOreIDDefaults.toArray(new String[0]), Globals.localize("superminer.veinator.ore_ids.desc")).set(SettingsVeinator.lOreIDs.toArray(new String[0]));
+					SuperMiner_Core.configFile.save();
+
+					try {
+						int id = Integer.parseInt(sID.trim());
+						myGlobals.lBlockIDs.add(Block.REGISTRY.getObjectById(id));
+					} catch (NumberFormatException e) {
+						Block oBlock = Block.REGISTRY.getObject(new ResourceLocation(sID));
+						if (oBlock != null) myGlobals.lBlockIDs.add(oBlock);
+					}
+				}
+			}
+	}
+
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
@@ -232,12 +243,12 @@ public class Veinator {
 			}
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
 		PacketBuffer payLoad = new PacketBuffer(event.getPacket().payload());
 		int iPacketID = payLoad.copy().readInt();
-		
+
 		if (iPacketID == PacketIDs.Settings_Veinator.value()) {
 			SettingsVeinator.readPacketData(payLoad);
 

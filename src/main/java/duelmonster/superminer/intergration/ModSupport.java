@@ -6,41 +6,41 @@ import net.minecraftforge.fml.common.Loader;
 public class ModSupport {
 
 	public static void addModSupport() {
-		
-		if(Loader.isModLoaded("IC2")) {
+
+		if (Loader.isModLoaded("IC2")) {
 			IMCMessage.addTool(ToolType.axe, "IC2:itemToolBronzeAxe");
 			IMCMessage.addTool(ToolType.axe, "IC2:itemToolChainsaw");
-			
+
 			IMCMessage.addTool(ToolType.hoe, "IC2:itemToolBronzeHoe");
-			
+
 			IMCMessage.addTool(ToolType.pickaxe, "IC2:itemToolBronzePickaxe");
 			IMCMessage.addTool(ToolType.pickaxe, "IC2:itemToolDrill");
 			IMCMessage.addTool(ToolType.pickaxe, "IC2:itemToolDDrill");
 			IMCMessage.addTool(ToolType.pickaxe, "IC2:itemToolIridiumDrill");
-			
+
 			IMCMessage.addTool(ToolType.shovel, "IC2:itemToolBronzeSpade");
 
 			IMCMessage.addTool(ToolType.shears, "IC2:itemToolBronzeHoe");
-			
+
 			IMCMessage.addBlock(Material.WOOD, "IC2:blockRubWood");
 			IMCMessage.addBlock(Material.LEAVES, "IC2:blockRubLeaves");
 		}
-		
-		if(Loader.isModLoaded("appliedenergistics2")) {
+
+		if (Loader.isModLoaded("appliedenergistics2")) {
 			IMCMessage.addTool(ToolType.axe, "appliedenergistics2:item.ToolCertusQuartzAxe");
 			IMCMessage.addTool(ToolType.axe, "appliedenergistics2:item.ToolNetherQuartzAxe");
-			
+
 			IMCMessage.addTool(ToolType.hoe, "appliedenergistics2:item.ToolCertusQuartzHoe");
 			IMCMessage.addTool(ToolType.hoe, "appliedenergistics2:item.ToolNetherQuartzHoe");
-			
+
 			IMCMessage.addTool(ToolType.pickaxe, "appliedenergistics2:item.ToolCertusQuartzPickaxe");
 			IMCMessage.addTool(ToolType.pickaxe, "appliedenergistics2:item.ToolNetherQuartzPickaxe");
 
 			IMCMessage.addTool(ToolType.shovel, "appliedenergistics2:item.ToolCertusQuartzSpade");
 			IMCMessage.addTool(ToolType.shovel, "appliedenergistics2:item.ToolNetherQuartzSpade");
 		}
-		
-		if(Loader.isModLoaded("BiomesOPlenty")) {
+
+		if (Loader.isModLoaded("BiomesOPlenty")) {
 			IMCMessage.addTool(ToolType.axe, "BiomesOPlenty:mud_axe");
 			IMCMessage.addTool(ToolType.axe, "BiomesOPlenty:amethyst_axe");
 
@@ -49,7 +49,7 @@ public class ModSupport {
 
 			IMCMessage.addTool(ToolType.pickaxe, "BiomesOPlenty:mud_pickaxe");
 			IMCMessage.addTool(ToolType.pickaxe, "BiomesOPlenty:amethyst_pickaxe");
-			
+
 			IMCMessage.addTool(ToolType.shovel, "BiomesOPlenty:mud_shovel");
 			IMCMessage.addTool(ToolType.shovel, "BiomesOPlenty:amethyst_shovel");
 
@@ -66,7 +66,7 @@ public class ModSupport {
 			IMCMessage.addBlock(Material.WOOD, "BiomesOPlenty:log_2");
 			IMCMessage.addBlock(Material.WOOD, "BiomesOPlenty:log_3");
 			IMCMessage.addBlock(Material.WOOD, "BiomesOPlenty:log_4");
-			
+
 			IMCMessage.addBlock(Material.LEAVES, "BiomesOPlenty:leaves_0");
 			IMCMessage.addBlock(Material.LEAVES, "BiomesOPlenty:leaves_1");
 			IMCMessage.addBlock(Material.LEAVES, "BiomesOPlenty:leaves_2");
@@ -75,54 +75,54 @@ public class ModSupport {
 			IMCMessage.addBlock(Material.LEAVES, "BiomesOPlenty:leaves_5");
 			IMCMessage.addBlock(Material.LEAVES, "BiomesOPlenty:leaves_6");
 		}
-		
-		if(Loader.isModLoaded("TConstruct")) {
+
+		if (Loader.isModLoaded("TConstruct")) {
 			IMCMessage.addTool(ToolType.axe, "TConstruct:hatchet");
 
 			IMCMessage.addTool(ToolType.hoe, "TConstruct:mattock");
-			
+
 			IMCMessage.addTool(ToolType.pickaxe, "TConstruct:pickaxe");
-			
+
 			IMCMessage.addTool(ToolType.shovel, "TConstruct:shovel");
 			IMCMessage.addTool(ToolType.shovel, "TConstruct:mattock");
 		}
 
-		if(Loader.isModLoaded("Natura")) {
+		if (Loader.isModLoaded("Natura")) {
 			IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.bloodwood");
-	        IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.darkwood");
-	        IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.fusewood");
-	        IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.ghostwood");
-	        IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.netherquartz");
+			IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.darkwood");
+			IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.fusewood");
+			IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.ghostwood");
+			IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.netherquartz");
 
 			IMCMessage.addBlock(Material.WOOD, "Natura:tree");
 			IMCMessage.addBlock(Material.LEAVES, "Natura:floraleaves");
 			IMCMessage.addBlock(Material.LEAVES, "Natura:floraleavesnocolor");
 		}
 
-		if(Loader.isModLoaded("Thaumcraft")) {
+		if (Loader.isModLoaded("Thaumcraft")) {
 			IMCMessage.addTool(ToolType.axe, "Thaumcraft:ItemAxeThaumium");
 			IMCMessage.addTool(ToolType.axe, "Thaumcraft:ItemAxeElemental");
 
 			IMCMessage.addBlock(Material.WOOD, "Thaumcraft:blockMagicalLog");
 			IMCMessage.addBlock(Material.LEAVES, "Thaumcraft:blockMagicalLeaves");
 		}
-		
-		if(Loader.isModLoaded("TwilightForest")) {
-			IMCMessage.addTool(ToolType.axe, "TwilightForest:item.ironwoodAxe");
-	        IMCMessage.addTool(ToolType.axe, "TwilightForest:item.knightlyAxe");
-	        IMCMessage.addTool(ToolType.axe, "TwilightForest:item.minotaurAxe");
-	        IMCMessage.addTool(ToolType.axe, "TwilightForest:item.steeleafAxe");
 
-	        IMCMessage.addBlock(Material.WOOD, "TwilightForest:tile.TFLog");
-	        IMCMessage.addBlock(Material.WOOD, "TwilightForest:tile.TFMagicLog");
-	        IMCMessage.addBlock(Material.WOOD, "TwilightForest:tile.TFMagicLogSpecial");
-	        
-	        IMCMessage.addBlock(Material.LEAVES, "TwilightForest:tile.TFLeaves");
-	        IMCMessage.addBlock(Material.LEAVES, "TwilightForest:tile.TFHedge");
-	        IMCMessage.addBlock(Material.LEAVES, "TwilightForest:tile.TFMagicLeaves");
+		if (Loader.isModLoaded("TwilightForest")) {
+			IMCMessage.addTool(ToolType.axe, "TwilightForest:item.ironwoodAxe");
+			IMCMessage.addTool(ToolType.axe, "TwilightForest:item.knightlyAxe");
+			IMCMessage.addTool(ToolType.axe, "TwilightForest:item.minotaurAxe");
+			IMCMessage.addTool(ToolType.axe, "TwilightForest:item.steeleafAxe");
+
+			IMCMessage.addBlock(Material.WOOD, "TwilightForest:tile.TFLog");
+			IMCMessage.addBlock(Material.WOOD, "TwilightForest:tile.TFMagicLog");
+			IMCMessage.addBlock(Material.WOOD, "TwilightForest:tile.TFMagicLogSpecial");
+
+			IMCMessage.addBlock(Material.LEAVES, "TwilightForest:tile.TFLeaves");
+			IMCMessage.addBlock(Material.LEAVES, "TwilightForest:tile.TFHedge");
+			IMCMessage.addBlock(Material.LEAVES, "TwilightForest:tile.TFMagicLeaves");
 		}
 
-		if(Loader.isModLoaded("exnihilo")) {
+		if (Loader.isModLoaded("exnihilo")) {
 			IMCMessage.addTool(ToolType.crook, "exnihilo:crook");
 			IMCMessage.addTool(ToolType.crook, "exnihilo:crook_bone");
 
@@ -132,16 +132,16 @@ public class ModSupport {
 			IMCMessage.addTool(ToolType.hammer, "exnihilo:hammer_gold");
 			IMCMessage.addTool(ToolType.hammer, "exnihilo:hammer_diamond");
 
-//			IMCMessage.addBlock(Material.leaves, "minecraft:leaves");
-//			IMCMessage.addBlock(Material.leaves, "minecraft:leaves2");
-//			
-//			IMCMessage.addBlock(Material.plant, "minecraft:tallgrass");
-//			IMCMessage.addBlock(Material.plant, "minecraft:vine");
-//			
-//			IMCMessage.addBlock(Material.cobweb, "minecraft:web");
-//			
-//			IMCMessage.addBlock(Material.wool, "minecraft:wool");
-			
+			// IMCMessage.addBlock(Material.leaves, "minecraft:leaves");
+			// IMCMessage.addBlock(Material.leaves, "minecraft:leaves2");
+			//
+			// IMCMessage.addBlock(Material.plant, "minecraft:tallgrass");
+			// IMCMessage.addBlock(Material.plant, "minecraft:vine");
+			//
+			// IMCMessage.addBlock(Material.cobweb, "minecraft:web");
+			//
+			// IMCMessage.addBlock(Material.wool, "minecraft:wool");
+
 			IMCMessage.addBlock(Material.SAND, "exnihilo:aluminum_dust");
 			IMCMessage.addBlock(Material.SAND, "exnihilo:aluminum_gravel");
 			IMCMessage.addBlock(Material.SAND, "exnihilo:aluminum_sand");
@@ -181,10 +181,26 @@ public class ModSupport {
 			IMCMessage.addBlock(Material.SAND, "exnihilo:tin_gravel");
 			IMCMessage.addBlock(Material.SAND, "exnihilo:tin_sand");
 		}
-		
-		if(Loader.isModLoaded("excompressum")) {
+
+		if (Loader.isModLoaded("excompressum")) {
 			IMCMessage.addTool(ToolType.hammer, "excompressum:chickenStick");
 		}
-	}
 
+		if (Loader.isModLoaded("mysticalagriculture")) {
+			IMCMessage.addOre("mysticalagriculture:prosperity_ore");
+			IMCMessage.addOre("mysticalagriculture:nether_prosperity_ore");
+			IMCMessage.addOre("mysticalagriculture:end_prosperity_ore");
+			IMCMessage.addOre("mysticalagriculture:inferium_ore");
+			IMCMessage.addOre("mysticalagriculture:nether_inferium_ore");
+			IMCMessage.addOre("mysticalagriculture:end_inferium_ore");
+		}
+
+		if (Loader.isModLoaded("mekanism")) {
+			IMCMessage.addOre("mekanism:OreBlock");
+		}
+
+		if (Loader.isModLoaded("quantumflux")) {
+			IMCMessage.addOre("quantumflux:graphiteOre");
+		}
+	}
 }
