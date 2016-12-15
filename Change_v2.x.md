@@ -1,3 +1,10 @@
+#### **2.1.7:**
+> | Veinator: | ---
+> | --- | ---
+> | _FIX_: | Added Mystical Agriculture Ore support
+> | _FIX_: | Added Mekanism Ore support
+> | _FIX_: | Added Quantum Flux Ore support
+
 #### **2.1.6:**
 > | Veinator: | ---
 > | --- | ---
