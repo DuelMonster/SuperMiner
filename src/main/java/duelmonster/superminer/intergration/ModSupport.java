@@ -194,5 +194,13 @@ public class ModSupport {
 			IMCMessage.addOre("mysticalagriculture:nether_inferium_ore");
 			IMCMessage.addOre("mysticalagriculture:end_inferium_ore");
 		}
+
+		if (Loader.isModLoaded("mekanism")) {
+			IMCMessage.addOre("mekanism:OreBlock");
+		}
+
+		if (Loader.isModLoaded("quantumflux")) {
+			IMCMessage.addOre("quantumflux:graphiteOre");
+		}
 	}
 }
