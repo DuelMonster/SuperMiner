@@ -1,0 +1,12 @@
+{
+    "pack": {
+        "pack_format": 1,
+        "description": "SuperMiner by DuelMonster"
+    },
+      "language": {
+         "en_us": {
+            "name": "English",
+            "region": "United States"
+         }
+      }
+}

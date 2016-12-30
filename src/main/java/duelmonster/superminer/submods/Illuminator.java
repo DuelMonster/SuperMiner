@@ -43,25 +43,27 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Mod(	modid = Illuminator.MODID
-	  , name = Illuminator.MODName
-	  , version = SuperMiner_Core.VERSION
-	  , acceptedMinecraftVersions = SuperMiner_Core.MCVERSION
-)
+@Mod(	modid = Illuminator.MODID,
+		name = Illuminator.MODName,
+		version = SuperMiner_Core.VERSION,
+		acceptedMinecraftVersions = SuperMiner_Core.MCVERSION)
 public class Illuminator {
-	public static final String MODID = "superminer_illuminator";
-	public static final String MODName = "Illuminator";
+	public static final String	MODID	= "superminer_illuminator";
+	public static final String	MODName	= "Illuminator";
 	
 	public static final String ChannelName = MODID.substring(0, (MODID.length() < 20 ? MODID.length() : 20));
-
-    @Mod.Instance(MODID)
-    private Illuminator instance;
-    	
-	private static BlockPos lastTorchLocation = null;
-	public static boolean bShouldSyncSettings = true;
-	private static boolean bIsPlacingTorch = false;
-	public static boolean isPlacingTorch() { return bIsPlacingTorch; }
-
+	
+	@Mod.Instance(MODID)
+	private Illuminator instance;
+	
+	private static BlockPos	lastTorchLocation	= null;
+	public static boolean	bShouldSyncSettings	= true;
+	private static boolean	bIsPlacingTorch		= false;
+	
+	public static boolean isPlacingTorch() {
+		return bIsPlacingTorch;
+	}
+	
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent evt) {
 		FMLEventChannel eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(ChannelName);
@@ -73,33 +75,36 @@ public class Illuminator {
 	public static void syncConfig() {
 		SettingsIlluminator.bEnabled = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.illuminator.enabled"), MODID, SettingsIlluminator.bEnabledDefault, Globals.localize("superminer.illuminator.enabled.desc"));
 		SettingsIlluminator.iLowestLightLevel = SuperMiner_Core.configFile.getInt(Globals.localize("superminer.illuminator.light_level"), MODID, SettingsIlluminator.iLowestLightLevelDefault, 0, 16, Globals.localize("superminer.illuminator.light_level.desc"));
-
+		
 		List<String> order = new ArrayList<String>(2);
 		order.add(Globals.localize("superminer.illuminator.enabled"));
 		order.add(Globals.localize("superminer.illuminator.light_level"));
 		
 		SuperMiner_Core.configFile.setCategoryPropertyOrder(MODID, order);
 		
-		if (!bShouldSyncSettings) bShouldSyncSettings = SuperMiner_Core.configFile.hasChanged();
+		if (!bShouldSyncSettings)
+			bShouldSyncSettings = SuperMiner_Core.configFile.hasChanged();
 	}
-
+	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
-		if (!PlayerEvents.IsPlayerInWorld() || 
-			!TickEvent.Phase.END.equals(event.phase)) return;
+		if (!PlayerEvents.IsPlayerInWorld() || !TickEvent.Phase.END.equals(event.phase))
+			return;
 		
 		Minecraft mc = FMLClientHandler.instance().getClient();
-		if (!mc.inGameHasFocus || mc.isGamePaused()) return;
-
+		if (!mc.inGameHasFocus || mc.isGamePaused())
+			return;
+		
 		if (bShouldSyncSettings) {
 			Globals.sendPacket(new CPacketCustomPayload(ChannelName, SettingsIlluminator.writePacketData()));
 			bShouldSyncSettings = false;
 		}
-
+		
 		EntityPlayer player = mc.player;
-		if (null == player || player.isDead || player.isPlayerSleeping()) return;
-
+		if (null == player || player.isDead || player.isPlayerSleeping())
+			return;
+		
 		World world = mc.world;
 		if (world != null) {
 			if (KeyBindings.illuminator_place.isPressed())
@@ -107,56 +112,22 @@ public class Illuminator {
 			else if (bIsPlacingTorch)
 				bIsPlacingTorch = false;
 			else if (SettingsIlluminator.bEnabled && Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
-			
-				int x = (int)(player.getEntityBoundingBox().minX + 0.5F);
-				int y = (int)player.getEntityBoundingBox().minY;
-				int z = (int)(player.getEntityBoundingBox().minZ + 0.5F);
 				
-				BlockPos oPos = new BlockPos(x, y, z);
+				BlockPos oPos = new BlockPos(player.getPosition());
 				IBlockState state = world.getBlockState(oPos.down());
-				
-				if (!world.isAirBlock(oPos)
-					&& !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-					x = (int)(player.getEntityBoundingBox().minX - 0.5F);
-					z = (int)(player.getEntityBoundingBox().minZ - 0.5F);
-					
-					oPos = new BlockPos(x, y, z);
-					state = world.getBlockState(oPos.down());
-					
-					if (!world.isAirBlock(oPos)
-						&& !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-						x = (int)(player.getEntityBoundingBox().minX + 0.5F);
-						z = (int)(player.getEntityBoundingBox().minZ - 0.5F);
-	
-						oPos = new BlockPos(x, y, z);
-						state = world.getBlockState(oPos.down());
-						
-						if (!world.isAirBlock(oPos)
-							&& !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-							x = (int)(player.getEntityBoundingBox().minX - 0.5F);
-							z = (int)(player.getEntityBoundingBox().minZ + 0.5F);
-	
-							oPos = new BlockPos(x, y, z);
-							state = world.getBlockState(oPos.down());
-						}
-					}
-				}
-				
 				// If the current light level is below the limit...
-				if (world.getLight(oPos) <= SettingsIlluminator.iLowestLightLevel
-					&& world.isAirBlock(oPos)
-					&& state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-	
-					Globals.sendPacket(new CPacketCustomPayload(ChannelName, new IlluminatorPacket(oPos).writePacketData()));
-	
+				if (world.getLight(oPos) <= SettingsIlluminator.iLowestLightLevel && world.isAirBlock(oPos) && state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
+					Globals.sendPacket(new CPacketCustomPayload(ChannelName, new IlluminatorPacket(oPos, EnumFacing.UP).writePacketData()));
 				}
 			}
-		} else lastTorchLocation = null;
+		} else
+			lastTorchLocation = null;
 	}
 	
 	@SubscribeEvent
 	public void severTickEvent(TickEvent.ServerTickEvent event) {
-		if (!SettingsIlluminator.bEnabled || !TickEvent.Phase.END.equals(event.phase)) return;
+		if (!SettingsIlluminator.bEnabled || !TickEvent.Phase.END.equals(event.phase))
+			return;
 		
 		// Retrieve any FMLInterModComm messages that may have been sent from other mods
 		for (final FMLInterModComms.IMCMessage imcMessage : FMLInterModComms.fetchRuntimeMessages(this.instance))
@@ -170,22 +141,24 @@ public class Illuminator {
 		
 		if (iPacketID == PacketIDs.Settings_Illuminator.value())
 			SettingsIlluminator.readPacketData(payLoad);
-			
+		
 		else if (SettingsIlluminator.bEnabled && iPacketID == IlluminatorPacket.PACKETID_ILLUMINATOR) {
 			IlluminatorPacket iPacket = new IlluminatorPacket();
 			iPacket.readPacketData(payLoad);
-
-			Illuminate(((NetHandlerPlayServer)event.getHandler()).playerEntity, iPacket.oPos, iPacket.sideHit);
+			
+			Illuminate(((NetHandlerPlayServer) event.getHandler()).playerEntity, iPacket.oPos, iPacket.sideHit);
 		}
 	}
-
+	
 	protected static void Illuminate(EntityPlayer player, BlockPos oPos, EnumFacing sideHit) {
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-		if (null == server) return;
+		if (null == server)
+			return;
 		
 		World world = server.worldServerForDimension(player.dimension);
-		if (world == null) return;
-
+		if (world == null)
+			return;
+		
 		int iTorchStackCount = 0;
 		int iTorchIndx = -1;
 		
@@ -212,77 +185,75 @@ public class Illuminator {
 			lastTorchLocation = new BlockPos(oPos);
 			
 			world.setBlockState(oPos, Blocks.TORCH.getDefaultState().withProperty(BlockTorch.FACING, sideHit));
-        	Globals.playSound(world, SoundEvents.BLOCK_WOOD_HIT, oPos);
-        	
+			Globals.playSound(world, SoundEvents.BLOCK_WOOD_HIT, oPos);
+			
 			ItemStack torchStack = player.inventory.decrStackSize(iTorchIndx, 1);
 			
 			if (torchStack.getCount() <= 0) {
 				lastTorchLocation = null;
 				iTorchStackCount--;
 			}
-
+			
 			if (iTorchStackCount == 0)
 				player.sendMessage(new TextComponentString("§5[SuperMiner] §6Illuminator: §c" + Globals.localize("superminer.illuminator.no_torches")));
 		}
 	}
 	
 	public void processIMC(final FMLInterModComms.IMCMessage imcMessage) {
-        if (imcMessage.key.equalsIgnoreCase("IlluminateShaft"))
-            if (imcMessage.isNBTMessage()) {
-            	NBTTagCompound nbt = imcMessage.getNBTValue();
-
+		if (imcMessage.key.equalsIgnoreCase("IlluminateShaft"))
+			if (imcMessage.isNBTMessage()) {
+				NBTTagCompound nbt = imcMessage.getNBTValue();
+				
 				IlluminatorPacket iPacket = new IlluminatorPacket();
 				iPacket.readPacketData(new PacketBuffer(Unpooled.copiedBuffer(nbt.getByteArray("IlluminateShaftData"))));
 				
 				MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-				if (null == server) return;
+				if (null == server)
+					return;
 				
-				EntityPlayer player = (EntityPlayer)server.getEntityWorld().getEntityByID(iPacket.playerID);
-				if (player == null) return;
+				EntityPlayer player = (EntityPlayer) server.getEntityWorld().getEntityByID(iPacket.playerID);
+				if (player == null)
+					return;
 				
 				World world = server.worldServerForDimension(player.dimension);
-				if (world == null) return;
+				if (world == null)
+					return;
 				
-				int x = (int)(iPacket.oPos.getX() + 0.5F);
-				int y = (int)iPacket.oPos.getY();
-				int z = (int)(iPacket.oPos.getZ() + 0.5F);
+				int x = (int) (iPacket.oPos.getX() + 0.5F);
+				int y = iPacket.oPos.getY();
+				int z = (int) (iPacket.oPos.getZ() + 0.5F);
 				
 				BlockPos oPos = new BlockPos(x, y, z);
 				IBlockState state = world.getBlockState(oPos.down());
 				
-				if (!world.isAirBlock(oPos)
-					&& !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-					x = (int)(player.getEntityBoundingBox().minX - 0.5F);
-					z = (int)(player.getEntityBoundingBox().minZ - 0.5F);
+				if (!world.isAirBlock(oPos) && !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
+					x = (int) (player.getEntityBoundingBox().minX - 0.5F);
+					z = (int) (player.getEntityBoundingBox().minZ - 0.5F);
 					
 					oPos = new BlockPos(x, y, z);
 					state = world.getBlockState(oPos.down());
 					
-					if (!world.isAirBlock(oPos)
-						&& !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-						x = (int)(player.getEntityBoundingBox().minX + 0.5F);
-						z = (int)(player.getEntityBoundingBox().minZ - 0.5F);
-
+					if (!world.isAirBlock(oPos) && !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
+						x = (int) (player.getEntityBoundingBox().minX + 0.5F);
+						z = (int) (player.getEntityBoundingBox().minZ - 0.5F);
+						
 						oPos = new BlockPos(x, y, z);
 						state = world.getBlockState(oPos.down());
 						
-						if (!world.isAirBlock(oPos)
-							&& !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-							x = (int)(player.getEntityBoundingBox().minX - 0.5F);
-							z = (int)(player.getEntityBoundingBox().minZ + 0.5F);
-
+						if (!world.isAirBlock(oPos) && !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
+							x = (int) (player.getEntityBoundingBox().minX - 0.5F);
+							z = (int) (player.getEntityBoundingBox().minZ + 0.5F);
+							
 							oPos = new BlockPos(x, y, z);
 							state = world.getBlockState(oPos.down());
 						}
 					}
 				}
-
+				
 				// Ensure the current light level is below the limit...
-				if (world.getLight(oPos) <= SettingsIlluminator.iLowestLightLevel 
-					&& world.isAirBlock(oPos)
-					&& state.getBlock().canPlaceTorchOnTop(state, world, oPos.down()))
+				if (world.getLight(oPos) <= SettingsIlluminator.iLowestLightLevel && world.isAirBlock(oPos) && state.getBlock().canPlaceTorchOnTop(state, world, oPos.down()))
 					Illuminate(player, oPos, EnumFacing.UP);
-            }
+			}
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -305,7 +276,7 @@ public class Illuminator {
 					oSidePos = oPos.east();
 				else if (sideHit == EnumFacing.WEST)
 					oSidePos = oPos.west();
-	
+				
 				if (mc.world.getBlockState(oPos).getBlock().isReplaceable(mc.world, oPos) && mc.world.getBlockState(oPos.down()).isSideSolid(mc.world, oPos.down(), EnumFacing.UP))
 					Globals.sendPacket(new CPacketCustomPayload(ChannelName, (new IlluminatorPacket(oPos, EnumFacing.UP)).writePacketData()));
 				else if (mc.world.isAirBlock(oSidePos) && mc.world.getBlockState(oPos).isSideSolid(mc.world, oPos, sideHit))

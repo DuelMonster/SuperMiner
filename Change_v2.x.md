@@ -1,9 +1,27 @@
+#### **2.1.9:**
+> | Core: | ---
+> | --- | ---
+> | _FIX_: | Fixed a localisation issue that caused a server to crash.
+
+> | Illuminator: | ---
+> | --- | ---
+> | _FIX_: | Adjusted torch placement code to ensure torches get placed while mining or using Shaftanator.
+
+> | Lumbinator: | ---
+> | --- | ---
+> | _FIX_: | Removed the Gather Drops option.  This option seemed to be causing Lumbinator to get stuck for awhile making it look as though it had stopped working.
+
+> | Veinator: | ---
+> | --- | ---
+> | _FIX_: | Made a small adjustment to help avoid a random crash while mining multiple Ores at the same time
+
 #### **2.1.8:**
 > | Veinator: | ---
 > | --- | ---
 > | _FIX_: | Added Mystical Agriculture Ore support
 > | _FIX_: | Added Mekanism Ore support
 > | _FIX_: | Added Quantum Flux Ore support
+
 #### **2.1.7:**
 > | Veinator: | ---
 > | --- | ---
@@ -16,7 +34,7 @@
 
 > | Substitutor: | ---
 > | --- | ---
-> | _FIX_: | Sovled an issue that caused using tools to stop working on a laptops mouse pad.
+> | _FIX_: | Solved an issue that caused using tools to stop working on a laptops mouse pad.
 
 > | Veinator: | ---
 > | --- | ---
@@ -25,14 +43,14 @@
 #### **2.1.4:**
 > | Cropinator: | ---
 > | --- | ---
-> | _FIX_: | Solved an issue that would tile aready tiled dirt that resulted in the crops being thrown out of the farmland.
+> | _FIX_: | Solved an issue that would tile already tiled dirt that resulted in the crops being thrown out of the farmland.
 
 > | Illuminator: | ---
 > | --- | ---
 > | _FIX_: | Torch placement code changed to Client side only.  This caused a server to crash when SuperMiner was installed.  Thanks to GodsVictory for the fix.
-> | _FIX_: | Solved an infiniate torch bug.  When using the Torch placement keybind the size of the torch stack would decrease but when picking up the stack from your inventory the previous skack size would be restored.
+> | _FIX_: | Solved an infinite torch bug.  When using the Torch placement keybind the size of the torch stack would decrease but when picking up the stack from your inventory the previous skack size would be restored.
 > | _CHANGE_: | Modified Torch placement keybind to work even when Illuminator is disabled.
-> | _CHANGE_: | Various improvments made to the placement of Torches.
+> | _CHANGE_: | Various improvements made to the placement of Torches.
 
 > | Shaftanator: | ---
 > | --- | ---
