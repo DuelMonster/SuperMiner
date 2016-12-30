@@ -226,7 +226,7 @@ public class Lumbinator {
 			return false;
 		
 		ItemStack oEquippedItem = oPlayer.getHeldItemMainhand();
-		if (oEquippedItem == null || oEquippedItem.getCount() <= 0 || !Globals.isIdInList(oEquippedItem.getItem(), myGlobals.lToolIDs) || !Globals.isIdInList(block, myGlobals.lBlockIDs))
+		if (oEquippedItem == null || oEquippedItem.stackSize <= 0 || !Globals.isIdInList(oEquippedItem.getItem(), myGlobals.lToolIDs) || !Globals.isIdInList(block, myGlobals.lBlockIDs))
 			return false;
 		
 		if (!currentPacket.positions.contains(currentPacket.oPos))
@@ -303,7 +303,6 @@ public class Lumbinator {
 				oPlayer.inventory.setInventorySlotContents(iHeldSlot, oHeldItem);
 				oPlayer.openContainer.detectAndSendChanges();
 			}
-			
 			
 			Globals.stackItems(oPlayer.world, oPlayer, new AxisAlignedBB(currentPacket.oPos).expand(8, 8, 8));
 			

@@ -319,7 +319,7 @@ public class Veinator {
 		ItemStack oEquippedItem = player.getHeldItemMainhand();
 		if (state.getMaterial().isToolNotRequired() ||
 				oEquippedItem == null ||
-				oEquippedItem.getCount() <= 0 ||
+				oEquippedItem.stackSize <= 0 ||
 				!Globals.isIdInList(oEquippedItem.getItem(), myGlobals.lToolIDs) ||
 				!oEquippedItem.canHarvestBlock(state) ||
 				!ForgeHooks.canToolHarvestBlock(player.world, p.oPos, oEquippedItem))

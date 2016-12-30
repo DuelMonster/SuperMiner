@@ -266,7 +266,7 @@ public class Globals {
 						ItemStack e2Item = e2.getEntityItem();
 						int itemDurability2 = e2Item.getMaxDamage();
 						if (e1Item.getItem() == e2Item.getItem() && itemDurability1 == itemDurability2) {
-							e1Item.setCount(e2Item.getCount() + 1);
+							e1Item.stackSize = e2Item.stackSize + 1;
 							entity2.setDead();
 						}
 					}

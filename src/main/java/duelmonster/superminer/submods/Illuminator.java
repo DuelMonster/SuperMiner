@@ -163,8 +163,8 @@ public class Illuminator {
 		int iTorchIndx = -1;
 		
 		// Locate the players torches
-		for (int i = 0; i < player.inventory.mainInventory.size(); i++) {
-			ItemStack stack = player.inventory.mainInventory.get(i);
+		for (int i = 0; i < player.inventory.mainInventory.length; i++) {
+			ItemStack stack = player.inventory.mainInventory[i];
 			if (stack != null && stack.getItem().equals(Item.getItemFromBlock(Blocks.TORCH))) {
 				iTorchStackCount++;
 				iTorchIndx = player.inventory.getSlotFor(stack);
@@ -172,8 +172,8 @@ public class Illuminator {
 		}
 		
 		if (iTorchIndx == -1) {
-			for (int i = 0; i < player.inventory.offHandInventory.size(); i++) {
-				ItemStack stack = player.inventory.offHandInventory.get(i);
+			for (int i = 0; i < player.inventory.offHandInventory.length; i++) {
+				ItemStack stack = player.inventory.offHandInventory[i];
 				if (stack != null && stack.getItem().equals(Item.getItemFromBlock(Blocks.TORCH))) {
 					iTorchStackCount++;
 					iTorchIndx = player.inventory.getSlotFor(stack);
@@ -189,7 +189,7 @@ public class Illuminator {
 			
 			ItemStack torchStack = player.inventory.decrStackSize(iTorchIndx, 1);
 			
-			if (torchStack.getCount() <= 0) {
+			if (torchStack.stackSize <= 0) {
 				lastTorchLocation = null;
 				iTorchStackCount--;
 			}
