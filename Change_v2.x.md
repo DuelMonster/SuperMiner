@@ -1,3 +1,20 @@
+#### **2.1.8:**
+> | Core: | ---
+> | --- | ---
+> | _FIX_: | Fixed a localisation issue that caused a server to crash.
+
+> | Illuminator: | ---
+> | --- | ---
+> | _FIX_: | Adjusted torch placement code to ensure torches get placed while mining or using Shaftanator.
+
+> | Lumbinator: | ---
+> | --- | ---
+> | _FIX_: | Removed the Gather Drops option.  This option seemed to be causing Lumbinator to get stuck for awhile making it look as though it had stopped working.
+
+> | Veinator: | ---
+> | --- | ---
+> | _FIX_: | Made a small adjustment to help avoid a random crash while mining multiple Ores at the same time
+
 #### **2.1.7:**
 > | Veinator: | ---
 > | --- | ---

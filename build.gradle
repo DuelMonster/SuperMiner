@@ -266,7 +266,7 @@ task mods_io << {
 	// **********  Submit new version to the mods.io repository  ********** \\
 	
 	def curlPost = ['C:/curl/bin/curl',	
-					'-H', 'X-API-Key:', '$modsioApiKey',
+					'-H', 'X-API-Key="$modsioApiKey"',
 					'-X', 'POST',
 					'-F', 'body="{ \"version\": { \"name\": \"$modLatest\", \"minecraft\": \"$config.mc_version\", \"changelog\": \"\" }, \"current\": \"true\" \"filename\": \"$archivesBaseName-$modLatest.jar\" }"',
 					'-F', 'file="@~Release/$archivesBaseName-$modLatest.jar"',
