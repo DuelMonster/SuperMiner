@@ -113,8 +113,6 @@ public class ExcavationHelper {
 							
 						} else {
 							
-							// while (SuperMiner_Core.isMCTicking()) try { Thread.sleep(1); } catch
-							// (InterruptedException e) {}
 							
 							// Double check that the block isn't air
 							if (!world.isAirBlock(workingPos)) {

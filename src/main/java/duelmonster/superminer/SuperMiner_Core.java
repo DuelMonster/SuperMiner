@@ -98,48 +98,4 @@ public class SuperMiner_Core {
 		Veinator.syncConfig();
 	}
 	
-	// private static boolean bIsClientTicking = false;
-	// private static boolean bIsPlayerTicking = false;
-	// private static boolean bIsServerTicking = false;
-	// private static boolean bIsWorldTicking = false;
-	//
-	// public static boolean isMCTicking() {
-	// if (FMLCommonHandler.instance().getSide().isClient())
-	// return (bIsClientTicking || bIsPlayerTicking || bIsServerTicking || bIsWorldTicking);
-	// else
-	// return (bIsPlayerTicking || bIsWorldTicking);
-	// }
-	//
-	// @SubscribeEvent
-	// @SideOnly(Side.CLIENT)
-	// public void tickEvent(TickEvent.ClientTickEvent event) {
-	// if (TickEvent.Phase.START.equals(event.phase))
-	// bIsClientTicking = true;
-	// else if (TickEvent.Phase.END.equals(event.phase))
-	// bIsClientTicking = false;
-	// }
-	//
-	// @SubscribeEvent
-	// public void tickEvent(TickEvent.PlayerTickEvent event) {
-	// if (TickEvent.Phase.START.equals(event.phase))
-	// bIsPlayerTicking = true;
-	// else if (TickEvent.Phase.END.equals(event.phase))
-	// bIsPlayerTicking = false;
-	// }
-	//
-	// @SubscribeEvent
-	// public void tickEvent(TickEvent.ServerTickEvent event) {
-	// if (TickEvent.Phase.START.equals(event.phase))
-	// bIsServerTicking = true;
-	// else if (TickEvent.Phase.END.equals(event.phase))
-	// bIsServerTicking = false;
-	// }
-	//
-	// @SubscribeEvent
-	// public void tickEvent(TickEvent.WorldTickEvent event) {
-	// if (TickEvent.Phase.START.equals(event.phase))
-	// bIsWorldTicking = true;
-	// else if (TickEvent.Phase.END.equals(event.phase))
-	// bIsWorldTicking = false;
-	// }
 }

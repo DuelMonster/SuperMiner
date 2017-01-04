@@ -322,9 +322,6 @@ public class Lumbinator {
 		Block block = state.getBlock();
 		boolean bIsLeaves = state.getMaterial() == Material.LEAVES && Globals.isIdInList(block, myGlobals.lLeafIDs);
 		
-		// while (SuperMiner_Core.isMCTicking()) try { Thread.sleep(1); } catch
-		// (InterruptedException e) {}
-		
 		boolean bRtrn = false;
 		// Double check that the block isn't air
 		if (!oPlayer.world.isAirBlock(blockPos)) {
