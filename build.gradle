@@ -266,28 +266,31 @@ task updateVersionInfo << {
 	println ""
 }
 
+import groovy.json.JsonOutput
+
 task mods_io << {
-	finalizedBy updateVersionInfo
-	
 	// **********  Submit new version to the mods.io repository  ********** \\
 	
-	def curlPost = ['curl',	'-H', 'X-API-Key: $modsioApiKey',
-							'-X', 'POST',
-							'-F', 'body="{ \"version\": { \"name\": \"$modLatest\", \"minecraft\": \"$config.mc_version\", \"changelog\": \"\" }, \"current\": \"true\" \"filename\": \"$archivesBaseName-$modLatest.jar\" }"',
-							'-F', 'file="@~Release/$archivesBaseName-$modLatest.jar"',
-							'https://mods.io/mods/1217/versions/create.json'].execute()
-
-	//def json_response = new JsonSlurper().parseText(curlPost.text)
+	exec{
+	    executable	'C:/curl/bin/curl'
+	    args 		'-H', 'X-API-Key="$modsioApiKey"',
+					'-X', 'POST',
+					'-F', 'body="{ \"version\": { \"name\": \"$modLatest\", \"minecraft\": \"$config.mc_version\", \"changelog\": \"\" }, \"current\": \"true\" \"filename\": \"$archivesBaseName-$modLatest.jar\" }"',
+					'-F', 'file="@~Release/$archivesBaseName-$modLatest.jar"',
+					'"https://mods.io/mods/1217/versions/create.json"'
+    }
 	
 	println ""
 	println "=================================================="
 	println "  mods.io submission response:"
 	println "--------------------------------------------------"
-	println JsonOutput.prettyPrint(curlPost.text) //json_response)
+	println execResult
 	println "=================================================="
 	
 	// **********  End mods.io submission  ********** \\
 }
+tasks.mods_io.onlyIf { modsioApiKey }
+tasks.mods_io.finalizedBy updateVersionInfo
 
 tasks.curseforge.onlyIf { curseForgeApiKey }
 tasks.curseforge.dependsOn release
