@@ -21,7 +21,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -29,7 +28,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Mod(	modid = SuperMiner_Core.MODID,
 		name = SuperMiner_Core.MODName,
-		version = SuperMiner_Core.VERSION,
+		version = SuperMiner_Core.MODVERSION,
 		acceptedMinecraftVersions = SuperMiner_Core.MCVERSION,
 		dependencies = "after:*",
 		guiFactory = "duelmonster.superminer.config.SMGuiFactory",
@@ -41,8 +40,7 @@ public class SuperMiner_Core {
 	public static final String	MCVERSION	= "[1.11.2]";
 	public static final String	VERSION		= MCVERSION + "-" + MODVERSION;
 	
-	public static final String	VC_URL	= "http://www.duelmonster.talktalk.net/Minecraft/SuperMiner/mod_version.json";
-	public static final String	FVC_URL	= "http://www.duelmonster.talktalk.net/Minecraft/SuperMiner/forge_update.json";
+	public static final String FVC_URL = "http://www.duelmonster.talktalk.net/Minecraft/SuperMiner/forge_update.json";
 	
 	public static Configuration configFile;
 	
@@ -64,8 +62,6 @@ public class SuperMiner_Core {
 		proxy.registerEventHandler();
 		
 		MinecraftForge.EVENT_BUS.register(this);
-		
-		FMLInterModComms.sendRuntimeMessage(MODID, "VersionChecker", "addVersionCheck", VC_URL);
 	}
 	
 	@Mod.EventHandler
