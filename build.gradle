@@ -160,7 +160,6 @@ processResources
 }
 
 version		= "[${project.minecraft.version}]-${project.version}"
-def modLatest	= "[$config.mc_version]-$mod_version"
 
 sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
 
@@ -219,12 +218,12 @@ task updateVersionInfo << {
 	JsonBuilder forgeUpdate_builder = new JsonBuilder( forgeUpdate_slurper )
 	
 	def mcLatest = "" + config.mc_version + "-latest"
-	forgeUpdate_builder.content.promos["$mcLatest"] = modLatest
-	forgeUpdate_builder.content["$config.mc_version"]["$modLatest"] = ""
+	forgeUpdate_builder.content.promos["$mcLatest"] = mod_version
+	forgeUpdate_builder.content["$config.mc_version"]["$mod_version"] = ""
 
 	if (recommended) {
 		def mcRecom = "" + config.mc_version + "-recommended"
-		forgeUpdate_builder.content.promos["$mcRecom"] = modLatest
+		forgeUpdate_builder.content.promos["$mcRecom"] = mod_version
 	}
 
 	file('../forge_update.json').write(forgeUpdate_builder.toPrettyString())
