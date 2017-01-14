@@ -47,23 +47,22 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Mod(	modid = Cropinator.MODID
-	  , name = Cropinator.MODName
-	  , version = SuperMiner_Core.VERSION
-	  , acceptedMinecraftVersions = SuperMiner_Core.MCVERSION
-	)
+@Mod(	modid = Cropinator.MODID,
+		name = Cropinator.MODName,
+		version = SuperMiner_Core.VERSION,
+		acceptedMinecraftVersions = SuperMiner_Core.MCVERSION)
 public class Cropinator {
-	public static final String MODID = "superminer_cropinator";
-	public static final String MODName = "Cropinator";
+	public static final String	MODID	= "superminer_cropinator";
+	public static final String	MODName	= "Cropinator";
 	
 	public static final String ChannelName = MODID.substring(0, (MODID.length() < 20 ? MODID.length() : 20));
-
+	
 	private boolean bHungerNotified = false;
-
+	
 	public static boolean bShouldSyncSettings = true;
 	
 	private static List<Object> lHoeIDs = null;
-
+	
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent evt) {
 		FMLEventChannel eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(ChannelName);
@@ -76,9 +75,9 @@ public class Cropinator {
 		SettingsCropinator.bEnabled = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.cropinator.enabled"), MODID, SettingsCropinator.bEnabledDefault, Globals.localize("superminer.cropinator.enabled.desc"));
 		SettingsCropinator.bHarvestSeeds = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.cropinator.harvest_seeds"), MODID, SettingsCropinator.bHarvestSeedsDefault, Globals.localize("superminer.cropinator.harvest_seeds.desc"));
 		SettingsCropinator.lHoeIDs = new ArrayList<String>(Arrays.asList(SuperMiner_Core.configFile.getStringList(Globals.localize("superminer.cropinator.hoe_ids"), MODID, SettingsCropinator.lHoeIDDefaults.toArray(new String[0]), Globals.localize("superminer.cropinator.hoe_ids.desc"))));
-
+		
 		lHoeIDs = Globals.IDListToArray(SettingsCropinator.lHoeIDs, false);
-
+		
 		List<String> order = new ArrayList<String>(9);
 		order.add(Globals.localize("superminer.cropinator.enabled"));
 		order.add(Globals.localize("superminer.cropinator.harvest_seeds"));
@@ -86,41 +85,45 @@ public class Cropinator {
 		
 		SuperMiner_Core.configFile.setCategoryPropertyOrder(MODID, order);
 		
-		if (!bShouldSyncSettings) bShouldSyncSettings = SuperMiner_Core.configFile.hasChanged();
+		if (!bShouldSyncSettings)
+			bShouldSyncSettings = SuperMiner_Core.configFile.hasChanged();
 	}
-
-    @Mod.EventHandler
-    public void imcCallback(FMLInterModComms.IMCEvent event) {
-        for(final FMLInterModComms.IMCMessage message : event.getMessages())
-        	if (message.isStringMessage()) {
-        		
-        		if(message.key.equalsIgnoreCase("addHoe") && !SettingsCropinator.lHoeIDs.contains(message.getStringValue())) {
-        			SettingsCropinator.lHoeIDs.add(message.getStringValue());
-        			
-        			SuperMiner_Core.configFile.get(MODID, Globals.localize("superminer.cropinator.hoe_ids"), SettingsCropinator.lHoeIDDefaults.toArray(new String[0]), Globals.localize("superminer.cropinator.hoe_ids.desc")).set(SettingsCropinator.lHoeIDs.toArray(new String[0]));
-        			SuperMiner_Core.configFile.save();
-        			
-        		}
-        	}
-    }
-
+	
+	@Mod.EventHandler
+	public void imcCallback(FMLInterModComms.IMCEvent event) {
+		for (final FMLInterModComms.IMCMessage message : event.getMessages())
+			if (message.isStringMessage()) {
+				
+				if (message.key.equalsIgnoreCase("addHoe") && !SettingsCropinator.lHoeIDs.contains(message.getStringValue())) {
+					SettingsCropinator.lHoeIDs.add(message.getStringValue());
+					
+					SuperMiner_Core.configFile.get(MODID, Globals.localize("superminer.cropinator.hoe_ids"), SettingsCropinator.lHoeIDDefaults.toArray(new String[0]), Globals.localize("superminer.cropinator.hoe_ids.desc")).set(SettingsCropinator.lHoeIDs.toArray(new String[0]));
+					SuperMiner_Core.configFile.save();
+					
+				}
+			}
+	}
+	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
-		if (!PlayerEvents.IsPlayerInWorld() || 
-				!SettingsCropinator.bEnabled || 
-				!TickEvent.Phase.END.equals(event.phase)) return;
-
+		if (!PlayerEvents.IsPlayerInWorld() ||
+				!SettingsCropinator.bEnabled ||
+				!TickEvent.Phase.END.equals(event.phase))
+			return;
+		
 		Minecraft mc = FMLClientHandler.instance().getClient();
-		if (mc.player == null || mc.world == null || mc.isGamePaused() || !mc.inGameHasFocus) return;
-
+		if (mc.player == null || mc.world == null || mc.isGamePaused() || !mc.inGameHasFocus)
+			return;
+		
 		if (bShouldSyncSettings) {
 			Globals.sendPacket(new CPacketCustomPayload(ChannelName, SettingsCropinator.writePacketData()));
 			bShouldSyncSettings = false;
 		}
 		
 		EntityPlayer player = mc.player;
-		if (null == player || player.isDead || player.isPlayerSleeping()) return;
+		if (null == player || player.isDead || player.isPlayerSleeping())
+			return;
 		
 		World world = mc.world;
 		if (world != null) {
@@ -128,19 +131,19 @@ public class Cropinator {
 			IBlockState state = null;
 			Block block = null;
 			BlockPos oPos = null;
-					
+			
 			if (player.getHealth() > 0.0F && mc.objectMouseOver != null
-				&& mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
-
+					&& mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
+				
 				oPos = mc.objectMouseOver.getBlockPos();
 				state = world.getBlockState(oPos);
-	    		block = state.getBlock();
+				block = state.getBlock();
 				
 				if (!Globals.isAttacking(mc) && block != null && block == Blocks.AIR)
 					block = null;
 				
 				if (block != null) {
-	
+					
 					if (!bHungerNotified && player.getFoodStats().getFoodLevel() <= Globals.MIN_HUNGER) {
 						Globals.NotifyClient(Globals.tooHungry() + MODName);
 						bHungerNotified = true;
@@ -148,20 +151,22 @@ public class Cropinator {
 					}
 					
 					if (player.getFoodStats().getFoodLevel() > Globals.MIN_HUNGER
-						&& player.getHeldItemMainhand() != null
-						&& Globals.isIdInList(player.getHeldItemMainhand().getItem(), lHoeIDs))
-
-							if (Globals.isUsingItem(mc) && (block == Blocks.GRASS || block == Blocks.DIRT || block == Blocks.FARMLAND))
-								Globals.sendPacket(new CPacketCustomPayload(ChannelName, (new AutoFurrowPacket(PacketIDs.Cropinator_HoePacket.value(), oPos)).writePacketData()));
-
-							else if (Globals.isUsingItem(mc) && block instanceof IPlantable) // state.getMaterial() == Material.PLANTS)
-								Globals.sendPacket(new CPacketCustomPayload(ChannelName, (new AutoFurrowPacket(PacketIDs.Cropinator_CropPacket.value(), oPos)).writePacketData()));
-
-				} else bHungerNotified = false;
+							&& player.getHeldItemMainhand() != null
+							&& Globals.isIdInList(player.getHeldItemMainhand().getItem(), lHoeIDs))
+						
+						if (Globals.isUsingItem(mc) && (block == Blocks.GRASS || block == Blocks.DIRT || block == Blocks.FARMLAND))
+							Globals.sendPacket(new CPacketCustomPayload(ChannelName, (new AutoFurrowPacket(PacketIDs.Cropinator_HoePacket.value(), oPos)).writePacketData()));
+						
+						else if (Globals.isUsingItem(mc) && block instanceof IPlantable) // state.getMaterial() ==
+																							// Material.PLANTS)
+							Globals.sendPacket(new CPacketCustomPayload(ChannelName, (new AutoFurrowPacket(PacketIDs.Cropinator_CropPacket.value(), oPos)).writePacketData()));
+						
+				} else
+					bHungerNotified = false;
 			}
 		}
 	}
-
+	
 	@SubscribeEvent
 	public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
 		PacketBuffer payLoad = new PacketBuffer(event.getPacket().payload());
@@ -171,55 +176,58 @@ public class Cropinator {
 			SettingsCropinator.readPacketData(payLoad);
 		
 		else if (SettingsCropinator.bEnabled) {
-			EntityPlayerMP player = ((NetHandlerPlayServer)event.getHandler()).playerEntity;
+			EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).playerEntity;
 			
 			AutoFurrowPacket packet = new AutoFurrowPacket();
 			packet.readPacketData(payLoad);
-
+			
 			if (iPacketID == PacketIDs.Cropinator_HoePacket.value())
 				
 				HoeTheFarm(packet, player);
-				
+			
 			else if (iPacketID == PacketIDs.Cropinator_CropPacket.value())
 				
 				FarmTheCrops(packet, player);
 		}
 	}
-
+	
 	private static void HoeTheFarm(AutoFurrowPacket oPacket, EntityPlayer player) {
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-		if (null == server) return;
+		if (null == server)
+			return;
 		
 		World world = server.worldServerForDimension(player.dimension);
-		if (world == null) return;
+		if (world == null)
+			return;
 		
 		getFarmLand(world, oPacket);
-
+		
 		ItemStack curItem = player.getHeldItemMainhand();
 		
 		int iFarmableFound = oPacket.lstPositions.size();
 		int iFarmed = 0;
 		while (iFarmed <= iFarmableFound) {
 			BlockPos blockPos = oPacket.lstPositions.poll();
-			if (blockPos == null) break;
+			if (blockPos == null)
+				break;
 			
 			Block blockAbove = world.getBlockState(blockPos.up()).getBlock();
-
+			
 			if (blockPos.getY() == oPacket.oPos.getY()
-				&& (blockAbove == Blocks.AIR || blockAbove instanceof IPlantable) 
-				&& hasWaterSource(world, blockPos)) {
+					&& (blockAbove == Blocks.AIR || blockAbove instanceof IPlantable)
+					&& hasWaterSource(world, blockPos)) {
 				
 				world.setBlockState(blockPos, Blocks.FARMLAND.getDefaultState().withProperty(BlockFarmland.MOISTURE, Integer.valueOf(7)), 2);
 				Globals.playSound(world, SoundEvents.ITEM_HOE_TILL, blockPos);
 				
 				if (blockAbove instanceof IPlantable) {
-
+					
 					int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, curItem);
 					blockAbove.dropBlockAsItem(world, blockPos, world.getBlockState(blockPos.up()), fortune);
 					world.setBlockState(blockPos.up(), Blocks.AIR.getDefaultState(), 2);
-
+					
 				}
-
+				
 				if (curItem != null && curItem.isItemStackDamageable())
 					curItem.damageItem(1, player);
 				
@@ -231,12 +239,13 @@ public class Cropinator {
 			}
 			
 			iFarmed++;
-			if (iFarmed > iFarmableFound) break;
+			if (iFarmed > iFarmableFound)
+				break;
 		}
 		
 		oPacket.lstPositions.clear();
 	}
-
+	
 	private static void getFarmLand(World world, AutoFurrowPacket oPacket) {
 		int iRadius = 8;
 		
@@ -245,15 +254,15 @@ public class Cropinator {
 				BlockPos blockPos = oPacket.oPos.add(xOffset, 0, zOffset);
 				Block oBlock = world.getBlockState(blockPos).getBlock();
 				
-				if (oBlock != null && 
-					oBlock != Blocks.AIR && 
-					(oBlock == Blocks.GRASS || oBlock == Blocks.DIRT))
-					//(oBlock == Blocks.FARMLAND && !oBlock.isFertile(world, blockPos))))
-				
+				if (oBlock != null && !world.isAirBlock(blockPos)
+						&& world.isAirBlock(blockPos.up())
+						&& (oBlock == Blocks.GRASS || oBlock == Blocks.DIRT))
 					oPacket.lstPositions.offer(blockPos);
+				else
+					break;
 			}
 	}
-
+	
 	private static boolean hasWaterSource(World world, BlockPos oPos) {
 		for (int xOffset = oPos.getX() - 4; xOffset <= oPos.getX() + 4; ++xOffset)
 			for (int yOffset = oPos.getY(); yOffset <= oPos.getY() + 1; ++yOffset)
@@ -262,35 +271,38 @@ public class Cropinator {
 					if (state.getMaterial() == Material.WATER)
 						return true;
 				}
-		
+			
 		return false;
 	}
-
+	
 	private static void FarmTheCrops(AutoFurrowPacket oPacket, EntityPlayer player) {
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-		if (null == server) return;
+		if (null == server)
+			return;
 		
 		World world = server.worldServerForDimension(player.dimension);
-		if (world == null) return;
+		if (world == null)
+			return;
 		
 		getCrops(world, oPacket);
-
+		
 		ItemStack curItem = player.getHeldItemMainhand();
 		
 		int iFarmableFound = oPacket.lstPositions.size();
 		int iFarmed = 0;
 		while (iFarmed <= iFarmableFound) {
 			BlockPos blockPos = oPacket.lstPositions.poll();
-			if (blockPos == null) break;
-
+			if (blockPos == null)
+				break;
+			
 			boolean bHarvest = true;
 			IBlockState state = world.getBlockState(blockPos);
 			IBlockState newState = null;
 			Block blkCrop = state.getBlock();
 			
-			if (blkCrop instanceof BlockBeetroot && ((BlockBeetroot)blkCrop).isMaxAge(state))
+			if (blkCrop instanceof BlockBeetroot && ((BlockBeetroot) blkCrop).isMaxAge(state))
 				newState = blkCrop.getDefaultState().withProperty(BlockBeetroot.BEETROOT_AGE, Integer.valueOf(0));
-			else if (blkCrop instanceof BlockCrops && ((BlockCrops)blkCrop).isMaxAge(state))
+			else if (blkCrop instanceof BlockCrops && ((BlockCrops) blkCrop).isMaxAge(state))
 				newState = blkCrop.getDefaultState().withProperty(BlockCrops.AGE, Integer.valueOf(0));
 			else
 				bHarvest = false;
@@ -310,10 +322,10 @@ public class Cropinator {
 				
 				world.setBlockState(blockPos, newState, 2);
 				Globals.playSound(world, SoundEvents.BLOCK_GRASS_HIT, blockPos);
-
-				// Apply Item damage every 4 crops harvested.  This makes item damage 1/4 per crop
+				
+				// Apply Item damage every 4 crops harvested. This makes item damage 1/4 per crop
 				if (iFarmed > 0 && (iFarmed % 4 == 0 || iFarmed >= iFarmableFound)
-					&& curItem != null && curItem.isItemStackDamageable())
+						&& curItem != null && curItem.isItemStackDamageable())
 					curItem.damageItem(1, player);
 				
 				if (curItem.getMaxDamage() <= 0) {
@@ -324,26 +336,27 @@ public class Cropinator {
 			}
 			
 			iFarmed++;
-			if (iFarmed > iFarmableFound) break;
+			if (iFarmed > iFarmableFound)
+				break;
 		}
 		
 		oPacket.lstPositions.clear();
 	}
-
+	
 	private static void getCrops(World world, AutoFurrowPacket oPacket) {
 		int iPosStartEnd = 32;
-
+		
 		for (int iSpiral = 1; iSpiral <= iPosStartEnd; iSpiral++)
 			for (int xOffset = -iSpiral; xOffset <= iSpiral; xOffset++)
 				for (int zOffset = -iSpiral; zOffset <= iSpiral; zOffset++) {
 					BlockPos blockPos = oPacket.oPos.add(xOffset, 0, zOffset);
 					Block oBlock = world.getBlockState(blockPos).getBlock();
 					
-					if (oBlock != null && 
-						oBlock != Blocks.AIR && 
-						oBlock instanceof BlockCrops &&
-						oPacket.isPositionConnected(blockPos))
-					
+					if (oBlock != null &&
+							oBlock != Blocks.AIR &&
+							oBlock instanceof BlockCrops &&
+							oPacket.isPositionConnected(blockPos))
+						
 						oPacket.lstPositions.offer(blockPos);
 				}
 	}

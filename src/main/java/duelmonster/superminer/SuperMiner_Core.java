@@ -6,6 +6,7 @@ import duelmonster.superminer.events.PlayerEvents;
 import duelmonster.superminer.intergration.ModSupport;
 import duelmonster.superminer.keys.KeyBindings;
 import duelmonster.superminer.keys.KeyInputHandler;
+import duelmonster.superminer.proxy.SM_Proxy;
 import duelmonster.superminer.submods.Captivator;
 import duelmonster.superminer.submods.Cropinator;
 import duelmonster.superminer.submods.Excavator;

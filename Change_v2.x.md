@@ -1,3 +1,17 @@
+#### **2.1.11:**
+> | Core: | ---
+> | --- | ---
+> | _FIX_: | Adjusted the Forge Version JSON to ensure the MC version number doesn't cause any issues. 
+
+> | Cropinator: | ---
+> | --- | ---
+> | _FIX_: | Adjusted dirt/grass detection to avoid on dirt/grass blocks and to ensure nothing is above.
+
+#### **2.1.10:**
+> | Lumbinator: | ---
+> | --- | ---
+> | _FIX_: | Cured an issue that was causing only 2 wood being returned upon havesting a tree.
+
 #### **2.1.9:**
 > | Core: | ---
 > | --- | ---
