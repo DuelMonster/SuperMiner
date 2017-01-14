@@ -1,4 +1,4 @@
-package duelmonster.superminer;
+package duelmonster.superminer.proxy;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

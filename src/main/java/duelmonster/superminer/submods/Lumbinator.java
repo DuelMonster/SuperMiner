@@ -50,7 +50,7 @@ public class Lumbinator {
 	
 	public static final String ChannelName = MODID.substring(0, (MODID.length() < 20 ? MODID.length() : 20));
 	
-	public static final int BREAK_LIMIT = 16;
+	public static final int BREAK_LIMIT = 2;
 	
 	public static Globals myGlobals = new Globals();
 	
@@ -321,12 +321,6 @@ public class Lumbinator {
 		IBlockState state = oPlayer.world.getBlockState(blockPos);
 		Block block = state.getBlock();
 		boolean bIsLeaves = state.getMaterial() == Material.LEAVES && Globals.isIdInList(block, myGlobals.lLeafIDs);
-		
-		while (SuperMiner_Core.isMCTicking())
-			try {
-				Thread.sleep(1);
-			}
-			catch (InterruptedException e) {}
 		
 		boolean bRtrn = false;
 		// Double check that the block isn't air

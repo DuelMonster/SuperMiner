@@ -1,4 +1,4 @@
-package duelmonster.superminer;
+package duelmonster.superminer.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;

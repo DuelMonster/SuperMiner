@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
-import duelmonster.superminer.SuperMiner_Core;
 import duelmonster.superminer.config.SettingsExcavator;
 import duelmonster.superminer.config.SettingsShaftanator;
 import duelmonster.superminer.config.SettingsVeinator;
@@ -114,25 +113,16 @@ public class ExcavationHelper {
 							
 						} else {
 							
-							while (SuperMiner_Core.isMCTicking())
-								try {
-									Thread.sleep(1);
-								}
-								catch (InterruptedException e) {}
-							
 							// Double check that the block isn't air
 							if (!world.isAirBlock(workingPos)) {
 								boolean bHarvested = player.interactionManager.tryHarvestBlock(workingPos);
 								
-								// Illuminate the new shaft if enabled and Illuminator is enabled
+								// Illuminate the new shaft if Harvested, Illuminator is enabled and blocks Y level is
+								// at the lowest
 								if (bHarvested && this.bAutoIlluminate() && workingPos.getY() == this.iLowestY) {
 									// Setup the Illuminator data packet
 									IlluminatorPacket iPacket = new IlluminatorPacket();
-									iPacket.oPos = new BlockPos (this.sideHit == EnumFacing.SOUTH ? workingPos.west() : 
-																(this.sideHit == EnumFacing.NORTH ? workingPos.west() : 
-																(this.sideHit == EnumFacing.EAST ? workingPos.north() : 
-																(this.sideHit == EnumFacing.WEST ? workingPos.north() : 
-																	workingPos))));
+									iPacket.oPos = new BlockPos(this.sideHit == EnumFacing.SOUTH ? workingPos.west() : (this.sideHit == EnumFacing.NORTH ? workingPos.west() : (this.sideHit == EnumFacing.EAST ? workingPos.north() : (this.sideHit == EnumFacing.WEST ? workingPos.north() : workingPos))));
 									iPacket.playerID = player.getEntityId();
 									
 									// Add the data packet into a NBTTagCompound
