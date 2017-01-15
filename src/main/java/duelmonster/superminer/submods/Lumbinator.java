@@ -23,7 +23,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -304,7 +303,7 @@ public class Lumbinator {
 				oPlayer.openContainer.detectAndSendChanges();
 			}
 			
-			Globals.stackItems(oPlayer.world, oPlayer, new AxisAlignedBB(currentPacket.oPos).expand(8, 8, 8));
+			// Globals.stackItems(oPlayer.world, oPlayer, new AxisAlignedBB(currentPacket.oPos).expand(8, 8, 8));
 			
 			myPackets.remove(currentPacket);
 			

@@ -1,3 +1,8 @@
+#### **2.1.11:**
+> | Lumbinator: | ---
+> | --- | ---
+> | _FIX_: | Another attempt at curing an issue that was causing only 2 wood being returned upon harvesting a tree.
+
 #### **2.1.10:**
 > | Core: | ---
 > | --- | ---
