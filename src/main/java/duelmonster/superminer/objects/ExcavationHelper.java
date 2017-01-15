@@ -113,7 +113,6 @@ public class ExcavationHelper {
 							
 						} else {
 							
-							
 							// Double check that the block isn't air
 							if (!world.isAirBlock(workingPos)) {
 								boolean bHarvested = player.interactionManager.tryHarvestBlock(workingPos);

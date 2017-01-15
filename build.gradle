@@ -266,12 +266,12 @@ task mods_io << {
 	
 	exec{
 	    executable	'C:/curl/bin/curl'
-	    args 		'-H', 'X-API-Key="$modsioApiKey"',
-					'-X', 'POST',
-					'-F', 'body="{ \"version\": { \"name\": \"$config.version\", \"minecraft\": \"$config.mc_version\", \"changelog\": \"\" }, \"current\": \"true\" \"filename\": \"$archivesBaseName-$config.version.jar\" }"',
-					'-F', 'file="@~Release/$archivesBaseName-$modLatest.jar"',
-					'"https://mods.io/mods/1217/versions/create.json"'
-    }
+	    args 	'-H', 'X-API-Key="' + modsioApiKey + '"',
+			'-X', 'POST',
+			'-F', 'body="{ \"version\": { \"name\": \"' + config.version + '\", \"minecraft\": \"' + config.mc_version + '\", \"changelog\": \"\" }, \"current\": \"true\" \"filename\": \"' + archivesBaseName + '-' + config.version + '.jar\" }"',
+			'-F', 'file="@~Release/' + archivesBaseName + '-' + config.version + '.jar"',
+			'"https://mods.io/mods/1217/versions/create.json"'
+	}
 	
 	println ""
 	println "=================================================="
@@ -287,7 +287,7 @@ tasks.mods_io.finalizedBy updateVersionInfo
 
 tasks.curseforge.onlyIf { curseForgeApiKey }
 tasks.curseforge.dependsOn release
-tasks.curseforge.finalizedBy mods_io
+tasks.curseforge.finalizedBy updateVersionInfo
 
 curseforge {
 	apiKey = curseForgeApiKey
