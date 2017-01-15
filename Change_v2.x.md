@@ -1,3 +1,8 @@
+#### **2.1.10:**
+> | Core: | ---
+> | --- | ---
+> | _FIX_: | Crash fix for issue [#12](https://github.com/DuelMonster/SuperMiner/issues/12)
+
 #### **2.1.9:**
 > | Core: | ---
 > | --- | ---
@@ -9,7 +14,7 @@
 
 > | Lumbinator: | ---
 > | --- | ---
-> | _FIX_: | Cured an issue that was causing only 2 wood being returned upon havesting a tree.
+> | _FIX_: | Cured an issue that was causing only 2 wood being returned upon harvesting a tree.
 
 #### **2.1.8:**
 > | Core: | ---

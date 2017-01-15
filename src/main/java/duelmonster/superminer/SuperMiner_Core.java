@@ -45,8 +45,8 @@ public class SuperMiner_Core {
 	
 	public static Configuration configFile;
 	
-	@SidedProxy(clientSide = "duelmonster.superminer.SM_Client",
-				serverSide = "duelmonster.superminer.SM_Proxy")
+	@SidedProxy(clientSide = "duelmonster.superminer.proxy.SM_Client",
+				serverSide = "duelmonster.superminer.proxy.SM_Proxy")
 	public static SM_Proxy proxy;
 	
 	@Mod.EventHandler

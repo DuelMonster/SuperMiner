@@ -1,4 +1,4 @@
-# SuperMiner - Making mining easier... ![](https://travis-ci.org/DuelMonster/SuperMiner.svg?branch=1.10.2)
+# SuperMiner - Making mining easier... ![](http://cf.way2muchnoise.eu/versions/For%20MC_246404_all.svg) ![](http://cf.way2muchnoise.eu/full_246404_Downloads.svg) ![](https://travis-ci.org/DuelMonster/SuperMiner.svg?branch=1.10.2)
 
 SuperMiner is a collection of sub-mods that have been designed to make life easier...
 

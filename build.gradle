@@ -268,7 +268,7 @@ task mods_io << {
 	    executable	'C:/curl/bin/curl'
 	    args 		'-H', 'X-API-Key="$modsioApiKey"',
 					'-X', 'POST',
-					'-F', 'body="{ \"version\": { \"name\": \"$modLatest\", \"minecraft\": \"$config.mc_version\", \"changelog\": \"\" }, \"current\": \"true\" \"filename\": \"$archivesBaseName-$modLatest.jar\" }"',
+					'-F', 'body="{ \"version\": { \"name\": \"$config.version\", \"minecraft\": \"$config.mc_version\", \"changelog\": \"\" }, \"current\": \"true\" \"filename\": \"$archivesBaseName-$config.version.jar\" }"',
 					'-F', 'file="@~Release/$archivesBaseName-$modLatest.jar"',
 					'"https://mods.io/mods/1217/versions/create.json"'
     }
