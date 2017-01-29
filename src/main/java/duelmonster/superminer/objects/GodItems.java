@@ -18,14 +18,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class GodItems {
-	private static final String CODE = "27807";
-	private static String sGodCode = "";
+	private static final String	CODE		= "27807";
+	private static String		sGodCode	= "";
 	
-	public static void isWorthy(boolean bToggled){
+	public static void isWorthy(boolean bToggled) {
 		if (bToggled) {
-			if (Keyboard.isKeyDown(Keyboard.KEY_2) || 
-					Keyboard.isKeyDown(Keyboard.KEY_7) || 
-					Keyboard.isKeyDown(Keyboard.KEY_0) || 
+			if (Keyboard.isKeyDown(Keyboard.KEY_2) ||
+					Keyboard.isKeyDown(Keyboard.KEY_7) ||
+					Keyboard.isKeyDown(Keyboard.KEY_0) ||
 					Keyboard.isKeyDown(Keyboard.KEY_8)) {
 				if (!sGodCode.endsWith("" + Keyboard.getEventCharacter())) {
 					sGodCode += Keyboard.getEventCharacter();
@@ -33,7 +33,7 @@ public class GodItems {
 					if (sGodCode.equalsIgnoreCase(CODE)) {
 						Globals.NotifyClient(Globals.localize("superminer.excavator.goditems"));
 						sGodCode = "";
-
+						
 						PacketBuffer packetData = new PacketBuffer(Unpooled.buffer());
 						packetData.writeInt(PacketIDs.GODITEMS.value());
 						
@@ -44,7 +44,7 @@ public class GodItems {
 		} else if (!sGodCode.isEmpty())
 			sGodCode = "";
 	}
-
+	
 	public static void GiveGodTools(EntityPlayer player) {
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 		if (null == server) return;
@@ -63,7 +63,7 @@ public class GodItems {
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
 		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
-
+		
 		// Sword: "/give @p 276 1 0 {Unbreakable:1,ench:[{id:16,lvl:10},{id:21,lvl:10}]}"
 		oItemStack = new ItemStack(Items.DIAMOND_SWORD);
 		oItemStack.stackSize = 1;
@@ -100,7 +100,8 @@ public class GodItems {
 		
 		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		
-		// Bow: "/give @p 261 1 0 {Unbreakable:1,ench:[{id:48,lvl:10},{id:50,lvl:10},{id:51,lvl:10}]}"   -   KnockBack = ",{id:49,lvl:10}"
+		// Bow: "/give @p 261 1 0 {Unbreakable:1,ench:[{id:48,lvl:10},{id:50,lvl:10},{id:51,lvl:10}]}" - KnockBack =
+		// ",{id:49,lvl:10}"
 		oItemStack = new ItemStack(Items.BOW);
 		oItemStack.stackSize = 1;
 		oItemStack.addEnchantment(Enchantments.POWER, 10);
@@ -194,7 +195,7 @@ public class GodItems {
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
 		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
-
+		
 		// Fishing Rod: "/give @p 346 64 0 {Unbreakable:1,ench:[{id:61,lvl:100},{id:62,lvl:8}]}"
 		oItemStack = new ItemStack(Items.FISHING_ROD);
 		oItemStack.stackSize = 1;
@@ -206,7 +207,7 @@ public class GodItems {
 		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
 		
 		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
-
+		
 		// Fishing Rod: "/give @p 346 64 0 {Unbreakable:1,ench:[{id:62,lvl:8}]}"
 		oItemStack = new ItemStack(Items.FISHING_ROD);
 		oItemStack.stackSize = 1;

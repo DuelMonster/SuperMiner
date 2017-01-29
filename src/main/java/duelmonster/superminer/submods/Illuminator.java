@@ -202,57 +202,57 @@ public class Illuminator {
 	public void processIMC(final FMLInterModComms.IMCMessage imcMessage) {
 		if (imcMessage.key.equalsIgnoreCase("IlluminateShaft"))
 			if (imcMessage.isNBTMessage()) {
-				NBTTagCompound nbt = imcMessage.getNBTValue();
-				
-				IlluminatorPacket iPacket = new IlluminatorPacket();
-				iPacket.readPacketData(new PacketBuffer(Unpooled.copiedBuffer(nbt.getByteArray("IlluminateShaftData"))));
-				
-				MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-				if (null == server)
-					return;
-				
-				EntityPlayer player = (EntityPlayer) server.getEntityWorld().getEntityByID(iPacket.playerID);
-				if (player == null)
-					return;
-				
-				World world = server.worldServerForDimension(player.dimension);
-				if (world == null)
-					return;
-				
-				int x = (int) (iPacket.oPos.getX() + 0.5F);
-				int y = iPacket.oPos.getY();
-				int z = (int) (iPacket.oPos.getZ() + 0.5F);
-				
-				BlockPos oPos = new BlockPos(x, y, z);
-				IBlockState state = world.getBlockState(oPos.down());
-				
-				if (!world.isAirBlock(oPos) && !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-					x = (int) (player.getEntityBoundingBox().minX - 0.5F);
-					z = (int) (player.getEntityBoundingBox().minZ - 0.5F);
-					
-					oPos = new BlockPos(x, y, z);
-					state = world.getBlockState(oPos.down());
-					
-					if (!world.isAirBlock(oPos) && !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-						x = (int) (player.getEntityBoundingBox().minX + 0.5F);
-						z = (int) (player.getEntityBoundingBox().minZ - 0.5F);
-						
-						oPos = new BlockPos(x, y, z);
-						state = world.getBlockState(oPos.down());
-						
-						if (!world.isAirBlock(oPos) && !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
-							x = (int) (player.getEntityBoundingBox().minX - 0.5F);
-							z = (int) (player.getEntityBoundingBox().minZ + 0.5F);
-							
-							oPos = new BlockPos(x, y, z);
-							state = world.getBlockState(oPos.down());
-						}
-					}
-				}
-				
-				// Ensure the current light level is below the limit...
-				if (world.getLight(oPos) <= SettingsIlluminator.iLowestLightLevel && world.isAirBlock(oPos) && state.getBlock().canPlaceTorchOnTop(state, world, oPos.down()))
-					Illuminate(player, oPos, EnumFacing.UP);
+			NBTTagCompound nbt = imcMessage.getNBTValue();
+			
+			IlluminatorPacket iPacket = new IlluminatorPacket();
+			iPacket.readPacketData(new PacketBuffer(Unpooled.copiedBuffer(nbt.getByteArray("IlluminateShaftData"))));
+			
+			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+			if (null == server)
+				return;
+			
+			EntityPlayer player = (EntityPlayer) server.getEntityWorld().getEntityByID(iPacket.playerID);
+			if (player == null)
+				return;
+			
+			World world = server.worldServerForDimension(player.dimension);
+			if (world == null)
+				return;
+			
+			int x = (int) (iPacket.oPos.getX() + 0.5F);
+			int y = iPacket.oPos.getY();
+			int z = (int) (iPacket.oPos.getZ() + 0.5F);
+			
+			BlockPos oPos = new BlockPos(x, y, z);
+			IBlockState state = world.getBlockState(oPos.down());
+			
+			if (!world.isAirBlock(oPos) && !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
+			x = (int) (player.getEntityBoundingBox().minX - 0.5F);
+			z = (int) (player.getEntityBoundingBox().minZ - 0.5F);
+			
+			oPos = new BlockPos(x, y, z);
+			state = world.getBlockState(oPos.down());
+			
+			if (!world.isAirBlock(oPos) && !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
+			x = (int) (player.getEntityBoundingBox().minX + 0.5F);
+			z = (int) (player.getEntityBoundingBox().minZ - 0.5F);
+			
+			oPos = new BlockPos(x, y, z);
+			state = world.getBlockState(oPos.down());
+			
+			if (!world.isAirBlock(oPos) && !state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {
+			x = (int) (player.getEntityBoundingBox().minX - 0.5F);
+			z = (int) (player.getEntityBoundingBox().minZ + 0.5F);
+			
+			oPos = new BlockPos(x, y, z);
+			state = world.getBlockState(oPos.down());
+			}
+			}
+			}
+			
+			// Ensure the current light level is below the limit...
+			if (world.getLight(oPos) <= SettingsIlluminator.iLowestLightLevel && world.isAirBlock(oPos) && state.getBlock().canPlaceTorchOnTop(state, world, oPos.down()))
+				Illuminate(player, oPos, EnumFacing.UP);
 			}
 	}
 	

@@ -9,16 +9,16 @@ import net.minecraft.network.PacketBuffer;
 
 public class SettingsVeinator {
 	public static final int packetID = PacketIDs.Settings_Veinator.value();
-
-	public final static boolean bEnabledDefault = true;
-	public final static boolean bGatherDropsDefault = false;
-	public final static ArrayList<String> lToolIDDefaults = new ArrayList<String>(Arrays.asList( "wooden_pickaxe", "stone_pickaxe", "iron_pickaxe", "golden_pickaxe", "diamond_pickaxe" ));
-	public final static ArrayList<String> lOreIDDefaults = new ArrayList<String>(Arrays.asList( "coal_ore", "iron_ore", "gold_ore", "lapis_ore", "emerald_ore", "diamond_ore", "quartz_ore", "redstone_ore", "lit_redstone_ore" ));
-		
-	public static boolean bEnabled = bEnabledDefault;
-	public static boolean bGatherDrops = bGatherDropsDefault;
-	public static ArrayList<String> lToolIDs = lToolIDDefaults;
-	public static ArrayList<String> lOreIDs = lOreIDDefaults;
+	
+	public final static boolean				bEnabledDefault		= true;
+	public final static boolean				bGatherDropsDefault	= false;
+	public final static ArrayList<String>	lToolIDDefaults		= new ArrayList<String>(Arrays.asList("wooden_pickaxe", "stone_pickaxe", "iron_pickaxe", "golden_pickaxe", "diamond_pickaxe"));
+	public final static ArrayList<String>	lOreIDDefaults		= new ArrayList<String>(Arrays.asList("coal_ore", "iron_ore", "gold_ore", "lapis_ore", "emerald_ore", "diamond_ore", "quartz_ore", "redstone_ore", "lit_redstone_ore"));
+	
+	public static boolean			bEnabled		= bEnabledDefault;
+	public static boolean			bGatherDrops	= bGatherDropsDefault;
+	public static ArrayList<String>	lToolIDs		= lToolIDDefaults;
+	public static ArrayList<String>	lOreIDs			= lOreIDDefaults;
 	
 	public static void readPacketData(PacketBuffer oBuffer) {
 		@SuppressWarnings("unused")
@@ -41,7 +41,7 @@ public class SettingsVeinator {
 				SettingsVeinator.lOreIDs.add(i, oBuffer.readString(32767));
 		}
 	}
-
+	
 	public static PacketBuffer writePacketData() {
 		PacketBuffer oBuffer = new PacketBuffer(Unpooled.buffer());
 		
@@ -54,14 +54,14 @@ public class SettingsVeinator {
 		oBuffer.writeInt(iCount);
 		if (iCount > 0)
 			for (int i = 0; i < iCount; i++)
-				oBuffer.writeString(SettingsVeinator.lToolIDs.get(i));
+			oBuffer.writeString(SettingsVeinator.lToolIDs.get(i));
 		
 		iCount = SettingsVeinator.lOreIDs.size();
 		oBuffer.writeInt(iCount);
 		if (iCount > 0)
 			for (int i = 0; i < iCount; i++)
-				oBuffer.writeString(SettingsVeinator.lOreIDs.get(i));
-
+			oBuffer.writeString(SettingsVeinator.lOreIDs.get(i));
+		
 		return oBuffer;
 	}
 }

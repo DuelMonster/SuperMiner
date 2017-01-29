@@ -9,35 +9,35 @@ import net.minecraft.network.PacketBuffer;
 
 public class SettingsExcavator {
 	public static final int packetID = PacketIDs.Settings_Excavator.value();
-
-	public static final int MIN_BlockRadius = 3;
-	public static final int MAX_BlockRadius = 16;
 	
-	public final static boolean bEnabledDefault = true;
-	public final static boolean bGatherDropsDefault = true;
-	public final static boolean bAutoIlluminateDefault = true;
-	//public final static boolean bMineVeinsDefault = true;
-	public final static boolean bDetectVariantsDefault = true;
-	public final static ArrayList<String> lToolIDDefaults = new ArrayList<String>();
-	public final static ArrayList<String> lShovelIDDefaults = new ArrayList<String>(Arrays.asList( "Minecraft:wooden_shovel", "Minecraft:stone_shovel", "Minecraft:iron_shovel", "Minecraft:golden_shovel", "Minecraft:diamond_shovel" ));
-	public final static int iAffectDurabilityDefault = 0;
-	public final static int iBlockRadiusDefault = SettingsExcavator.MIN_BlockRadius;
-	public final static int iBlockLimitDefault = (SettingsExcavator.MIN_BlockRadius * SettingsExcavator.MIN_BlockRadius) * SettingsExcavator.MIN_BlockRadius;
-	public final static int iPathWidthDefault = 3;
-	public final static int iPathLengthDefault = 6;
+	public static final int	MIN_BlockRadius	= 3;
+	public static final int	MAX_BlockRadius	= 16;
 	
-	public static boolean bEnabled = bEnabledDefault;
-	public static boolean bGatherDrops = bGatherDropsDefault;
-	public static boolean bAutoIlluminate = bAutoIlluminateDefault;
-	//public static boolean bMineVeins = bMineVeinsDefault;
-	public static boolean bDetectVariants = bDetectVariantsDefault;
-	public static ArrayList<String> lToolIDs = lToolIDDefaults;
-	public static ArrayList<String> lShovelIDs = lShovelIDDefaults;
-	public static int iAffectDurability = iAffectDurabilityDefault;
-	public static int iBlockRadius = iBlockRadiusDefault;
-	public static int iBlockLimit = iBlockLimitDefault;
-	public static int iPathWidth = iPathWidthDefault;
-	public static int iPathLength = iPathLengthDefault;
+	public final static boolean	bEnabledDefault			= true;
+	public final static boolean	bGatherDropsDefault		= true;
+	public final static boolean	bAutoIlluminateDefault	= true;
+	// public final static boolean bMineVeinsDefault = true;
+	public final static boolean				bDetectVariantsDefault		= true;
+	public final static ArrayList<String>	lToolIDDefaults				= new ArrayList<String>();
+	public final static ArrayList<String>	lShovelIDDefaults			= new ArrayList<String>(Arrays.asList("Minecraft:wooden_shovel", "Minecraft:stone_shovel", "Minecraft:iron_shovel", "Minecraft:golden_shovel", "Minecraft:diamond_shovel"));
+	public final static int					iAffectDurabilityDefault	= 0;
+	public final static int					iBlockRadiusDefault			= SettingsExcavator.MIN_BlockRadius;
+	public final static int					iBlockLimitDefault			= (SettingsExcavator.MIN_BlockRadius * SettingsExcavator.MIN_BlockRadius) * SettingsExcavator.MIN_BlockRadius;
+	public final static int					iPathWidthDefault			= 3;
+	public final static int					iPathLengthDefault			= 6;
+	
+	public static boolean	bEnabled		= bEnabledDefault;
+	public static boolean	bGatherDrops	= bGatherDropsDefault;
+	public static boolean	bAutoIlluminate	= bAutoIlluminateDefault;
+	// public static boolean bMineVeins = bMineVeinsDefault;
+	public static boolean			bDetectVariants		= bDetectVariantsDefault;
+	public static ArrayList<String>	lToolIDs			= lToolIDDefaults;
+	public static ArrayList<String>	lShovelIDs			= lShovelIDDefaults;
+	public static int				iAffectDurability	= iAffectDurabilityDefault;
+	public static int				iBlockRadius		= iBlockRadiusDefault;
+	public static int				iBlockLimit			= iBlockLimitDefault;
+	public static int				iPathWidth			= iPathWidthDefault;
+	public static int				iPathLength			= iPathLengthDefault;
 	
 	public static void readPacketData(PacketBuffer oBuffer) {
 		@SuppressWarnings("unused")
@@ -46,7 +46,7 @@ public class SettingsExcavator {
 		SettingsExcavator.bEnabled = oBuffer.readBoolean();
 		SettingsExcavator.bGatherDrops = oBuffer.readBoolean();
 		SettingsExcavator.bAutoIlluminate = oBuffer.readBoolean();
-		//SettingsExcavator.bMineVeins = oBuffer.readBoolean();
+		// SettingsExcavator.bMineVeins = oBuffer.readBoolean();
 		SettingsExcavator.bDetectVariants = oBuffer.readBoolean();
 		SettingsExcavator.iAffectDurability = oBuffer.readInt();
 		SettingsExcavator.iBlockRadius = oBuffer.readInt();
@@ -68,7 +68,7 @@ public class SettingsExcavator {
 				SettingsExcavator.lShovelIDs.add(i, oBuffer.readString(32767));
 		}
 	}
-
+	
 	public static PacketBuffer writePacketData() {
 		PacketBuffer oBuffer = new PacketBuffer(Unpooled.buffer());
 		
@@ -77,7 +77,7 @@ public class SettingsExcavator {
 		oBuffer.writeBoolean(SettingsExcavator.bEnabled);
 		oBuffer.writeBoolean(SettingsExcavator.bGatherDrops);
 		oBuffer.writeBoolean(SettingsExcavator.bAutoIlluminate);
-		//oBuffer.writeBoolean(SettingsExcavator.bMineVeins);
+		// oBuffer.writeBoolean(SettingsExcavator.bMineVeins);
 		oBuffer.writeBoolean(SettingsExcavator.bDetectVariants);
 		oBuffer.writeInt(SettingsExcavator.iAffectDurability);
 		oBuffer.writeInt(SettingsExcavator.iBlockRadius);
@@ -89,14 +89,14 @@ public class SettingsExcavator {
 		oBuffer.writeInt(iCount);
 		if (iCount > 0)
 			for (int i = 0; i < iCount; i++)
-				oBuffer.writeString(SettingsExcavator.lToolIDs.get(i));
-
+			oBuffer.writeString(SettingsExcavator.lToolIDs.get(i));
+		
 		iCount = SettingsExcavator.lShovelIDs.size();
 		oBuffer.writeInt(iCount);
 		if (iCount > 0)
 			for (int i = 0; i < iCount; i++)
-				oBuffer.writeString(SettingsExcavator.lShovelIDs.get(i));
-
+			oBuffer.writeString(SettingsExcavator.lShovelIDs.get(i));
+		
 		return oBuffer;
 	}
 }

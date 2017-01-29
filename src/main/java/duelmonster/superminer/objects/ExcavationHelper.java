@@ -1,5 +1,6 @@
 package duelmonster.superminer.objects;
 
+import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -80,10 +81,16 @@ public class ExcavationHelper {
 			for (int indx = 0; indx <= SECTION_LIMIT; indx++)
 				if (!oPositions.isEmpty()) {
 					BlockPos workingPos = null;
+					
+					boolean bCrash = false;
 					try {
 						workingPos = oPositions.removeFirst();
+					} catch (ConcurrentModificationException e) {
+						bCrash = true;
+					} catch (NoSuchElementException e) {
+						bCrash = true;
 					}
-					catch (NoSuchElementException e) {
+					if (bCrash) {
 						bIsExcavating = false;
 						return false;
 					}
@@ -115,14 +122,26 @@ public class ExcavationHelper {
 							
 							// Double check that the block isn't air
 							if (!world.isAirBlock(workingPos)) {
-								boolean bHarvested = player.interactionManager.tryHarvestBlock(workingPos);
+								boolean bHarvested = false;
+								
+								try {
+									bHarvested = player.interactionManager.tryHarvestBlock(workingPos);
+								} catch (ConcurrentModificationException e) {}
 								
 								// Illuminate the new shaft if Harvested, Illuminator is enabled and blocks Y level is
 								// at the lowest
 								if (bHarvested && this.bAutoIlluminate() && workingPos.getY() == this.iLowestY) {
 									// Setup the Illuminator data packet
 									IlluminatorPacket iPacket = new IlluminatorPacket();
-									iPacket.oPos = new BlockPos(this.sideHit == EnumFacing.SOUTH ? workingPos.west() : (this.sideHit == EnumFacing.NORTH ? workingPos.west() : (this.sideHit == EnumFacing.EAST ? workingPos.north() : (this.sideHit == EnumFacing.WEST ? workingPos.north() : workingPos))));
+									iPacket.oPos = new BlockPos(this.sideHit == EnumFacing.SOUTH
+											? workingPos.west()
+											: (this.sideHit == EnumFacing.NORTH
+													? workingPos.west()
+													: (this.sideHit == EnumFacing.EAST
+															? workingPos.north()
+															: (this.sideHit == EnumFacing.WEST
+																	? workingPos.north()
+																	: workingPos))));
 									iPacket.playerID = player.getEntityId();
 									
 									// Add the data packet into a NBTTagCompound
@@ -162,9 +181,9 @@ public class ExcavationHelper {
 				bHasConnected = false;
 				
 				ConnectionCheck:
-				if (!bHasConnected)
-					for (int zOffset = (excavateZ != oInitialPos.getZ() ? -1 : 0); zOffset <= 1; zOffset++)
-						for (int xOffset = -1; xOffset <= 1; xOffset++)
+				if (!bHasConnected) {
+					for (int zOffset = (excavateZ != oInitialPos.getZ() ? -1 : 0); zOffset <= 1; zOffset++) {
+						for (int xOffset = -1; xOffset <= 1; xOffset++) {
 							for (int yOffset = (!bLayerOnlyToggled ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++) {
 								oPos = new BlockPos(oInitialPos.getX() + xOffset, oInitialPos.getY() + yOffset, excavateZ + zOffset);
 								
@@ -173,7 +192,10 @@ public class ExcavationHelper {
 									break ConnectionCheck;
 								}
 							}
-						
+						}
+					}
+				}
+				
 				if (!bHasConnected || !SpiralNorthSouth(excavateZ))
 					break DirectionLoops;
 			}
@@ -184,9 +206,9 @@ public class ExcavationHelper {
 				bHasConnected = false;
 				
 				ConnectionCheck:
-				if (!bHasConnected)
-					for (int zOffset = (excavateZ != oInitialPos.getZ() ? -1 : 0); zOffset <= 1; zOffset++)
-						for (int xOffset = -1; xOffset <= 1; xOffset++)
+				if (!bHasConnected) {
+					for (int zOffset = (excavateZ != oInitialPos.getZ() ? -1 : 0); zOffset <= 1; zOffset++) {
+						for (int xOffset = -1; xOffset <= 1; xOffset++) {
 							for (int yOffset = (!bLayerOnlyToggled ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++) {
 								oPos = new BlockPos(oInitialPos.getX() + xOffset, oInitialPos.getY() + yOffset, excavateZ - zOffset);
 								
@@ -195,7 +217,10 @@ public class ExcavationHelper {
 									break ConnectionCheck;
 								}
 							}
-						
+						}
+					}
+				}
+				
 				if (!bHasConnected || !SpiralNorthSouth(excavateZ))
 					break DirectionLoops;
 			}
@@ -206,9 +231,9 @@ public class ExcavationHelper {
 				bHasConnected = false;
 				
 				ConnectionCheck:
-				if (!bHasConnected)
-					for (int xOffset = (excavateX != oInitialPos.getX() ? -1 : 0); xOffset <= 1; xOffset++)
-						for (int zOffset = -1; zOffset <= 1; zOffset++)
+				if (!bHasConnected) {
+					for (int xOffset = (excavateX != oInitialPos.getX() ? -1 : 0); xOffset <= 1; xOffset++) {
+						for (int zOffset = -1; zOffset <= 1; zOffset++) {
 							for (int yOffset = (!bLayerOnlyToggled ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++) {
 								oPos = new BlockPos(excavateX - xOffset, oInitialPos.getY() + yOffset, oInitialPos.getZ() + zOffset);
 								
@@ -217,7 +242,10 @@ public class ExcavationHelper {
 									break ConnectionCheck;
 								}
 							}
-						
+						}
+					}
+				}
+				
 				if (!bHasConnected || !SpiralEastWest(excavateX))
 					break DirectionLoops;
 			}
@@ -228,9 +256,9 @@ public class ExcavationHelper {
 				bHasConnected = false;
 				
 				ConnectionCheck:
-				if (!bHasConnected)
-					for (int xOffset = (excavateX != oInitialPos.getX() ? -1 : 0); xOffset <= 1; xOffset++)
-						for (int zOffset = -1; zOffset <= 1; zOffset++)
+				if (!bHasConnected) {
+					for (int xOffset = (excavateX != oInitialPos.getX() ? -1 : 0); xOffset <= 1; xOffset++) {
+						for (int zOffset = -1; zOffset <= 1; zOffset++) {
 							for (int yOffset = (!bLayerOnlyToggled ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++) {
 								oPos = new BlockPos(excavateX + xOffset, oInitialPos.getY() + yOffset, oInitialPos.getZ() + zOffset);
 								
@@ -239,7 +267,10 @@ public class ExcavationHelper {
 									break ConnectionCheck;
 								}
 							}
-						
+						}
+					}
+				}
+				
 				if (!bHasConnected || !SpiralEastWest(excavateX))
 					break DirectionLoops;
 			}
@@ -250,9 +281,9 @@ public class ExcavationHelper {
 				bHasConnected = false;
 				
 				ConnectionCheck:
-				if (!bHasConnected)
-					for (int yOffset = (excavateY != oInitialPos.getY() ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++)
-						for (int xOffset = -1; xOffset <= 1; xOffset++)
+				if (!bHasConnected) {
+					for (int yOffset = (excavateY != oInitialPos.getY() ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++) {
+						for (int xOffset = -1; xOffset <= 1; xOffset++) {
 							for (int zOffset = -1; zOffset <= 1; zOffset++) {
 								oPos = new BlockPos(oInitialPos.getX() + xOffset, excavateY - yOffset, oInitialPos.getZ() + zOffset);
 								
@@ -261,7 +292,10 @@ public class ExcavationHelper {
 									break ConnectionCheck;
 								}
 							}
-						
+						}
+					}
+				}
+				
 				if (!bHasConnected || !SpiralUpDown(excavateY))
 					break DirectionLoops;
 			}
@@ -272,9 +306,9 @@ public class ExcavationHelper {
 				bHasConnected = false;
 				
 				ConnectionCheck:
-				if (!bHasConnected)
-					for (int yOffset = (excavateY != oInitialPos.getY() ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++)
-						for (int xOffset = -1; xOffset <= 1; xOffset++)
+				if (!bHasConnected) {
+					for (int yOffset = (excavateY != oInitialPos.getY() ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++) {
+						for (int xOffset = -1; xOffset <= 1; xOffset++) {
 							for (int zOffset = -1; zOffset <= 1; zOffset++) {
 								oPos = new BlockPos(oInitialPos.getX() + xOffset, excavateY - yOffset, oInitialPos.getZ() + zOffset);
 								
@@ -283,7 +317,10 @@ public class ExcavationHelper {
 									break ConnectionCheck;
 								}
 							}
-						
+						}
+					}
+				}
+				
 				if (!bHasConnected || !SpiralUpDown(excavateY))
 					break DirectionLoops;
 			}
@@ -449,7 +486,9 @@ public class ExcavationHelper {
 				iAirCount = 0;
 				for (int iWidthPos = iWidthStart; iWidthPos <= iWidthEnd; iWidthPos++)
 					for (int iHeightPos = iHeightStart; iHeightPos <= iHeightEnd; iHeightPos++) {
-						BlockPos curPos = new BlockPos((oPacket.sideHit == EnumFacing.NORTH ? iWidthPos : iLengthPos), iHeightPos, (oPacket.sideHit == EnumFacing.NORTH ? iLengthPos : iWidthPos));
+						BlockPos curPos = new BlockPos((oPacket.sideHit == EnumFacing.NORTH ? iWidthPos : iLengthPos),
+								iHeightPos,
+								(oPacket.sideHit == EnumFacing.NORTH ? iLengthPos : iWidthPos));
 						
 						if (isAllowedToMine(player, this.world.getBlockState(curPos).getBlock()))
 							AddCoordsToList(curPos);
@@ -467,7 +506,9 @@ public class ExcavationHelper {
 				iAirCount = 0;
 				for (int iWidthPos = iWidthStart; iWidthPos >= iWidthEnd; iWidthPos--)
 					for (int iHeightPos = iHeightStart; iHeightPos <= iHeightEnd; iHeightPos++) {
-						BlockPos curPos = new BlockPos((oPacket.sideHit == EnumFacing.SOUTH ? iWidthPos : iLengthPos), iHeightPos, (oPacket.sideHit == EnumFacing.SOUTH ? iLengthPos : iWidthPos));
+						BlockPos curPos = new BlockPos((oPacket.sideHit == EnumFacing.SOUTH ? iWidthPos : iLengthPos),
+								iHeightPos,
+								(oPacket.sideHit == EnumFacing.SOUTH ? iLengthPos : iWidthPos));
 						
 						if (isAllowedToMine(player, this.world.getBlockState(curPos).getBlock()))
 							AddCoordsToList(curPos);
@@ -508,30 +549,43 @@ public class ExcavationHelper {
 	public void FinalizeExcavation() {
 		if (SettingsExcavator.bGatherDrops) {
 			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(SettingsExcavator.iBlockRadius + 2, SettingsExcavator.iBlockRadius + 2, SettingsExcavator.iBlockRadius + 2));
-			if (null != list && !list.isEmpty())
-				for (Entity entity : list)
+			if (null != list && !list.isEmpty()) {
+				for (Entity entity : list) {
 					if (!entity.isDead)
 						entity.setPosition(oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ());
+				}
+			}
 		}
 	}
 	
 	public void FinalizeShaft() {
 		if (SettingsShaftanator.bGatherDrops) {
-			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand((oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH ? SettingsShaftanator.iShaftWidth + 2 : SettingsShaftanator.iShaftLength + 4), SettingsShaftanator.iShaftHeight + 2, (oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH ? SettingsShaftanator.iShaftLength + 4 : SettingsShaftanator.iShaftWidth + 2)));
-			if (null != list && !list.isEmpty())
-				for (Entity entity : list)
+			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(
+					(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH
+							? SettingsShaftanator.iShaftWidth + 2
+							: SettingsShaftanator.iShaftLength + 4),
+					SettingsShaftanator.iShaftHeight + 2,
+					(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH
+							? SettingsShaftanator.iShaftLength + 4
+							: SettingsShaftanator.iShaftWidth + 2)));
+			if (null != list && !list.isEmpty()) {
+				for (Entity entity : list) {
 					if (!entity.isDead)
 						entity.setPosition(oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ());
+				}
+			}
 		}
 	}
 	
 	public void FinalizeVeination() {
 		if (SettingsVeinator.bGatherDrops) {
 			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(16, 16, 16));
-			if (null != list && !list.isEmpty())
-				for (Entity entity : list)
+			if (null != list && !list.isEmpty()) {
+				for (Entity entity : list) {
 					if (!entity.isDead)
 						entity.setPosition(oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ());
+				}
+			}
 		}
 		
 		LogHelper.log(Level.INFO, "Finalized Vein");

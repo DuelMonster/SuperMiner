@@ -8,25 +8,29 @@ import net.minecraft.util.math.BlockPos;
 public class IlluminatorPacket {
 	public static final int PACKETID_ILLUMINATOR = 1;
 	
-	public int packetID = IlluminatorPacket.PACKETID_ILLUMINATOR;
-	public BlockPos oPos;
-	public EnumFacing sideHit = EnumFacing.UP;
-	public int playerID = 0;
+	public int			packetID	= IlluminatorPacket.PACKETID_ILLUMINATOR;
+	public BlockPos		oPos;
+	public EnumFacing	sideHit		= EnumFacing.UP;
+	public int			playerID	= 0;
 	
 	public IlluminatorPacket() {}
-	public IlluminatorPacket(BlockPos oPos) { this.oPos = oPos; }
+	
+	public IlluminatorPacket(BlockPos oPos) {
+		this.oPos = oPos;
+	}
+	
 	public IlluminatorPacket(BlockPos oPos, EnumFacing sideHit) {
 		this.oPos = oPos;
 		this.sideHit = sideHit;
 	}
-		
+	
 	public void readPacketData(PacketBuffer oBuffer) {
 		this.packetID = oBuffer.readInt();
 		this.oPos = BlockPos.fromLong(oBuffer.readLong());
 		this.sideHit = EnumFacing.getFront(oBuffer.readInt());
 		this.playerID = oBuffer.readInt();
 	}
-
+	
 	public PacketBuffer writePacketData() {
 		PacketBuffer oBuffer = new PacketBuffer(Unpooled.buffer());
 		
@@ -34,11 +38,11 @@ public class IlluminatorPacket {
 		oBuffer.writeLong(this.oPos.toLong());
 		oBuffer.writeInt(this.sideHit.getIndex());
 		oBuffer.writeInt(this.playerID);
-
+		
 		return oBuffer;
 	}
 	
-	public IlluminatorPacket getClone(){
+	public IlluminatorPacket getClone() {
 		IlluminatorPacket pClone = new IlluminatorPacket();
 		pClone.readPacketData(writePacketData());
 		return pClone;

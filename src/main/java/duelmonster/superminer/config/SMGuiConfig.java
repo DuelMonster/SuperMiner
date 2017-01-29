@@ -20,33 +20,33 @@ import net.minecraftforge.fml.client.config.IConfigElement;
 
 public class SMGuiConfig extends GuiConfig {
 	public SMGuiConfig(GuiScreen parentScreen) {
-		super(	parentScreen, 
+		super(parentScreen,
 				getConfigElements(),
-				SuperMiner_Core.MODID, 
-				false, 
+				SuperMiner_Core.MODID,
+				false,
 				false,
 				"SuperMiner Configuration");
 	}
-  
-    /** Compiles a list of config elements */
-    private static List<IConfigElement> getConfigElements() {
-        List<IConfigElement> list = new ArrayList<IConfigElement>();
-        
-        //Add categories to config GUI
-        list.add(categoryElement(Captivator.MODID, Captivator.MODName, "superminer." + Captivator.MODName.toLowerCase() + ".config"));
-        list.add(categoryElement(Cropinator.MODID, Cropinator.MODName, "superminer." + Cropinator.MODName.toLowerCase() + ".config"));
-        list.add(categoryElement(Excavator.MODID, Excavator.MODName, "superminer." + Excavator.MODName.toLowerCase() + ".config"));
-        list.add(categoryElement(Illuminator.MODID, Illuminator.MODName, "superminer." + Illuminator.MODName.toLowerCase() + ".config"));
-        list.add(categoryElement(Lumbinator.MODID, Lumbinator.MODName, "superminer." + Lumbinator.MODName.toLowerCase() + ".config"));
-        list.add(categoryElement(Shaftanator.MODID, Shaftanator.MODName, "superminer." + Shaftanator.MODName.toLowerCase() + ".config"));
-        list.add(categoryElement(Substitutor.MODID, Substitutor.MODName, "superminer." + Substitutor.MODName.toLowerCase() + ".config"));
-        list.add(categoryElement(Veinator.MODID, Veinator.MODName, "superminer." + Veinator.MODName.toLowerCase() + ".config"));
-      
-        return list;
-    }
-  
-    /** Creates a button linking to another screen where all options of the category are available */
-    private static IConfigElement categoryElement(String category, String name, String tooltip_key) {
-        return new DummyConfigElement.DummyCategoryElement(name, tooltip_key, new ConfigElement(SuperMiner_Core.configFile.getCategory(category)).getChildElements());
-    }
+	
+	/** Compiles a list of config elements */
+	private static List<IConfigElement> getConfigElements() {
+		List<IConfigElement> list = new ArrayList<IConfigElement>();
+		
+		// Add categories to config GUI
+		list.add(categoryElement(Captivator.MODID, Captivator.MODName, "superminer." + Captivator.MODName.toLowerCase() + ".config"));
+		list.add(categoryElement(Cropinator.MODID, Cropinator.MODName, "superminer." + Cropinator.MODName.toLowerCase() + ".config"));
+		list.add(categoryElement(Excavator.MODID, Excavator.MODName, "superminer." + Excavator.MODName.toLowerCase() + ".config"));
+		list.add(categoryElement(Illuminator.MODID, Illuminator.MODName, "superminer." + Illuminator.MODName.toLowerCase() + ".config"));
+		list.add(categoryElement(Lumbinator.MODID, Lumbinator.MODName, "superminer." + Lumbinator.MODName.toLowerCase() + ".config"));
+		list.add(categoryElement(Shaftanator.MODID, Shaftanator.MODName, "superminer." + Shaftanator.MODName.toLowerCase() + ".config"));
+		list.add(categoryElement(Substitutor.MODID, Substitutor.MODName, "superminer." + Substitutor.MODName.toLowerCase() + ".config"));
+		list.add(categoryElement(Veinator.MODID, Veinator.MODName, "superminer." + Veinator.MODName.toLowerCase() + ".config"));
+		
+		return list;
+	}
+	
+	/** Creates a button linking to another screen where all options of the category are available */
+	private static IConfigElement categoryElement(String category, String name, String tooltip_key) {
+		return new DummyConfigElement.DummyCategoryElement(name, tooltip_key, new ConfigElement(SuperMiner_Core.configFile.getCategory(category)).getChildElements());
+	}
 }
