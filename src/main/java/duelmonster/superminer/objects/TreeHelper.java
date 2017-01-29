@@ -17,15 +17,15 @@ import net.minecraft.util.math.BlockPos;
 
 public class TreeHelper {
 	public static final int MAX_TREE_WIDTH = 64;
-
-	private EntityPlayer oPlayer;
-	private Globals myGlobals;
 	
-	public int iTreeWidthPlusX = 0, iTreeWidthMinusX = 0;
-	public int iTreeWidthPlusZ = 0, iTreeWidthMinusZ = 0;
+	private EntityPlayer	oPlayer;
+	private Globals			myGlobals;
+	
+	public int	iTreeWidthPlusX	= 0, iTreeWidthMinusX = 0;
+	public int	iTreeWidthPlusZ	= 0, iTreeWidthMinusZ = 0;
 	
 	private BlockPos oFirstLeafPos = null;
-
+	
 	public TreeHelper(EntityPlayer player, Globals globals) {
 		oPlayer = player;
 		myGlobals = globals;
@@ -34,16 +34,16 @@ public class TreeHelper {
 	public void DetectTreeWidth(SMPacket currentPacket) {
 		if (oFirstLeafPos != null) {
 			int yLevel = oFirstLeafPos.getY();
-
+			
 			for (int yLeaf = yLevel; yLeaf < oPlayer.world.getHeight(); yLeaf++) {
 				String sUID = "";
-				boolean bIsValidWood = false, bIsValidLeaf = false; 
+				boolean bIsValidWood = false, bIsValidLeaf = false;
 				int iWidthPlusX = 0, iWidthMinusX = 0;
 				int iWidthPlusZ = 0, iWidthMinusZ = 0;
 				int iLastWoodPlus = 0, iLastWoodMinus = 0;
 				
 				for (int xOffset = 0; xOffset < MAX_TREE_WIDTH; xOffset++) {
-					//Check X plus width
+					// Check X plus width
 					sUID = getUniqueIdentifier(new BlockPos(currentPacket.oPos.getX() + xOffset, yLevel, currentPacket.oPos.getZ()));
 					bIsValidWood = currentPacket.sWoodName.equalsIgnoreCase(sUID);
 					bIsValidLeaf = currentPacket.sLeafName.equalsIgnoreCase(sUID);
@@ -52,7 +52,7 @@ public class TreeHelper {
 					if (bIsValidLeaf && (xOffset - iLastWoodPlus) > SettingsLumbinator.iLeafRange) break;
 					if (bIsValidWood || bIsValidLeaf) iWidthPlusX++;
 					
-					//Check X minus width
+					// Check X minus width
 					sUID = getUniqueIdentifier(new BlockPos(currentPacket.oPos.getX() - xOffset, yLevel, currentPacket.oPos.getZ()));
 					bIsValidWood = currentPacket.sWoodName.equalsIgnoreCase(sUID);
 					bIsValidLeaf = currentPacket.sLeafName.equalsIgnoreCase(sUID);
@@ -62,9 +62,10 @@ public class TreeHelper {
 					if (bIsValidWood || bIsValidLeaf) iWidthMinusX++;
 				}
 				
-				iLastWoodPlus = 0; iLastWoodMinus = 0;
+				iLastWoodPlus = 0;
+				iLastWoodMinus = 0;
 				for (int zOffset = 0; zOffset < MAX_TREE_WIDTH; zOffset++) {
-					//Check Z plus width
+					// Check Z plus width
 					sUID = getUniqueIdentifier(new BlockPos(currentPacket.oPos.getX(), yLevel, currentPacket.oPos.getZ() + zOffset));
 					bIsValidWood = currentPacket.sWoodName.equalsIgnoreCase(sUID);
 					bIsValidLeaf = currentPacket.sLeafName.equalsIgnoreCase(sUID);
@@ -73,7 +74,7 @@ public class TreeHelper {
 					if (bIsValidLeaf && (zOffset - iLastWoodPlus) > SettingsLumbinator.iLeafRange) break;
 					if (bIsValidWood || bIsValidLeaf) iWidthPlusZ++;
 					
-					//Check Z minus width
+					// Check Z minus width
 					sUID = getUniqueIdentifier(new BlockPos(currentPacket.oPos.getX(), yLevel, currentPacket.oPos.getZ() - zOffset));
 					bIsValidWood = currentPacket.sWoodName.equalsIgnoreCase(sUID);
 					bIsValidLeaf = currentPacket.sLeafName.equalsIgnoreCase(sUID);
@@ -105,7 +106,7 @@ public class TreeHelper {
 						return getUniqueIdentifier(nextPos);
 					}
 				}
-		
+			
 		return "unknown";
 	}
 	
@@ -113,12 +114,13 @@ public class TreeHelper {
 		IBlockState state = oPlayer.world.getBlockState(oPos);
 		return getUniqueIdentifier(state, state.getBlock().getMetaFromState(state));
 	}
+	
 	public String getUniqueIdentifier(IBlockState state, int iMetadata) {
 		Block block = state.getBlock();
 		String sResult = "";
-
+		
 		sResult = block.getUnlocalizedName() + "_"; // + iMetadata + "_";
-
+		
 		boolean bIsValidWood = (state.getMaterial() == Material.WOOD && Globals.isIdInList(block, myGlobals.lBlockIDs));
 		boolean bIsValidLeaves = (state.getMaterial() == Material.LEAVES && Globals.isIdInList(block, myGlobals.lLeafIDs));
 		
@@ -130,9 +132,9 @@ public class TreeHelper {
 			}
 		} else if (bIsValidLeaves) {
 			if (block instanceof BlockOldLeaf) {
-				sResult += ((BlockOldLeaf)block).getWoodType(iMetadata).getName();
+				sResult += ((BlockOldLeaf) block).getWoodType(iMetadata).getName();
 			} else if (block instanceof BlockNewLeaf) {
-				sResult += ((BlockNewLeaf)block).getWoodType(iMetadata).getName();
+				sResult += ((BlockNewLeaf) block).getWoodType(iMetadata).getName();
 			}
 		}
 		
@@ -148,31 +150,31 @@ public class TreeHelper {
 					
 					if (currentPacket.positions.contains(oConPos))
 						return true;
-			}
-
+				}
+			
 		return false;
 	}
 	
 	public boolean processPosition(SMPacket currentPacket, BlockPos nextPos, boolean bIsTree) {
 		IBlockState nextState = oPlayer.world.getBlockState(nextPos);
 		Block nextBlock = nextState.getBlock();
-
+		
 		if (nextBlock != null && nextBlock != Blocks.AIR && ensureIsConnectedToTree(currentPacket, nextPos)) {
 			boolean bIsValidWood = (nextState.getMaterial() == Material.WOOD && Globals.isIdInList(nextBlock, myGlobals.lBlockIDs));
 			boolean bIsValidLeaves = (nextState.getMaterial() == Material.LEAVES && Globals.isIdInList(nextBlock, myGlobals.lLeafIDs));
 			String sNextName = getUniqueIdentifier(nextPos);
 			
-			if ((bIsValidWood && currentPacket.sWoodName.equalsIgnoreCase(sNextName)) || 
-				(bIsValidLeaves && (currentPacket.sLeafName.isEmpty() || currentPacket.sLeafName.equalsIgnoreCase(sNextName)))) {
+			if ((bIsValidWood && currentPacket.sWoodName.equalsIgnoreCase(sNextName)) ||
+					(bIsValidLeaves && (currentPacket.sLeafName.isEmpty() || currentPacket.sLeafName.equalsIgnoreCase(sNextName)))) {
 				
 				if (bIsValidLeaves && currentPacket.sLeafName.isEmpty())
 					currentPacket.sLeafName = sNextName;
 				
 				if (bIsValidWood || (bIsValidLeaves && SettingsLumbinator.bDestroyLeaves))
 					currentPacket.positions.offer(nextPos);
-
+				
 				if (bIsValidLeaves && !bIsTree) return true;
-
+				
 			} else if (SettingsLumbinator.bDestroyLeaves && nextBlock instanceof BlockSnow)
 				currentPacket.positions.offer(nextPos);
 		}

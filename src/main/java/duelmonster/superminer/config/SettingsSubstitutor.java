@@ -6,34 +6,34 @@ import net.minecraft.network.PacketBuffer;
 
 public class SettingsSubstitutor {
 	public static final int packetID = PacketIDs.Settings_Substitutor.value();
-
-	public final static boolean bEnabledDefault = true;
-	public final static boolean bSwitchbackEnabledDefault = true;
-	public final static boolean bFavourSilkTouchDefault = true;
-	public final static boolean bIgnoreIfValidToolDefault = true;
-	public final static boolean bIgnorePassiveMobsDefault = true;
-	public final static String[] saExcludedBlockIDDefaults = { 
-													"minecraft:chest", 
-													"minecraft:trapped_chest", 
-													"JABBA:barrel", 
-													"StorageDrawers:fullDrawers1", 
-													"StorageDrawers:fullDrawers2", 
-													"StorageDrawers:fullDrawers4", 
-													"StorageDrawers:halfDrawers2", 
-													"StorageDrawers:halfDrawers4", 
-													"StorageDrawers:trim", 
-													"StorageDrawers:controller", 
-													"StorageDrawers:controllerSlave", 
-													"StorageDrawers:compDrawers"
-												};
 	
-	public static boolean bEnabled = bEnabledDefault;
-	public static boolean bSwitchbackEnabled = bSwitchbackEnabledDefault;
-	public static boolean bFavourSilkTouch = bFavourSilkTouchDefault;
-	public static boolean bIgnoreIfValidTool = bIgnoreIfValidToolDefault;
-	public static boolean bIgnorePassiveMobs = bIgnorePassiveMobsDefault;
-	public static String[] saExcludedBlockIDs = saExcludedBlockIDDefaults;
-			
+	public final static boolean		bEnabledDefault				= true;
+	public final static boolean		bSwitchbackEnabledDefault	= true;
+	public final static boolean		bFavourSilkTouchDefault		= true;
+	public final static boolean		bIgnoreIfValidToolDefault	= true;
+	public final static boolean		bIgnorePassiveMobsDefault	= true;
+	public final static String[]	saExcludedBlockIDDefaults	= {
+			"minecraft:chest",
+			"minecraft:trapped_chest",
+			"JABBA:barrel",
+			"StorageDrawers:fullDrawers1",
+			"StorageDrawers:fullDrawers2",
+			"StorageDrawers:fullDrawers4",
+			"StorageDrawers:halfDrawers2",
+			"StorageDrawers:halfDrawers4",
+			"StorageDrawers:trim",
+			"StorageDrawers:controller",
+			"StorageDrawers:controllerSlave",
+			"StorageDrawers:compDrawers"
+	};
+	
+	public static boolean	bEnabled			= bEnabledDefault;
+	public static boolean	bSwitchbackEnabled	= bSwitchbackEnabledDefault;
+	public static boolean	bFavourSilkTouch	= bFavourSilkTouchDefault;
+	public static boolean	bIgnoreIfValidTool	= bIgnoreIfValidToolDefault;
+	public static boolean	bIgnorePassiveMobs	= bIgnorePassiveMobsDefault;
+	public static String[]	saExcludedBlockIDs	= saExcludedBlockIDDefaults;
+	
 	public static void readPacketData(PacketBuffer oBuffer) {
 		@SuppressWarnings("unused")
 		int id = oBuffer.readInt();
@@ -51,7 +51,7 @@ public class SettingsSubstitutor {
 				SettingsSubstitutor.saExcludedBlockIDs[i] = oBuffer.readString(32767);
 		}
 	}
-
+	
 	public static PacketBuffer writePacketData() {
 		PacketBuffer oBuffer = new PacketBuffer(Unpooled.buffer());
 		
@@ -67,8 +67,8 @@ public class SettingsSubstitutor {
 		oBuffer.writeInt(iCount);
 		if (iCount > 0)
 			for (int i = 0; i < iCount; i++)
-				oBuffer.writeString(SettingsSubstitutor.saExcludedBlockIDs[i]);
-
+			oBuffer.writeString(SettingsSubstitutor.saExcludedBlockIDs[i]);
+		
 		return oBuffer;
 	}
 }

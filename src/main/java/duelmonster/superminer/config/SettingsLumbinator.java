@@ -10,8 +10,8 @@ import net.minecraft.network.PacketBuffer;
 public class SettingsLumbinator {
 	public static final int packetID = PacketIDs.Settings_Lumbinator.value();
 	
-	public final static boolean bEnabledDefault = true;
-	// public final static boolean bGatherDropsDefault = false;
+	public final static boolean				bEnabledDefault					= true;
+	public final static boolean				bGatherDropsDefault				= false;
 	public final static boolean				bChopTreeBelowDefault			= false;
 	public final static boolean				bDestroyLeavesDefault			= true;
 	public final static boolean				bLeavesAffectDurabilityDefault	= false;
@@ -20,8 +20,8 @@ public class SettingsLumbinator {
 	public final static ArrayList<String>	lWoodIDDefaults					= new ArrayList<String>(Arrays.asList("log", "log2", "brown_mushroom_block", "red_mushroom_block"));
 	public final static ArrayList<String>	lLeafIDDefaults					= new ArrayList<String>(Arrays.asList("leaves", "leaves2"));
 	
-	public static boolean bEnabled = bEnabledDefault;
-	// public static boolean bGatherDrops = bGatherDropsDefault;
+	public static boolean			bEnabled				= bEnabledDefault;
+	public static boolean			bGatherDrops			= bGatherDropsDefault;
 	public static boolean			bChopTreeBelow			= bChopTreeBelowDefault;
 	public static boolean			bDestroyLeaves			= bDestroyLeavesDefault;
 	public static boolean			bLeavesAffectDurability	= bLeavesAffectDurabilityDefault;
@@ -35,7 +35,7 @@ public class SettingsLumbinator {
 		int id = oBuffer.readInt();
 		
 		SettingsLumbinator.bEnabled = oBuffer.readBoolean();
-		// SettingsLumbinator.bGatherDrops = oBuffer.readBoolean();
+		SettingsLumbinator.bGatherDrops = oBuffer.readBoolean();
 		SettingsLumbinator.bChopTreeBelow = oBuffer.readBoolean();
 		SettingsLumbinator.bDestroyLeaves = oBuffer.readBoolean();
 		SettingsLumbinator.bLeavesAffectDurability = oBuffer.readBoolean();
@@ -69,7 +69,7 @@ public class SettingsLumbinator {
 		oBuffer.writeInt(packetID);
 		
 		oBuffer.writeBoolean(SettingsLumbinator.bEnabled);
-		// oBuffer.writeBoolean(SettingsLumbinator.bGatherDrops);
+		oBuffer.writeBoolean(SettingsLumbinator.bGatherDrops);
 		oBuffer.writeBoolean(SettingsLumbinator.bChopTreeBelow);
 		oBuffer.writeBoolean(SettingsLumbinator.bDestroyLeaves);
 		oBuffer.writeBoolean(SettingsLumbinator.bLeavesAffectDurability);
@@ -79,20 +79,20 @@ public class SettingsLumbinator {
 		oBuffer.writeInt(iCount);
 		if (iCount > 0)
 			for (int i = 0; i < iCount; i++)
-				oBuffer.writeString(SettingsLumbinator.lToolIDs.get(i));
-			
+			oBuffer.writeString(SettingsLumbinator.lToolIDs.get(i));
+		
 		iCount = SettingsLumbinator.lWoodIDs.size();
 		oBuffer.writeInt(iCount);
 		if (iCount > 0)
 			for (int i = 0; i < iCount; i++)
-				oBuffer.writeString(SettingsLumbinator.lWoodIDs.get(i));
-			
+			oBuffer.writeString(SettingsLumbinator.lWoodIDs.get(i));
+		
 		iCount = SettingsLumbinator.lLeafIDs.size();
 		oBuffer.writeInt(iCount);
 		if (iCount > 0)
 			for (int i = 0; i < iCount; i++)
-				oBuffer.writeString(SettingsLumbinator.lLeafIDs.get(i));
-			
+			oBuffer.writeString(SettingsLumbinator.lLeafIDs.get(i));
+		
 		return oBuffer;
 	}
 }

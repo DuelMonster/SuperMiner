@@ -2,6 +2,7 @@ package duelmonster.superminer.submods;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -74,6 +76,7 @@ public class Lumbinator {
 	
 	public static void syncConfig() {
 		SettingsLumbinator.bEnabled = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.lumbinator.enabled"), MODID, SettingsLumbinator.bEnabledDefault, Globals.localize("superminer.lumbinator.enabled.desc"));
+		SettingsLumbinator.bGatherDrops = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.lumbinator.gather_drops"), MODID, SettingsLumbinator.bGatherDropsDefault, Globals.localize("superminer.lumbinator.gather_drops.desc"));
 		SettingsLumbinator.bChopTreeBelow = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.lumbinator.chop_below"), MODID, SettingsLumbinator.bChopTreeBelowDefault, Globals.localize("superminer.lumbinator.chop_below.desc"));
 		SettingsLumbinator.bDestroyLeaves = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.lumbinator.destroy_leaves"), MODID, SettingsLumbinator.bDestroyLeavesDefault, Globals.localize("superminer.lumbinator.destroy_leaves.desc"));
 		SettingsLumbinator.bLeavesAffectDurability = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.lumbinator.leaves_affect_durability"), MODID, SettingsLumbinator.bLeavesAffectDurabilityDefault, Globals.localize("superminer.lumbinator.leaves_affect_durability.desc"));
@@ -132,7 +135,11 @@ public class Lumbinator {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
-		if (!PlayerEvents.IsPlayerInWorld() || Excavator.isToggled() || Shaftanator.bToggled || !SettingsLumbinator.bEnabled || !TickEvent.Phase.END.equals(event.phase))
+		if (!PlayerEvents.IsPlayerInWorld()
+				|| Excavator.isToggled()
+				|| Shaftanator.bToggled
+				|| !SettingsLumbinator.bEnabled
+				|| !TickEvent.Phase.END.equals(event.phase))
 			return;
 		
 		Minecraft mc = FMLClientHandler.instance().getClient();
@@ -154,7 +161,9 @@ public class Lumbinator {
 			Block block = null;
 			BlockPos oPos = null;
 			
-			if (player.getHealth() > 0.0F && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
+			if (player.getHealth() > 0.0F
+					&& mc.objectMouseOver != null
+					&& mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
 				
 				oPos = mc.objectMouseOver.getBlockPos();
 				state = world.getBlockState(oPos);
@@ -172,19 +181,27 @@ public class Lumbinator {
 				}
 				
 				if (player.getFoodStats().getFoodLevel() > Globals.MIN_HUNGER) {
-					myGlobals.addAttackBlock(player, state, oPos, false, true, true, false);
+					myGlobals.addAttackBlock(
+							player,
+							state,
+							oPos,
+							false, true, true, false);
 				}
 			} else
 				bHungerNotified = false;
 			
 			for (Iterator<SMPacket> attackPackets = myGlobals.attackHistory.iterator(); attackPackets.hasNext();) {
 				SMPacket packet = attackPackets.next();
-				if (System.nanoTime() - packet.nanoTime >= Globals.attackHistoryDelayNanoTime)
-					attackPackets.remove(); // Removes packet from the history if it has been there too long.
-				else {
+				if (System.nanoTime() - packet.nanoTime >= Globals.attackHistoryDelayNanoTime) {
+					try {
+						attackPackets.remove(); // Removes packet from the history if it has been there too long.
+					} catch (ConcurrentModificationException e) {}
+				} else {
 					block = world.getBlockState(packet.oPos).getBlock();
 					if (block == null || block == Blocks.AIR) {
-						attackPackets.remove(); // Removes packet from the history.
+						try {
+							attackPackets.remove(); // Removes packet from the history.
+						} catch (ConcurrentModificationException e) {}
 						
 						Globals.sendPacket(new CPacketCustomPayload(ChannelName, packet.writePacketData()));
 					}
@@ -225,7 +242,10 @@ public class Lumbinator {
 			return false;
 		
 		ItemStack oEquippedItem = oPlayer.getHeldItemMainhand();
-		if (oEquippedItem == null || oEquippedItem.getCount() <= 0 || !Globals.isIdInList(oEquippedItem.getItem(), myGlobals.lToolIDs) || !Globals.isIdInList(block, myGlobals.lBlockIDs))
+		if (oEquippedItem == null
+				|| oEquippedItem.getCount() <= 0
+				|| !Globals.isIdInList(oEquippedItem.getItem(), myGlobals.lToolIDs)
+				|| !Globals.isIdInList(block, myGlobals.lBlockIDs))
 			return false;
 		
 		if (!currentPacket.positions.contains(currentPacket.oPos))
@@ -276,8 +296,8 @@ public class Lumbinator {
 	public void tickEvent_Server(TickEvent.ServerTickEvent event) {
 		if (TickEvent.Phase.END.equals(event.phase) && !myPackets.isEmpty())
 			for (SMPacket currentPacket : getMyPackets())
-				if (currentPacket != null)
-					chopTree(currentPacket);
+			if (currentPacket != null)
+				chopTree(currentPacket);
 	}
 	
 	private static ItemStack	oHeldItem	= null;
@@ -294,7 +314,7 @@ public class Lumbinator {
 		while (iCount < BREAK_LIMIT && !currentPacket.positions.isEmpty())
 			if (breakBlock(currentPacket))
 				iCount++;
-			
+		
 		if (currentPacket.positions.isEmpty()) {
 			
 			if (oHeldItem != null && oPlayer.inventory.getStackInSlot(iHeldSlot) != oHeldItem) {
@@ -303,9 +323,19 @@ public class Lumbinator {
 				oPlayer.openContainer.detectAndSendChanges();
 			}
 			
-			// Globals.stackItems(oPlayer.world, oPlayer, new AxisAlignedBB(currentPacket.oPos).expand(8, 8, 8));
+			if (SettingsLumbinator.bGatherDrops) {
+				List<Entity> list = Globals.getNearbyEntities(oPlayer.world, oPlayer.getEntityBoundingBox().expand(8, 8, 8));
+				if (null != list && !list.isEmpty()) {
+					for (Entity entity : list) {
+						if (!entity.isDead)
+							entity.setPosition(currentPacket.oPos.getX(), currentPacket.oPos.getZ(), currentPacket.oPos.getZ());
+					}
+				}
+			}
 			
-			myPackets.remove(currentPacket);
+			try {
+				myPackets.remove(currentPacket);
+			} catch (ConcurrentModificationException e) {}
 			
 			oHeldItem = null;
 			iHeldSlot = -99;
@@ -325,9 +355,11 @@ public class Lumbinator {
 		// Double check that the block isn't air
 		if (!oPlayer.world.isAirBlock(blockPos)) {
 			if (bIsLeaves && !SettingsLumbinator.bLeavesAffectDurability) {
-				// Set ItemStack in the current slot to null to ensure the
-				// leaves don't affect durability
-				oPlayer.inventory.removeStackFromSlot(iHeldSlot);
+				// Set ItemStack in the current slot to null to ensure the leaves don't affect durability
+				try {
+					oPlayer.inventory.removeStackFromSlot(iHeldSlot);
+				} catch (ConcurrentModificationException e) {}
+				
 				oPlayer.openContainer.detectAndSendChanges();
 			}
 			

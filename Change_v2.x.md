@@ -1,3 +1,12 @@
+#### **2.1.14:**
+> | Core: | ---
+> | --- | ---
+> | _FIX_: | Modifications made to help solve the "Concurrent Modification" exception issues.
+
+> | Lumbinator: | ---
+> | --- | ---
+> | _FIX_: | Restored the Gather Drops option.  Was preveously thought that this option caused Lumbinator to fail.
+
 #### **2.1.13:**
 > | Lumbinator: | ---
 > | --- | ---

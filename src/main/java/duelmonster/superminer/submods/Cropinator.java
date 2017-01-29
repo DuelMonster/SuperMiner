@@ -2,6 +2,7 @@ package duelmonster.superminer.submods;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 
 import duelmonster.superminer.SuperMiner_Core;
@@ -107,9 +108,9 @@ public class Cropinator {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
-		if (!PlayerEvents.IsPlayerInWorld() ||
-				!SettingsCropinator.bEnabled ||
-				!TickEvent.Phase.END.equals(event.phase))
+		if (!PlayerEvents.IsPlayerInWorld()
+				|| !SettingsCropinator.bEnabled
+				|| !TickEvent.Phase.END.equals(event.phase))
 			return;
 		
 		Minecraft mc = FMLClientHandler.instance().getClient();
@@ -232,7 +233,10 @@ public class Cropinator {
 					curItem.damageItem(1, player);
 				
 				if (curItem.getMaxDamage() <= 0) {
-					player.inventory.removeStackFromSlot(player.inventory.currentItem);
+					try {
+						player.inventory.removeStackFromSlot(player.inventory.currentItem);
+					} catch (ConcurrentModificationException e) {}
+					
 					player.openContainer.detectAndSendChanges();
 					break;
 				}
@@ -254,7 +258,8 @@ public class Cropinator {
 				BlockPos blockPos = oPacket.oPos.add(xOffset, 0, zOffset);
 				Block oBlock = world.getBlockState(blockPos).getBlock();
 				
-				if (oBlock != null && !world.isAirBlock(blockPos)
+				if (oBlock != null
+						&& !world.isAirBlock(blockPos)
 						&& world.isAirBlock(blockPos.up())
 						&& (oBlock == Blocks.GRASS || oBlock == Blocks.DIRT))
 					oPacket.lstPositions.offer(blockPos);
@@ -329,7 +334,10 @@ public class Cropinator {
 					curItem.damageItem(1, player);
 				
 				if (curItem.getMaxDamage() <= 0) {
-					player.inventory.removeStackFromSlot(player.inventory.currentItem);
+					try {
+						player.inventory.removeStackFromSlot(player.inventory.currentItem);
+					} catch (ConcurrentModificationException e) {}
+					
 					player.openContainer.detectAndSendChanges();
 					break;
 				}

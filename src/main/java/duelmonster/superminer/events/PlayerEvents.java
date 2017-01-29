@@ -19,17 +19,20 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 
 public class PlayerEvents {
-	public static String sLatestVersion = "";
-	private static boolean bIsPlayerInWorld = false;
-	public static boolean IsPlayerInWorld() { return bIsPlayerInWorld; }
-
+	public static String	sLatestVersion		= "";
+	private static boolean	bIsPlayerInWorld	= false;
+	
+	public static boolean IsPlayerInWorld() {
+		return bIsPlayerInWorld;
+	}
+	
 	@SubscribeEvent
-	public void onPlayerConnectedToServer(FMLNetworkEvent.ClientConnectedToServerEvent event){
+	public void onPlayerConnectedToServer(FMLNetworkEvent.ClientConnectedToServerEvent event) {
 		doEventStuff();
 	}
-
+	
 	@SubscribeEvent
-	public void onPlayerDisconnectedFromServer(FMLNetworkEvent.ClientDisconnectionFromServerEvent event){
+	public void onPlayerDisconnectedFromServer(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
 		bIsPlayerInWorld = false;
 	}
 	

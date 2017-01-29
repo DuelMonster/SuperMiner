@@ -9,22 +9,35 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class SM_Client extends SM_Proxy {
-
-	public SM_Client() { INSTANCE = this; }
-  
-  public EntityPlayer getPlayerFromNetHandler(INetHandler handler) {
-    EntityPlayer player = super.getPlayerFromNetHandler(handler);
-    if (player == null) return getClientPlayer();
-    return player;
-  }
-  
-  public boolean isClientSideAvailable() { return true; }
-  
-  public EntityPlayer getClientPlayer() { return FMLClientHandler.instance().getClient().player; }
-  
-  public World getClientWorld() { return FMLClientHandler.instance().getClient().world; }
-  
-  public void exectuteClientCode(IClientCode clientCode) {
-    clientCode.exectuteClientCode();
-  }
+	
+	public SM_Client() {
+		INSTANCE = this;
+	}
+	
+	@Override
+	public EntityPlayer getPlayerFromNetHandler(INetHandler handler) {
+		EntityPlayer player = super.getPlayerFromNetHandler(handler);
+		if (player == null) return getClientPlayer();
+		return player;
+	}
+	
+	@Override
+	public boolean isClientSideAvailable() {
+		return true;
+	}
+	
+	@Override
+	public EntityPlayer getClientPlayer() {
+		return FMLClientHandler.instance().getClient().player;
+	}
+	
+	@Override
+	public World getClientWorld() {
+		return FMLClientHandler.instance().getClient().world;
+	}
+	
+	@Override
+	public void exectuteClientCode(IClientCode clientCode) {
+		clientCode.exectuteClientCode();
+	}
 }

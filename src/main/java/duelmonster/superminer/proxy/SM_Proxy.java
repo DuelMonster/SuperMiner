@@ -1,18 +1,20 @@
 package duelmonster.superminer.proxy;
 
+import duelmonster.superminer.events.ServerEvents;
+import duelmonster.superminer.network.PacketHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraftforge.common.MinecraftForge;
-import duelmonster.superminer.events.ServerEvents;
-import duelmonster.superminer.network.PacketHandler;
 
 public class SM_Proxy {
 	
 	public static SM_Proxy INSTANCE;
 	
-	public SM_Proxy() { INSTANCE = this; }
+	public SM_Proxy() {
+		INSTANCE = this;
+	}
 	
 	public static int multiBlockID = 0;
 	
@@ -23,12 +25,12 @@ public class SM_Proxy {
 	public void registerEventHandler() {
 		MinecraftForge.EVENT_BUS.register(new ServerEvents());
 	}
-
+	
 	public void registerRenderInformation() {}
 	
 	public EntityPlayer getPlayerFromNetHandler(INetHandler handler) {
 		if ((handler instanceof NetHandlerPlayServer))
-			return ((NetHandlerPlayServer)handler).playerEntity;
+			return ((NetHandlerPlayServer) handler).playerEntity;
 		
 		return null;
 	}
@@ -41,12 +43,18 @@ public class SM_Proxy {
 		throw new RuntimeException(concat);
 	}
 	
-	public EntityPlayer getClientPlayer() { throw new RuntimeException("getClientPlayer called on server"); }
+	public EntityPlayer getClientPlayer() {
+		throw new RuntimeException("getClientPlayer called on server");
+	}
 	
-	public net.minecraft.world.World getClientWorld() { throw new RuntimeException("getClientWorld called on server"); }
+	public net.minecraft.world.World getClientWorld() {
+		throw new RuntimeException("getClientWorld called on server");
+	}
 	
-	public boolean isClientSideAvailable() { return false; }	
-
+	public boolean isClientSideAvailable() {
+		return false;
+	}
+	
 	public PacketHandler getNewPacketHandler() {
 		return new PacketHandler();
 	}

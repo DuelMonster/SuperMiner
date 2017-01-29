@@ -5,6 +5,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -34,10 +35,10 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 public class SubstitutionHelper {
 	private static final Minecraft mc = FMLClientHandler.instance().getClient();
 	
-	private static ItemStack prevHeldItem = null;
-	private static Random prevWorldRandom = null;
+	private static ItemStack	prevHeldItem	= null;
+	private static Random		prevWorldRandom	= null;
 	
-	private static final String[] randomNames = {"rand", "field_73012_v", "v"};
+	private static final String[] randomNames = { "rand", "field_73012_v", "v" };
 	
 	public static float getDigSpeed(ItemStack itemstack, IBlockState state) {
 		return (itemstack == null ? 1.0F : itemstack.getItem().getStrVsBlock(itemstack, state));
@@ -48,7 +49,7 @@ public class SubstitutionHelper {
 		if (state.getBlock() == null) return 0;
 		else return state.getBlockHardness(world, oPos);
 	}
-
+	
 	public static float getBlockStrength(ItemStack itemstack, World world, BlockPos oPos) {
 		IBlockState state = world.getBlockState(oPos);
 		ChangeHeldItem(itemstack);
@@ -57,7 +58,7 @@ public class SubstitutionHelper {
 		return strength;
 	}
 	
-	public static int getAdjustedBlockStrength(double blockStrength){
+	public static int getAdjustedBlockStrength(double blockStrength) {
 		return (blockStrength <= 0 ? Integer.MIN_VALUE : -MathHelper.ceil(1D / blockStrength));
 	}
 	
@@ -69,32 +70,32 @@ public class SubstitutionHelper {
 		RestoreHeldItem();
 		
 		if (efficiencyLevel == 0) return digSpeed;
-
+		
 		return digSpeed + efficiencyLevel * efficiencyLevel + 1;
 	}
 	
 	public static int getHarvestLevel(World world, ItemStack itemstack, BlockPos oPos) {
 		IBlockState state = world.getBlockState(oPos);
 		Block block = state.getBlock();
-
+		
 		ChangeHeldItem(null);
 		boolean noTool = mc.player.canHarvestBlock(state);
 		RestoreHeldItem();
 		if (noTool) return 0;
-
+		
 		ChangeHeldItem(itemstack);
 		boolean canHarvest = block.canHarvestBlock(mc.world, oPos, mc.player);
 		RestoreHeldItem();
 		return (canHarvest ? 1 : -1);
 	}
-
+	
 	public static boolean isBlockSilkTouchable(World world, BlockPos oPos) {
 		IBlockState state = world.getBlockState(oPos);
 		Block block = state.getBlock();
 		if (block == null) return false;
 		
 		int metadata = block.getMetaFromState(state);
-
+		
 		boolean silkHarvest = block.canSilkHarvest(world, oPos, state, mc.player);
 		if (!silkHarvest) return false;
 		
@@ -103,7 +104,7 @@ public class SubstitutionHelper {
 		
 		ItemStack stackedBlock = createBlockStack(block, metadata);
 		List<ItemStack> stackedBlockList = Collections.singletonList(stackedBlock);
-				
+		
 		ChangeWorldRandom(world, maxRandom);
 		List<ItemStack> maxRandomDrops = block.getDrops(world, oPos, state, 0);
 		ChangeWorldRandom(world, zeroRandom);
@@ -117,7 +118,7 @@ public class SubstitutionHelper {
 		IBlockState state = world.getBlockState(oPos);
 		Block block = state.getBlock();
 		if (block == null) return false;
-
+		
 		Random zeroRandom = new NotSoRandom(true);
 		Random maxRandom = new NotSoRandom(false);
 		
@@ -128,7 +129,7 @@ public class SubstitutionHelper {
 		List<ItemStack> defaultZeroDrops = block.getDrops(world, oPos, state, 0);
 		List<ItemStack> fortuneZeroDrops = block.getDrops(world, oPos, state, 3);
 		RestoreWorldRandom(world);
-
+		
 		return (!areItemStackListsIdentical(defaultMaxDrops, fortuneMaxDrops) || !areItemStackListsIdentical(defaultZeroDrops, fortuneZeroDrops));
 	}
 	
@@ -141,7 +142,7 @@ public class SubstitutionHelper {
 		if (prevHeldItem != null) mc.player.getAttributeMap().removeAttributeModifiers(prevHeldItem.getAttributeModifiers(null));
 		if (itemstack != null) mc.player.getAttributeMap().applyAttributeModifiers(itemstack.getAttributeModifiers(null));
 	}
-
+	
 	private static void RestoreHeldItem() {
 		int iSlot = mc.player.inventory.currentItem;
 		
@@ -151,9 +152,9 @@ public class SubstitutionHelper {
 		if (itemstack != null) mc.player.getAttributeMap().removeAttributeModifiers(itemstack.getAttributeModifiers(null));
 		if (prevHeldItem != null) mc.player.getAttributeMap().applyAttributeModifiers(prevHeldItem.getAttributeModifiers(null));
 	}
-
+	
 	private static void ChangeWorldRandom(World world, Random random) {
-		if (prevWorldRandom == null){
+		if (prevWorldRandom == null) {
 			prevWorldRandom = world.rand;
 			for (String name : randomNames) {
 				try {
@@ -161,8 +162,8 @@ public class SubstitutionHelper {
 					field.setAccessible(true);
 					try {
 						Field modifiersField = Field.class.getDeclaredField("modifiers");
-					    modifiersField.setAccessible(true);
-					    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+						modifiersField.setAccessible(true);
+						modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 						field.set(world, random);
 						modifiersField.setInt(field, field.getModifiers() | Modifier.FINAL);
 						return;
@@ -183,8 +184,8 @@ public class SubstitutionHelper {
 				field.setAccessible(true);
 				try {
 					Field modifiersField = Field.class.getDeclaredField("modifiers");
-				    modifiersField.setAccessible(true);
-				    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+					modifiersField.setAccessible(true);
+					modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 					field.set(world, prevWorldRandom);
 					modifiersField.setInt(field, field.getModifiers() | Modifier.FINAL);
 					return;
@@ -197,28 +198,28 @@ public class SubstitutionHelper {
 		}
 		prevWorldRandom = null;
 	}
-
-	/**
-     * Returns an item stack containing a single instance of the block. 'metadata' is the block's subtype/damage
-     * and is ignored for blocks which do not support subtypes. Blocks which cannot be harvested should return null.
-     */
-	private static ItemStack createBlockStack(Block block, int metadata)
-    {
-        int itemMetadata = 0;
-        Item item = Item.getItemFromBlock(block);
-
-        if (item != null && item.getHasSubtypes()) itemMetadata = metadata;
-
-        return new ItemStack(item, 1, itemMetadata);
-    }
 	
 	/**
-	 * Detects whether two collections of ItemStack contain the same items.
-	 * It depends on multiplicity, but doesn't depend on order.
-	 * Note that it will return false if comparing 2 Dirt + 2 Dirt to 1 Dirt + 3 * Dirt.
+	 * Returns an item stack containing a single instance of the block. 'metadata' is the block's subtype/damage and is
+	 * ignored for blocks which do not support subtypes. Blocks which cannot be harvested should return null.
+	 */
+	private static ItemStack createBlockStack(Block block, int metadata) {
+		int itemMetadata = 0;
+		Item item = Item.getItemFromBlock(block);
+		
+		if (item != null && item.getHasSubtypes()) itemMetadata = metadata;
+		
+		return new ItemStack(item, 1, itemMetadata);
+	}
+	
+	/**
+	 * Detects whether two collections of ItemStack contain the same items. It depends on multiplicity, but doesn't
+	 * depend on order. Note that it will return false if comparing 2 Dirt + 2 Dirt to 1 Dirt + 3 * Dirt.
 	 * 
-	 * @param stack_1 - The first collection
-	 * @param stack_2 - The second collection
+	 * @param stack_1
+	 *            - The first collection
+	 * @param stack_2
+	 *            - The second collection
 	 * @return true - If they contain the same items (multiplicity matters, order doesn't), false otherwise
 	 */
 	public static boolean areItemStackListsIdentical(Collection<? extends ItemStack> stackCollection_1, Collection<? extends ItemStack> stackCollection_2) {
@@ -226,90 +227,93 @@ public class SubstitutionHelper {
 		
 		List<ItemStack> stackList_1 = new ArrayList<ItemStack>(stackCollection_1);
 		List<ItemStack> stackList_2 = new ArrayList<ItemStack>(stackCollection_2);
-
+		
 		Iterator<ItemStack> stackIterator_1 = stackList_1.iterator();
-
+		
 		outerLoop:
-			while (stackIterator_1.hasNext()) {
-				ItemStack stack_1 = stackIterator_1.next();
+		while (stackIterator_1.hasNext()) {
+			ItemStack stack_1 = stackIterator_1.next();
+			
+			Iterator<ItemStack> stackIterator_2 = stackList_2.iterator();
+			
+			while (stackIterator_2.hasNext()) {
+				ItemStack stack_2 = stackIterator_2.next();
 				
-				Iterator<ItemStack> stackIterator_2 = stackList_2.iterator();
-				
-				while (stackIterator_2.hasNext()) {
-					ItemStack stack_2 = stackIterator_2.next();
-					
-					if (ItemStack.areItemStacksEqual(stack_1, stack_2)) {
+				if (ItemStack.areItemStacksEqual(stack_1, stack_2)) {
+					try {
 						if (stackList_1.size() > 0) stackIterator_1.remove();
 						if (stackList_2.size() > 0) stackIterator_2.remove();
-						continue outerLoop;
-					}
+					} catch (ConcurrentModificationException e) {}
+					
+					continue outerLoop;
 				}
-				return false;
 			}
+			return false;
+		}
 		
 		return true;
 	}
-
+	
 	public static boolean isItemStackDamageable(ItemStack itemstack) {
 		return (itemstack != null && itemstack.getItem().isDamageable());
 	}
 	
-	public static boolean isSameTool(ItemStack stack_1, ItemStack stack_2){
+	public static boolean isSameTool(ItemStack stack_1, ItemStack stack_2) {
 		return (stack_1 != null && stack_2 != null && stack_2.getItem().getClass() == stack_1.getItem().getClass());
 	}
-
+	
 	public static boolean isSword(ItemStack itemstack) {
-		if (itemstack != null && 
-				(itemstack.getItem() instanceof ItemSword || 
-				itemstack.getItem().getUnlocalizedName().toLowerCase().contains("sword")))
+		if (itemstack != null &&
+				(itemstack.getItem() instanceof ItemSword ||
+						itemstack.getItem().getUnlocalizedName().toLowerCase().contains("sword")))
 			return true;
 		return false;
 	}
-
+	
 	public static Set<Enchantment> getMultiToolEnchantments(ItemStack Tool_1, ItemStack Tool_2) {
 		Set<Enchantment> enchantments = new HashSet<Enchantment>();
 		Set<Enchantment> returnSet = new HashSet<Enchantment>();
-
+		
 		if (Tool_1 != null) enchantments.addAll(EnchantmentHelper.getEnchantments(Tool_1).keySet());
 		if (Tool_2 != null) enchantments.addAll(EnchantmentHelper.getEnchantments(Tool_2).keySet());
-
+		
 		Iterator<Enchantment> iterator = enchantments.iterator();
 		while (iterator.hasNext()) {
 			Enchantment enchant = iterator.next();
-
-			if (   enchant == Enchantments.EFFICIENCY
-				|| enchant == Enchantments.SILK_TOUCH
-				|| enchant == Enchantments.FORTUNE
-				|| enchant == Enchantments.UNBREAKING
-				|| enchant == Enchantments.LOOTING
-				|| enchant == Enchantments.KNOCKBACK
-				|| enchant == Enchantments.FIRE_ASPECT) continue;
-
+			
+			if (enchant == Enchantments.EFFICIENCY
+					|| enchant == Enchantments.SILK_TOUCH
+					|| enchant == Enchantments.FORTUNE
+					|| enchant == Enchantments.UNBREAKING
+					|| enchant == Enchantments.LOOTING
+					|| enchant == Enchantments.KNOCKBACK
+					|| enchant == Enchantments.FIRE_ASPECT) continue;
+			
 			if (enchant.getName().startsWith("Enchantments.damage.")) continue;
-
+			
 			returnSet.add(enchant);
 		}
-
+		
 		return returnSet;
 	}
-
+	
 	public static double getVanillaStackDamage(ItemStack itemStack, EntityLivingBase entity) {
 		ChangeHeldItem(itemStack);
 		
 		double attackDamage = mc.player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
 		// getEnchantmentModifierDamage or getEnchantmentModifierLiving
 		double enchantModifier = EnchantmentHelper.getModifierForCreature(itemStack, entity.getCreatureAttribute());
-
+		
 		if (attackDamage > 0.0D || enchantModifier > 0.0D) {
 			boolean isCritical = mc.player.fallDistance > 0.0F &&
-								!mc.player.onGround &&
-								!mc.player.isOnLadder() &&
-								!mc.player.isInWater() &&
-								!mc.player.isPotionActive(MobEffects.BLINDNESS) &&
-								 mc.player.getRidingEntity() == null;
-
+					!mc.player.onGround &&
+					!mc.player.isOnLadder() &&
+					!mc.player.isInWater() &&
+					!mc.player.isPotionActive(MobEffects.BLINDNESS) &&
+					mc.player.getRidingEntity() == null;
+			
 			if (isCritical && attackDamage > 0) attackDamage *= 1.5D;
-
+			
 			attackDamage += enchantModifier;
 		}
 		
@@ -319,32 +323,33 @@ public class SubstitutionHelper {
 	}
 	
 	/**
-     * Try move items from slotFrom to slotTo
-     * @return true if at least some items were moved
-     */
+	 * Try move items from slotFrom to slotTo
+	 * 
+	 * @return true if at least some items were moved
+	 */
 	public static boolean transferStackFromTo(Container container, Minecraft mc, int slotFrom, int slotTo) {
-        EntityPlayer player = mc.player;
-
-        // Left click to take items
-        mc.playerController.windowClick(container.windowId, slotFrom, 0, ClickType.PICKUP, player);
-
-        // Couldn't take the items, bail out now
-        if (player.inventory.getItemStack() == null) return false;
-
-        boolean bRtrn = true;
-        int size = player.inventory.getItemStack().getCount();
-
-        // Left click on the target slot to put the items to it
-        mc.playerController.windowClick(container.windowId, slotTo, 0, ClickType.PICKUP, player);
-
-        // If there are items left in the cursor, then return them back to the original slot
-        if (player.inventory.getItemStack() != null) {
-        	bRtrn = player.inventory.getItemStack().getCount() != size;
-
-            // Left click again on the from-slot to return the rest of the items to it
-            mc.playerController.windowClick(container.windowId, slotFrom, 0, ClickType.PICKUP, player);
-        }
-
-        return bRtrn;
-    }
+		EntityPlayer player = mc.player;
+		
+		// Left click to take items
+		mc.playerController.windowClick(container.windowId, slotFrom, 0, ClickType.PICKUP, player);
+		
+		// Couldn't take the items, bail out now
+		if (player.inventory.getItemStack() == null) return false;
+		
+		boolean bRtrn = true;
+		int size = player.inventory.getItemStack().getCount();
+		
+		// Left click on the target slot to put the items to it
+		mc.playerController.windowClick(container.windowId, slotTo, 0, ClickType.PICKUP, player);
+		
+		// If there are items left in the cursor, then return them back to the original slot
+		if (player.inventory.getItemStack() != null) {
+			bRtrn = player.inventory.getItemStack().getCount() != size;
+			
+			// Left click again on the from-slot to return the rest of the items to it
+			mc.playerController.windowClick(container.windowId, slotFrom, 0, ClickType.PICKUP, player);
+		}
+		
+		return bRtrn;
+	}
 }

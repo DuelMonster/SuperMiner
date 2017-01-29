@@ -2,6 +2,7 @@ package duelmonster.superminer.submods;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -79,7 +80,7 @@ public class Veinator {
 		for (ExcavationHelper oEH : getMyExcavationHelpers())
 			if (!bIsExcavating)
 				bIsExcavating = (oEH != null && oEH.isExcavating());
-			
+		
 		return bIsExcavating;
 	}
 	
@@ -115,9 +116,9 @@ public class Veinator {
 			bOresGot = true;
 			// Check the Forge OreDictionary for any extra Ores not included in the config file.
 			String[] saOreNames = OreDictionary.getOreNames();
-			for (String sOreName : saOreNames)
-				if (sOreName.startsWith("ore"))
-					for (ItemStack item : OreDictionary.getOres(sOreName))
+			for (String sOreName : saOreNames) {
+				if (sOreName.startsWith("ore")) {
+					for (ItemStack item : OreDictionary.getOres(sOreName)) {
 						if (item.getItem() instanceof ItemBlock) {
 							String sID = Item.REGISTRY.getNameForObject(item.getItem()).toString().trim();
 							boolean bMCIncluded = sID.startsWith("minecraft:");
@@ -130,12 +131,14 @@ public class Veinator {
 								try {
 									int id = Integer.parseInt(sID.trim());
 									myGlobals.lBlockIDs.add(Block.REGISTRY.getObjectById(id));
-								}
-								catch (NumberFormatException e) {
+								} catch (NumberFormatException e) {
 									myGlobals.lBlockIDs.add(Block.REGISTRY.getObject(new ResourceLocation(sID)));
 								}
 							}
 						}
+					}
+				}
+			}
 		}
 	}
 	
@@ -154,8 +157,7 @@ public class Veinator {
 					try {
 						int id = Integer.parseInt(sID);
 						myGlobals.lToolIDs.add(Item.REGISTRY.getObjectById(id));
-					}
-					catch (NumberFormatException e) {
+					} catch (NumberFormatException e) {
 						Item item = Item.REGISTRY.getObject(new ResourceLocation(sID));
 						if (item != null)
 							myGlobals.lToolIDs.add(item);
@@ -169,8 +171,7 @@ public class Veinator {
 					try {
 						int id = Integer.parseInt(sID.trim());
 						myGlobals.lBlockIDs.add(Block.REGISTRY.getObjectById(id));
-					}
-					catch (NumberFormatException e) {
+					} catch (NumberFormatException e) {
 						Block oBlock = Block.REGISTRY.getObject(new ResourceLocation(sID));
 						if (oBlock != null)
 							myGlobals.lBlockIDs.add(oBlock);
@@ -240,12 +241,17 @@ public class Veinator {
 			// Removes packets from the history.
 			for (Iterator<SMPacket> attackPackets = myGlobals.attackHistory.iterator(); attackPackets.hasNext();) {
 				SMPacket packet = attackPackets.next();
-				if (System.nanoTime() - packet.nanoTime >= Globals.attackHistoryDelayNanoTime)
-					attackPackets.remove(); // Removes packet from the history if it has been there too long.
-				else {
+				if (System.nanoTime() - packet.nanoTime >= Globals.attackHistoryDelayNanoTime) {
+					try {
+						attackPackets.remove(); // Removes packet from the history if it has been there too long.
+					} catch (ConcurrentModificationException e) {}
+				} else {
 					block = world.getBlockState(packet.oPos).getBlock();
 					if (block == null || block == Blocks.AIR) {
-						attackPackets.remove(); // Removes packet from the history.
+						try {
+							attackPackets.remove(); // Removes packet from the history.
+						} catch (ConcurrentModificationException e) {}
+						
 						packet.block = packet.prevBlock;
 						
 						Globals.sendPacket(new CPacketCustomPayload(ChannelName, packet.writePacketData()));
@@ -286,7 +292,9 @@ public class Veinator {
 		oEH.getOreVein();
 		if (!oEH.ExcavateSection()) {
 			oEH.FinalizeVeination();
-			myExcavationHelpers.remove(oEH);
+			try {
+				myExcavationHelpers.remove(oEH);
+			} catch (ConcurrentModificationException e) {}
 		}
 		
 		myGlobals.clearHistory();
@@ -301,13 +309,18 @@ public class Veinator {
 		for (final FMLInterModComms.IMCMessage imcMessage : FMLInterModComms.fetchRuntimeMessages(this.instance))
 			processIMC(imcMessage);
 		
-		if (myExcavationHelpers.size() > 0)
-			for (ExcavationHelper oEH : getMyExcavationHelpers())
+		if (myExcavationHelpers.size() > 0) {
+			for (ExcavationHelper oEH : getMyExcavationHelpers()) {
 				if (oEH.isExcavating() && !oEH.ExcavateSection()) {
 					oEH.FinalizeVeination();
-					if (myExcavationHelpers.indexOf(oEH) >= 0)
-						myExcavationHelpers.remove(oEH);
+					if (myExcavationHelpers.indexOf(oEH) >= 0) {
+						try {
+							myExcavationHelpers.remove(oEH);
+						} catch (ConcurrentModificationException e) {}
+					}
 				}
+			}
+		}
 	}
 	
 	private static boolean isAllowedToMine(EntityPlayer player, SMPacket p) {
@@ -334,19 +347,19 @@ public class Veinator {
 	public void processIMC(final FMLInterModComms.IMCMessage imcMessage) {
 		if (imcMessage.key.equalsIgnoreCase("MineVein"))
 			if (imcMessage.isNBTMessage()) {
-				NBTTagCompound nbt = imcMessage.getNBTValue();
-				
-				SMPacket iPacket = new SMPacket();
-				iPacket.readPacketData(new PacketBuffer(Unpooled.copiedBuffer(nbt.getByteArray("MineVein"))));
-				
-				MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-				if (null == server)
-					return;
-				EntityPlayerMP player = (EntityPlayerMP) server.getEntityWorld().getEntityByID(iPacket.playerID);
-				if (player == null)
-					return;
-				
-				executeVeinator(iPacket, player);
+			NBTTagCompound nbt = imcMessage.getNBTValue();
+			
+			SMPacket iPacket = new SMPacket();
+			iPacket.readPacketData(new PacketBuffer(Unpooled.copiedBuffer(nbt.getByteArray("MineVein"))));
+			
+			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+			if (null == server)
+				return;
+			EntityPlayerMP player = (EntityPlayerMP) server.getEntityWorld().getEntityByID(iPacket.playerID);
+			if (player == null)
+				return;
+			
+			executeVeinator(iPacket, player);
 			}
 	}
 }

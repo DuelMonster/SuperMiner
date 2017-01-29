@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.event.FMLInterModComms;
  */
 public class IMCMessage {
 	private final static String MOD = "superminer_";
-
+	
 	public static void addTool(ToolType toolType, String toolID) {
 		String sModID = MOD;
 		String sToolType = "";
@@ -32,14 +32,14 @@ public class IMCMessage {
 			sModID += "excavator";
 			break;
 		case shears:
-//			sToolType = "Shears";
-//			sModID += "excavator";
+			// sToolType = "Shears";
+			// sModID += "excavator";
 			break;
 		default:
-			break;		
+			break;
 		}
 		
-		if (sModID != MOD && Loader.isModLoaded(sModID))			
+		if (sModID != MOD && Loader.isModLoaded(sModID))
 			FMLInterModComms.sendMessage(sModID, "add" + sToolType, toolID);
 	}
 	
@@ -57,11 +57,11 @@ public class IMCMessage {
 		
 		if (sModID != MOD && Loader.isModLoaded(sModID)) FMLInterModComms.sendMessage(sModID, "add" + sBlockType, blockName);
 	}
-
+	
 	public static void addOre(String blockName) {
 		String sModID = MOD + "veinator";
 		
 		if (sModID != MOD && Loader.isModLoaded(sModID)) FMLInterModComms.sendMessage(sModID, "addOre", blockName);
 	}
-
+	
 }

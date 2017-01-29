@@ -28,7 +28,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -125,8 +124,7 @@ public class Globals {
 			
 			try {
 				attackHistory.put(oPacket);
-			}
-			catch (InterruptedException e) {}
+			} catch (InterruptedException e) {}
 		}
 	}
 	
@@ -150,8 +148,7 @@ public class Globals {
 			try {
 				int id = Integer.parseInt(sID.trim());
 				oEntity = rn.getObjectById(id);
-			}
-			catch (NumberFormatException e) {
+			} catch (NumberFormatException e) {
 				oEntity = rn.getObject(new ResourceLocation(sID));
 			}
 			
@@ -181,8 +178,7 @@ public class Globals {
 				}
 				return ret.isEmpty() ? null : ret;
 				
-			}
-			catch (ConcurrentModificationException e) {
+			} catch (ConcurrentModificationException e) {
 				return null;
 			}
 		}
@@ -245,38 +241,6 @@ public class Globals {
 		return false;
 	}
 	
-	public static void stackItems(World world, EntityPlayer entityplayer, SMPacket p) {
-		stackItems(world, entityplayer, new AxisAlignedBB(p.oPos.getX(), p.oPos.getY(), p.oPos.getZ(), p.oPos.getX() + 1.0D, p.oPos.getY() + 1.0D, p.oPos.getZ() + 1.0D));
-	}
-	
-	public static void stackItems(World world, EntityPlayer entityplayer, AxisAlignedBB box) {
-		List<?> list = world.getEntitiesWithinAABBExcludingEntity(entityplayer, box);
-		if (list == null || list.isEmpty())
-			return;
-		
-		for (int i = 0; i < list.size(); i++) {
-			Entity entity1 = (Entity) list.get(i);
-			if (entity1 instanceof EntityItem && !entity1.isDead) {
-				EntityItem e1 = (EntityItem) entity1;
-				ItemStack e1Item = e1.getEntityItem();
-				int itemDurability1 = e1Item.getMaxDamage();
-				for (int j = i + 1; j < list.size(); j++) {
-					Entity entity2 = (Entity) list.get(j);
-					if (entity2 instanceof EntityItem && !entity2.isDead) {
-						EntityItem e2 = (EntityItem) entity2;
-						ItemStack e2Item = e2.getEntityItem();
-						int itemDurability2 = e2Item.getMaxDamage();
-						if (e1Item.getItem() == e2Item.getItem() && itemDurability1 == itemDurability2) {
-							e1Item.setCount(e2Item.getCount() + 1);
-							entity2.setDead();
-						}
-					}
-				}
-				e1.setEntityItemStack(e1Item);
-			}
-		}
-	}
-	
 	public static void NotifyClient(String sMsg) {
 		FMLClientHandler.instance().getClient().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("§5[SuperMiner] §f" + sMsg));
 	}
@@ -322,7 +286,7 @@ public class Globals {
 		if (FMLCommonHandler.instance().getSide().isClient())
 			if (I18n.canTranslate(key))
 				return I18n.translateToLocal(key);
-			
+		
 		return key;
 	}
 	
