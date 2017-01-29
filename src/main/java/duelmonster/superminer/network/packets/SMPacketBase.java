@@ -14,9 +14,9 @@ public abstract class SMPacketBase {
 	public abstract void writeData(ByteBuf paramByteBuf) throws Exception;
 	
 	public void writeVec(ByteBuf data, Vec3 vec3) {
-		data.writeFloat((float)vec3.xCoord);
-		data.writeFloat((float)vec3.yCoord);
-		data.writeFloat((float)vec3.zCoord);
+		data.writeFloat((float) vec3.xCoord);
+		data.writeFloat((float) vec3.yCoord);
+		data.writeFloat((float) vec3.zCoord);
 	}
 	
 	public void writeChatComponent(ByteBuf data, IChatComponent chatComponent) {

@@ -31,23 +31,22 @@ import net.minecraft.network.play.client.C17PacketCustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 
-@Mod(	modid = Captivator.MODID
-	  , name = Captivator.MODName
-	  , version = SuperMiner_Core.VERSION
-	  , acceptedMinecraftVersions = SuperMiner_Core.MCVERSION
-	)
+@Mod(	modid = Captivator.MODID,
+		name = Captivator.MODName,
+		version = SuperMiner_Core.VERSION,
+		acceptedMinecraftVersions = SuperMiner_Core.MCVERSION)
 public class Captivator {
-	public static final String MODID = "superminer_captivator";
-	public static final String MODName = "Captivator";
+	public static final String	MODID	= "superminer_captivator";
+	public static final String	MODName	= "Captivator";
 	
 	public static final String ChannelName = MODID.substring(0, (MODID.length() < 20 ? MODID.length() : 20));
-
+	
 	private long packetEnableTime = System.currentTimeMillis() + Globals.packetWaitMilliSec;
 	
 	public static boolean bShouldSyncSettings = true;
 	
 	private static List<Object> lItemIDs = null;
-
+	
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent evt) {
 		FMLEventChannel eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(ChannelName);
@@ -65,7 +64,7 @@ public class Captivator {
 		SettingsCaptivator.lItemIDs = SuperMiner_Core.configFile.getStringList(Globals.localize("superminer.captivator.item_ids"), MODID, SettingsCaptivator.lItemIDDefaults, Globals.localize("superminer.captivator.item_ids.desc"));
 		
 		lItemIDs = Globals.IDListToArray(SettingsCaptivator.lItemIDs, false);
-
+		
 		List<String> order = new ArrayList<String>(6);
 		order.add(Globals.localize("superminer.captivator.enabled"));
 		order.add(Globals.localize("superminer.captivator.allow_in_gui"));
@@ -78,21 +77,21 @@ public class Captivator {
 		
 		if (!bShouldSyncSettings) bShouldSyncSettings = SuperMiner_Core.configFile.hasChanged();
 	}
-
+	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
-		if (!PlayerEvents.IsPlayerInWorld() || 
-				!SettingsCaptivator.bEnabled || 
-				!TickEvent.Phase.END.equals(event.phase) || 
-				Excavator.isExcavating() || 
-				Shaftanator.isExcavating() || 
+		if (!PlayerEvents.IsPlayerInWorld() ||
+				!SettingsCaptivator.bEnabled ||
+				!TickEvent.Phase.END.equals(event.phase) ||
+				Excavator.isExcavating() ||
+				Shaftanator.isExcavating() ||
 				Veinator.isExcavating()) return;
-
+		
 		Minecraft minecraft = FMLClientHandler.instance().getClient();
 		if (minecraft.thePlayer == null || minecraft.theWorld == null || minecraft.isGamePaused()) return;
 		if (!SettingsCaptivator.bAllowInGUI && !minecraft.inGameHasFocus) return;
-
+		
 		if (bShouldSyncSettings) {
 			Globals.sendPacket(new C17PacketCustomPayload(ChannelName, SettingsCaptivator.writePacketData()));
 			bShouldSyncSettings = false;
@@ -100,7 +99,7 @@ public class Captivator {
 		
 		EntityPlayer player = minecraft.thePlayer;
 		if (null == player || player.isDead || player.isPlayerSleeping()) return;
-
+		
 		World world = minecraft.theWorld;
 		if (null != world && System.currentTimeMillis() >= this.packetEnableTime && player.getHealth() > 0.0F) {
 			
@@ -108,12 +107,12 @@ public class Captivator {
 			if (null == list || list.isEmpty()) return;
 			
 			for (Object entity : list)
-				if (!((Entity)entity).isDead && 
-					(entity instanceof EntityXPOrb || 
-					(lItemIDs.isEmpty() || 
-						Globals.isIdInList(((EntityItem)entity).getEntityItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist))) {
+				if (!((Entity) entity).isDead &&
+						(entity instanceof EntityXPOrb ||
+								(lItemIDs.isEmpty() ||
+										Globals.isIdInList(((EntityItem) entity).getEntityItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist))) {
 					this.packetEnableTime = (System.currentTimeMillis() + Globals.packetWaitMilliSec);
-	
+					
 					PacketBuffer packetData = new PacketBuffer(Unpooled.buffer());
 					packetData.writeInt(PacketIDs.BLOCKINFO.value());
 					
@@ -121,7 +120,7 @@ public class Captivator {
 				}
 		}
 	}
-
+	
 	@SubscribeEvent
 	public void onServerPacket(FMLNetworkEvent.ServerCustomPacketEvent event) {
 		PacketBuffer payLoad = new PacketBuffer(event.packet.payload());
@@ -131,20 +130,20 @@ public class Captivator {
 			SettingsCaptivator.readPacketData(payLoad);
 		
 		else if (SettingsCaptivator.bEnabled) {
-			EntityPlayer player = ((NetHandlerPlayServer)event.handler).playerEntity;
+			EntityPlayer player = ((NetHandlerPlayServer) event.handler).playerEntity;
 			if (null == player) return;
-
+			
 			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 			if (null == server) return;
-
+			
 			World world = server.worldServerForDimension(player.dimension);
 			
 			List<Entity> list = Globals.getNearbyEntities(world, player.boundingBox.expand(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal));
 			if (null == list || list.isEmpty()) return;
 			
 			for (Entity entity : list)
-				if (!((Entity)entity).isDead && (entity instanceof EntityXPOrb || (lItemIDs == null || lItemIDs.isEmpty() || Globals.isIdInList(((EntityItem)entity).getEntityItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist)))
-					((Entity)entity).onCollideWithPlayer(player);
+				if (!entity.isDead && (entity instanceof EntityXPOrb || (lItemIDs == null || lItemIDs.isEmpty() || Globals.isIdInList(((EntityItem) entity).getEntityItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist)))
+					entity.onCollideWithPlayer(player);
 		}
 	}
 }

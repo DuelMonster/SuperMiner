@@ -1,6 +1,5 @@
 package duelmonster.superminer.util;
 
-public interface IStringSerializable
-{
-    String getName();
+public interface IStringSerializable {
+	String getName();
 }

@@ -4,9 +4,21 @@ import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
 import duelmonster.superminer.SuperMiner_Core;
+import duelmonster.superminer.config.SettingsCaptivator;
+import duelmonster.superminer.config.SettingsExcavator;
+import duelmonster.superminer.config.SettingsIlluminator;
+import duelmonster.superminer.config.SettingsLumbinator;
+import duelmonster.superminer.config.SettingsShaftanator;
+import duelmonster.superminer.config.SettingsSubstitutor;
+import duelmonster.superminer.config.SettingsVeinator;
 import duelmonster.superminer.objects.Globals;
-import duelmonster.superminer.config.*;
-import duelmonster.superminer.submods.*;
+import duelmonster.superminer.submods.Captivator;
+import duelmonster.superminer.submods.Excavator;
+import duelmonster.superminer.submods.Illuminator;
+import duelmonster.superminer.submods.Lumbinator;
+import duelmonster.superminer.submods.Shaftanator;
+import duelmonster.superminer.submods.Substitutor;
+import duelmonster.superminer.submods.Veinator;
 
 public class KeyInputHandler {
 	@SubscribeEvent

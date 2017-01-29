@@ -4,10 +4,10 @@ import cpw.mods.fml.common.Loader;
 import net.minecraft.block.material.Material;
 
 public class ModSupport {
-
+	
 	public static void addModSupport() {
 		
-		if(Loader.isModLoaded("IC2")) {
+		if (Loader.isModLoaded("IC2")) {
 			IMCMessage.addTool(ToolType.axe, "IC2:itemToolBronzeAxe");
 			IMCMessage.addTool(ToolType.axe, "IC2:itemToolChainsaw");
 			
@@ -19,14 +19,14 @@ public class ModSupport {
 			IMCMessage.addTool(ToolType.pickaxe, "IC2:itemToolIridiumDrill");
 			
 			IMCMessage.addTool(ToolType.shovel, "IC2:itemToolBronzeSpade");
-
+			
 			IMCMessage.addTool(ToolType.shears, "IC2:itemToolBronzeHoe");
 			
 			IMCMessage.addBlock(Material.wood, "IC2:blockRubWood");
 			IMCMessage.addBlock(Material.leaves, "IC2:blockRubLeaves");
 		}
 		
-		if(Loader.isModLoaded("appliedenergistics2")) {
+		if (Loader.isModLoaded("appliedenergistics2")) {
 			IMCMessage.addTool(ToolType.axe, "appliedenergistics2:item.ToolCertusQuartzAxe");
 			IMCMessage.addTool(ToolType.axe, "appliedenergistics2:item.ToolNetherQuartzAxe");
 			
@@ -35,24 +35,24 @@ public class ModSupport {
 			
 			IMCMessage.addTool(ToolType.pickaxe, "appliedenergistics2:item.ToolCertusQuartzPickaxe");
 			IMCMessage.addTool(ToolType.pickaxe, "appliedenergistics2:item.ToolNetherQuartzPickaxe");
-
+			
 			IMCMessage.addTool(ToolType.shovel, "appliedenergistics2:item.ToolCertusQuartzSpade");
 			IMCMessage.addTool(ToolType.shovel, "appliedenergistics2:item.ToolNetherQuartzSpade");
 		}
 		
-		if(Loader.isModLoaded("BiomesOPlenty")) {
+		if (Loader.isModLoaded("BiomesOPlenty")) {
 			IMCMessage.addTool(ToolType.axe, "BiomesOPlenty:axeMud");
 			IMCMessage.addTool(ToolType.axe, "BiomesOPlenty:axeAmethyst");
-
+			
 			IMCMessage.addTool(ToolType.hoe, "BiomesOPlenty:hoeMud");
 			IMCMessage.addTool(ToolType.hoe, "BiomesOPlenty:hoeAmethyst");
-
+			
 			IMCMessage.addTool(ToolType.pickaxe, "BiomesOPlenty:pickaxeMud");
 			IMCMessage.addTool(ToolType.pickaxe, "BiomesOPlenty:pickaxeAmethyst");
 			
 			IMCMessage.addTool(ToolType.shovel, "BiomesOPlenty:shovelMud");
 			IMCMessage.addTool(ToolType.shovel, "BiomesOPlenty:shovelAmethyst");
-
+			
 			IMCMessage.addTool(ToolType.shears, "BiomesOPlenty:scytheWood");
 			IMCMessage.addTool(ToolType.shears, "BiomesOPlenty:scytheStone");
 			IMCMessage.addTool(ToolType.shears, "BiomesOPlenty:scytheIron");
@@ -60,7 +60,7 @@ public class ModSupport {
 			IMCMessage.addTool(ToolType.shears, "BiomesOPlenty:scytheDiamond");
 			IMCMessage.addTool(ToolType.shears, "BiomesOPlenty:scytheMud");
 			IMCMessage.addTool(ToolType.shears, "BiomesOPlenty:scytheAmethyst");
-
+			
 			IMCMessage.addBlock(Material.wood, "BiomesOPlenty:logs1");
 			IMCMessage.addBlock(Material.wood, "BiomesOPlenty:logs2");
 			IMCMessage.addBlock(Material.wood, "BiomesOPlenty:logs3");
@@ -73,14 +73,14 @@ public class ModSupport {
 			
 			IMCMessage.addBlock(Material.leaves, "BiomesOPlenty:appleLeaves");
 			IMCMessage.addBlock(Material.leaves, "BiomesOPlenty:persimmonLeaves");
-
+			
 			IMCMessage.addBlock(Material.leaves, "BiomesOPlenty:colorizedLeaves1");
 			IMCMessage.addBlock(Material.leaves, "BiomesOPlenty:colorizedLeaves2");
 		}
 		
-		if(Loader.isModLoaded("TConstruct")) {
+		if (Loader.isModLoaded("TConstruct")) {
 			IMCMessage.addTool(ToolType.axe, "TConstruct:hatchet");
-
+			
 			IMCMessage.addTool(ToolType.hoe, "TConstruct:mattock");
 			
 			IMCMessage.addTool(ToolType.pickaxe, "TConstruct:pickaxe");
@@ -88,61 +88,61 @@ public class ModSupport {
 			IMCMessage.addTool(ToolType.shovel, "TConstruct:shovel");
 			IMCMessage.addTool(ToolType.shovel, "TConstruct:mattock");
 		}
-
-		if(Loader.isModLoaded("Natura")) {
+		
+		if (Loader.isModLoaded("Natura")) {
 			IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.bloodwood");
-	        IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.darkwood");
-	        IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.fusewood");
-	        IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.ghostwood");
-	        IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.netherquartz");
-
+			IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.darkwood");
+			IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.fusewood");
+			IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.ghostwood");
+			IMCMessage.addTool(ToolType.axe, "Natura:natura.axe.netherquartz");
+			
 			IMCMessage.addBlock(Material.wood, "Natura:tree");
 			IMCMessage.addBlock(Material.leaves, "Natura:floraleaves");
 			IMCMessage.addBlock(Material.leaves, "Natura:floraleavesnocolor");
 		}
-
-		if(Loader.isModLoaded("Thaumcraft")) {
+		
+		if (Loader.isModLoaded("Thaumcraft")) {
 			IMCMessage.addTool(ToolType.axe, "Thaumcraft:ItemAxeThaumium");
 			IMCMessage.addTool(ToolType.axe, "Thaumcraft:ItemAxeElemental");
-
+			
 			IMCMessage.addBlock(Material.wood, "Thaumcraft:blockMagicalLog");
 			IMCMessage.addBlock(Material.leaves, "Thaumcraft:blockMagicalLeaves");
 		}
 		
-		if(Loader.isModLoaded("TwilightForest")) {
+		if (Loader.isModLoaded("TwilightForest")) {
 			IMCMessage.addTool(ToolType.axe, "TwilightForest:item.ironwoodAxe");
-	        IMCMessage.addTool(ToolType.axe, "TwilightForest:item.knightlyAxe");
-	        IMCMessage.addTool(ToolType.axe, "TwilightForest:item.minotaurAxe");
-	        IMCMessage.addTool(ToolType.axe, "TwilightForest:item.steeleafAxe");
-
-	        IMCMessage.addBlock(Material.wood, "TwilightForest:tile.TFLog");
-	        IMCMessage.addBlock(Material.wood, "TwilightForest:tile.TFMagicLog");
-	        IMCMessage.addBlock(Material.wood, "TwilightForest:tile.TFMagicLogSpecial");
-	        
-	        IMCMessage.addBlock(Material.leaves, "TwilightForest:tile.TFLeaves");
-	        IMCMessage.addBlock(Material.leaves, "TwilightForest:tile.TFHedge");
-	        IMCMessage.addBlock(Material.leaves, "TwilightForest:tile.TFMagicLeaves");
+			IMCMessage.addTool(ToolType.axe, "TwilightForest:item.knightlyAxe");
+			IMCMessage.addTool(ToolType.axe, "TwilightForest:item.minotaurAxe");
+			IMCMessage.addTool(ToolType.axe, "TwilightForest:item.steeleafAxe");
+			
+			IMCMessage.addBlock(Material.wood, "TwilightForest:tile.TFLog");
+			IMCMessage.addBlock(Material.wood, "TwilightForest:tile.TFMagicLog");
+			IMCMessage.addBlock(Material.wood, "TwilightForest:tile.TFMagicLogSpecial");
+			
+			IMCMessage.addBlock(Material.leaves, "TwilightForest:tile.TFLeaves");
+			IMCMessage.addBlock(Material.leaves, "TwilightForest:tile.TFHedge");
+			IMCMessage.addBlock(Material.leaves, "TwilightForest:tile.TFMagicLeaves");
 		}
-
-		if(Loader.isModLoaded("exnihilo")) {
+		
+		if (Loader.isModLoaded("exnihilo")) {
 			IMCMessage.addTool(ToolType.crook, "exnihilo:crook");
 			IMCMessage.addTool(ToolType.crook, "exnihilo:crook_bone");
-
+			
 			IMCMessage.addTool(ToolType.hammer, "exnihilo:hammer_wood");
 			IMCMessage.addTool(ToolType.hammer, "exnihilo:hammer_stone");
 			IMCMessage.addTool(ToolType.hammer, "exnihilo:hammer_iron");
 			IMCMessage.addTool(ToolType.hammer, "exnihilo:hammer_gold");
 			IMCMessage.addTool(ToolType.hammer, "exnihilo:hammer_diamond");
-
-//			IMCMessage.addBlock(Material.leaves, "minecraft:leaves");
-//			IMCMessage.addBlock(Material.leaves, "minecraft:leaves2");
-//			
-//			IMCMessage.addBlock(Material.plant, "minecraft:tallgrass");
-//			IMCMessage.addBlock(Material.plant, "minecraft:vine");
-//			
-//			IMCMessage.addBlock(Material.cobweb, "minecraft:web");
-//			
-//			IMCMessage.addBlock(Material.wool, "minecraft:wool");
+			
+			// IMCMessage.addBlock(Material.leaves, "minecraft:leaves");
+			// IMCMessage.addBlock(Material.leaves, "minecraft:leaves2");
+			//
+			// IMCMessage.addBlock(Material.plant, "minecraft:tallgrass");
+			// IMCMessage.addBlock(Material.plant, "minecraft:vine");
+			//
+			// IMCMessage.addBlock(Material.cobweb, "minecraft:web");
+			//
+			// IMCMessage.addBlock(Material.wool, "minecraft:wool");
 			
 			IMCMessage.addBlock(Material.sand, "exnihilo:aluminum_dust");
 			IMCMessage.addBlock(Material.sand, "exnihilo:aluminum_gravel");
@@ -184,9 +184,9 @@ public class ModSupport {
 			IMCMessage.addBlock(Material.sand, "exnihilo:tin_sand");
 		}
 		
-		if(Loader.isModLoaded("excompressum")) {
+		if (Loader.isModLoaded("excompressum")) {
 			IMCMessage.addTool(ToolType.hammer, "excompressum:chickenStick");
 		}
 	}
-
+	
 }

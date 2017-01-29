@@ -10,14 +10,14 @@ import net.minecraft.network.PacketBuffer;
 
 public class SettingsCropinator {
 	public static final int packetID = PacketIDs.Settings_Cropinator.value();
-
-	public final static boolean bEnabledDefault = true;
-	public final static boolean bHarvestSeedsDefault = false;
-	public final static ArrayList<String> lHoeIDDefaults = new ArrayList<String>(Arrays.asList( "minecraft:wooden_hoe", "minecraft:stone_hoe", "minecraft:iron_hoe", "minecraft:golden_hoe", "minecraft:diamond_hoe" ));
 	
-	public static boolean bEnabled = bEnabledDefault;
-	public static boolean bHarvestSeeds = bHarvestSeedsDefault;
-	public static ArrayList<String> lHoeIDs = lHoeIDDefaults;
+	public final static boolean				bEnabledDefault			= true;
+	public final static boolean				bHarvestSeedsDefault	= false;
+	public final static ArrayList<String>	lHoeIDDefaults			= new ArrayList<String>(Arrays.asList("minecraft:wooden_hoe", "minecraft:stone_hoe", "minecraft:iron_hoe", "minecraft:golden_hoe", "minecraft:diamond_hoe"));
+	
+	public static boolean			bEnabled		= bEnabledDefault;
+	public static boolean			bHarvestSeeds	= bHarvestSeedsDefault;
+	public static ArrayList<String>	lHoeIDs			= lHoeIDDefaults;
 	
 	public static void readPacketData(PacketBuffer oBuffer) {
 		@SuppressWarnings("unused")
@@ -38,26 +38,26 @@ public class SettingsCropinator {
 				}
 		}
 	}
-
+	
 	public static PacketBuffer writePacketData() {
 		PacketBuffer oBuffer = new PacketBuffer(Unpooled.buffer());
-
+		
 		oBuffer.writeInt(packetID);
-
+		
 		oBuffer.writeBoolean(SettingsCropinator.bEnabled);
 		oBuffer.writeBoolean(SettingsCropinator.bHarvestSeeds);
-			
+		
 		int iCount = SettingsCropinator.lHoeIDs.size();
 		oBuffer.writeInt(iCount);
 		if (iCount > 0)
 			for (int i = 0; i < iCount; i++)
-				try {
-					oBuffer.writeStringToBuffer(SettingsCropinator.lHoeIDs.get(i));
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
+			try {
+			oBuffer.writeStringToBuffer(SettingsCropinator.lHoeIDs.get(i));
+			} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
+		
 		return oBuffer;
 	}
 }

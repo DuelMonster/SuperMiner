@@ -1,4 +1,9 @@
 #### **2.1.5:**
+> | Core: | ---
+> | --- | ---
+> | _FIX_: | Modifications made to help solve the "Concurrent Modification" exception issues.
+> | _FIX_: | Backported all other fixes made to later MC Versions [1.10.2,1.11.x]
+#### **2.1.5:**
 > | Veinator: | ---
 > | --- | ---
 > | _FIX_: | Found an issue that caused the new Vein detection algorithm to get stuck within an infinite loop if the MineVeins option of Shaftanator was turned on.

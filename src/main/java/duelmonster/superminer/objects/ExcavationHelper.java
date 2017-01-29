@@ -1,9 +1,11 @@
 package duelmonster.superminer.objects;
 
+import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
+
 import cpw.mods.fml.common.event.FMLInterModComms;
 import duelmonster.superminer.config.SettingsExcavator;
 import duelmonster.superminer.config.SettingsShaftanator;
@@ -24,30 +26,37 @@ import net.minecraft.world.World;
 
 public class ExcavationHelper {
 	private final int SECTION_LIMIT = 4;
-
-	World world;
-	EntityPlayerMP player;
-	SMPacket oPacket;
-	BlockPos oInitialPos = null;
-	boolean bLayerOnlyToggled = false;
-	EnumFacing sideHit;
-	int iBlocksFound = 0;
-	int iUnconnectedCount = 0;
-	LinkedList<BlockPos> oPositions = new LinkedList<BlockPos>();
-	int iSpiral = 1;
-	boolean bIsExcavating = true;
-	int iLowestY = 0;
-	int iFeetPos = 0;
-	int iLengthStart = 0;
-	int iLengthEnd = 0;
-	int iWidthStart = 0;
-	int iWidthEnd = 0;
-	boolean bCallerIsVeinator = false;
-
-	private boolean bAutoIlluminate() { return SettingsExcavator.bAutoIlluminate || SettingsShaftanator.bAutoIlluminate; }
-	private boolean bMineVeins() { return !bCallerIsVeinator && (/*SettingsExcavator.bMineVeins ||*/ SettingsShaftanator.bMineVeins); }
 	
-	public boolean isExcavating() { return bIsExcavating; }
+	World					world;
+	EntityPlayerMP			player;
+	SMPacket				oPacket;
+	BlockPos				oInitialPos			= null;
+	boolean					bLayerOnlyToggled	= false;
+	EnumFacing				sideHit;
+	int						iBlocksFound		= 0;
+	int						iUnconnectedCount	= 0;
+	LinkedList<BlockPos>	oPositions			= new LinkedList<BlockPos>();
+	int						iSpiral				= 1;
+	boolean					bIsExcavating		= true;
+	int						iLowestY			= 0;
+	int						iFeetPos			= 0;
+	int						iLengthStart		= 0;
+	int						iLengthEnd			= 0;
+	int						iWidthStart			= 0;
+	int						iWidthEnd			= 0;
+	boolean					bCallerIsVeinator	= false;
+	
+	private boolean bAutoIlluminate() {
+		return SettingsExcavator.bAutoIlluminate || SettingsShaftanator.bAutoIlluminate;
+	}
+	
+	private boolean bMineVeins() {
+		return !bCallerIsVeinator && (/* SettingsExcavator.bMineVeins || */ SettingsShaftanator.bMineVeins);
+	}
+	
+	public boolean isExcavating() {
+		return bIsExcavating;
+	}
 	
 	public ExcavationHelper(World world, EntityPlayerMP player, SMPacket oPacket) {
 		this.world = world;
@@ -57,27 +66,36 @@ public class ExcavationHelper {
 		this.bLayerOnlyToggled = oPacket.bLayerOnlyToggled;
 		this.sideHit = oPacket.sideHit;
 	}
-
+	
 	/**
 	 * Excavate a Section of Blocks.
+	 * 
 	 * @return false if no blocks left to process.
 	 */
 	public boolean ExcavateSection() {
 		if (!oPositions.isEmpty()) {
-			if (!bIsExcavating) bIsExcavating = true;
+			if (!bIsExcavating)
+				bIsExcavating = true;
 			
 			for (int indx = 0; indx <= SECTION_LIMIT; indx++)
 				if (!oPositions.isEmpty()) {
 					BlockPos workingPos = null;
+					
+					boolean bCrash = false;
 					try {
 						workingPos = oPositions.removeFirst();
+					} catch (ConcurrentModificationException e) {
+						bCrash = true;
 					} catch (NoSuchElementException e) {
+						bCrash = true;
+					}
+					if (bCrash) {
 						bIsExcavating = false;
 						return false;
 					}
 					
 					if (workingPos != null && !world.isAirBlock(workingPos.getX(), workingPos.getY(), workingPos.getZ())) {
-
+						
 						Block block = world.getBlock(workingPos.getX(), workingPos.getY(), workingPos.getZ());
 						int metadata = world.getBlockMetadata(workingPos.getX(), workingPos.getY(), workingPos.getZ());
 						
@@ -97,31 +115,36 @@ public class ExcavationHelper {
 							NBTTagCompound nbt = new NBTTagCompound();
 							nbt.setByteArray("MineVein", oVeinPacket.writePacketData().array());
 							
-							// Send the data packet onto Veinator for processing 
+							// Send the data packet onto Veinator for processing
 							FMLInterModComms.sendRuntimeMessage(Shaftanator.MODID, "superminer_veinator", "MineVein", nbt);
 							
 						} else {
 							
-							//while (SuperMiner_Core.isMCTicking()) try { Thread.sleep(1); } catch (InterruptedException e) { }
-							
 							// Double check that the block isn't air
 							if (!world.isAirBlock(workingPos.getX(), workingPos.getY(), workingPos.getZ())) {
-								boolean bHarvested = player.theItemInWorldManager.tryHarvestBlock(workingPos.getX(), workingPos.getY(), workingPos.getZ());
-	
-								// Illuminate the new shaft if enabled and Illuminator is enabled
+								boolean bHarvested = false;
+								
+								try {
+									bHarvested = player.theItemInWorldManager.tryHarvestBlock(workingPos.getX(), workingPos.getY(), workingPos.getZ());
+								} catch (ConcurrentModificationException e) {}
+								
+								// Illuminate the new shaft if Harvested, Illuminator is enabled and blocks Y level is
+								// at the lowest
 								if (bHarvested && this.bAutoIlluminate() && workingPos.getY() == this.iLowestY) {
 									// Setup the Illuminator data packet
 									IlluminatorPacket iPacket = new IlluminatorPacket();
-									iPacket.oPos = new BlockPos( this.sideHit == EnumFacing.EAST ? workingPos.north() : 
-																(this.sideHit == EnumFacing.WEST ? workingPos.north() : 
-																 workingPos));
+									iPacket.oPos = new BlockPos(this.sideHit == EnumFacing.EAST
+											? workingPos.north()
+											: (this.sideHit == EnumFacing.WEST
+													? workingPos.north()
+													: workingPos));
 									iPacket.playerID = player.getEntityId();
 									
 									// Add the data packet into a NBTTagCompound
 									NBTTagCompound nbt = new NBTTagCompound();
 									nbt.setByteArray("IlluminateShaftData", iPacket.writePacketData().array());
 									
-									// Send the data packet onto Illuminator for processing 
+									// Send the data packet onto Illuminator for processing
 									FMLInterModComms.sendRuntimeMessage(Shaftanator.MODID, "superminer_illuminator", "IlluminateShaft", nbt);
 								}
 							}
@@ -129,33 +152,34 @@ public class ExcavationHelper {
 					}
 				}
 		}
-
-		if (oPositions.isEmpty()) bIsExcavating = false;
+		
+		if (oPositions.isEmpty())
+			bIsExcavating = false;
 		
 		return bIsExcavating;
 	}
 	
- 	public void getExcavationBlocks() {
+	public void getExcavationBlocks() {
 		oPositions.offer(oInitialPos);
 		
 		iLowestY = oInitialPos.getY();
-
+		
 		iBlocksFound = 1;
 		boolean bHasConnected = false;
 		
 		BlockPos oPos;
-					
+		
 		DirectionLoops:
 		switch (this.sideHit) {
-		case NORTH:	// Z = Depth ++ | X = Width | Y = Height
+		case NORTH: // Z = Depth ++ | X = Width | Y = Height
 			for (int excavateZ = oInitialPos.getZ(); excavateZ <= (oInitialPos.getZ() + SettingsExcavator.iBlockRadius); excavateZ++) {
 				// Ensure we have a direct connection.
 				bHasConnected = false;
 				
 				ConnectionCheck:
-				if (!bHasConnected)
-					for (int zOffset = (excavateZ != oInitialPos.getZ() ? -1 : 0); zOffset <= 1; zOffset++)
-						for (int xOffset = -1; xOffset <= 1; xOffset++)
+				if (!bHasConnected) {
+					for (int zOffset = (excavateZ != oInitialPos.getZ() ? -1 : 0); zOffset <= 1; zOffset++) {
+						for (int xOffset = -1; xOffset <= 1; xOffset++) {
 							for (int yOffset = (!bLayerOnlyToggled ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++) {
 								oPos = new BlockPos(oInitialPos.getX() + xOffset, oInitialPos.getY() + yOffset, excavateZ + zOffset);
 								
@@ -164,103 +188,98 @@ public class ExcavationHelper {
 									break ConnectionCheck;
 								}
 							}
+						}
+					}
+				}
 				
-				if (!bHasConnected || !SpiralNorthSouth(excavateZ)) break DirectionLoops;
+				if (!bHasConnected || !SpiralNorthSouth(excavateZ))
+					break DirectionLoops;
 			}
 			break;
-		case SOUTH:	// Z = Depth -- | X = Width | Y = Height
+		case SOUTH: // Z = Depth -- | X = Width | Y = Height
 			for (int excavateZ = oInitialPos.getZ(); excavateZ >= (oInitialPos.getZ() - SettingsExcavator.iBlockRadius); excavateZ--) {
 				// Ensure we have a direct connection.
 				bHasConnected = false;
 				
 				ConnectionCheck:
-				if (!bHasConnected)
-					for (int zOffset = (excavateZ != oInitialPos.getZ() ? -1 : 0); zOffset <= 1; zOffset++)
-						for (int xOffset = -1; xOffset <= 1; xOffset++)
+				if (!bHasConnected) {
+					for (int zOffset = (excavateZ != oInitialPos.getZ() ? -1 : 0); zOffset <= 1; zOffset++) {
+						for (int xOffset = -1; xOffset <= 1; xOffset++) {
 							for (int yOffset = (!bLayerOnlyToggled ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++) {
 								oPos = new BlockPos(oInitialPos.getX() + xOffset, oInitialPos.getY() + yOffset, excavateZ - zOffset);
-
+								
 								if (Globals.checkBlock(world.getBlock(oPos.getX(), oPos.getY(), oPos.getZ()), oPacket)) {
 									bHasConnected = true;
 									break ConnectionCheck;
 								}
 							}
+						}
+					}
+				}
 				
-				if (!bHasConnected || !SpiralNorthSouth(excavateZ)) break DirectionLoops;
+				if (!bHasConnected || !SpiralNorthSouth(excavateZ))
+					break DirectionLoops;
 			}
 			break;
-		case EAST:		// X = Depth -- | Z = Width | Y = Height
+		case EAST: // X = Depth -- | Z = Width | Y = Height
 			for (int excavateX = oInitialPos.getX(); excavateX >= (oInitialPos.getX() - SettingsExcavator.iBlockRadius); excavateX--) {
 				// Ensure we have a direct connection.
 				bHasConnected = false;
 				
 				ConnectionCheck:
-				if (!bHasConnected)
-					for (int xOffset = (excavateX != oInitialPos.getX() ? -1 : 0); xOffset <= 1; xOffset++)
-						for (int zOffset = -1; zOffset <= 1; zOffset++)
+				if (!bHasConnected) {
+					for (int xOffset = (excavateX != oInitialPos.getX() ? -1 : 0); xOffset <= 1; xOffset++) {
+						for (int zOffset = -1; zOffset <= 1; zOffset++) {
 							for (int yOffset = (!bLayerOnlyToggled ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++) {
 								oPos = new BlockPos(excavateX - xOffset, oInitialPos.getY() + yOffset, oInitialPos.getZ() + zOffset);
-
+								
 								if (Globals.checkBlock(world.getBlock(oPos.getX(), oPos.getY(), oPos.getZ()), oPacket)) {
 									bHasConnected = true;
 									break ConnectionCheck;
 								}
 							}
+						}
+					}
+				}
 				
-				if (!bHasConnected || !SpiralEastWest(excavateX)) break DirectionLoops;
+				if (!bHasConnected || !SpiralEastWest(excavateX))
+					break DirectionLoops;
 			}
 			break;
-		case WEST:		// X = Depth ++ | Z = Width | Y = Height
+		case WEST: // X = Depth ++ | Z = Width | Y = Height
 			for (int excavateX = oInitialPos.getX(); excavateX <= (oInitialPos.getX() + SettingsExcavator.iBlockRadius); excavateX++) {
 				// Ensure we have a direct connection.
 				bHasConnected = false;
 				
 				ConnectionCheck:
-				if (!bHasConnected)
-					for (int xOffset = (excavateX != oInitialPos.getX() ? -1 : 0); xOffset <= 1; xOffset++)
-						for (int zOffset = -1; zOffset <= 1; zOffset++)
+				if (!bHasConnected) {
+					for (int xOffset = (excavateX != oInitialPos.getX() ? -1 : 0); xOffset <= 1; xOffset++) {
+						for (int zOffset = -1; zOffset <= 1; zOffset++) {
 							for (int yOffset = (!bLayerOnlyToggled ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++) {
 								oPos = new BlockPos(excavateX + xOffset, oInitialPos.getY() + yOffset, oInitialPos.getZ() + zOffset);
-
+								
 								if (Globals.checkBlock(world.getBlock(oPos.getX(), oPos.getY(), oPos.getZ()), oPacket)) {
 									bHasConnected = true;
 									break ConnectionCheck;
 								}
 							}
+						}
+					}
+				}
 				
-				if (!bHasConnected || !SpiralEastWest(excavateX)) break DirectionLoops;
+				if (!bHasConnected || !SpiralEastWest(excavateX))
+					break DirectionLoops;
 			}
 			break;
-		case UP:		// Y = Depth -- | X = Width | Z = Height
+		case UP: // Y = Depth -- | X = Width | Z = Height
 			for (int excavateY = oInitialPos.getY(); excavateY >= (oInitialPos.getY() - (!bLayerOnlyToggled ? SettingsExcavator.iBlockRadius : 0)); excavateY--) {
 				// Ensure we have a direct connection.
 				bHasConnected = false;
 				
 				ConnectionCheck:
-				if (!bHasConnected)
-					for (int yOffset = (excavateY != oInitialPos.getY() ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++)
-						for (int xOffset = -1; xOffset <= 1; xOffset++)
-							for (int zOffset = -1; zOffset <= 1; zOffset++) {
-								oPos = new BlockPos(oInitialPos.getX() + xOffset, excavateY - yOffset, oInitialPos.getZ() + zOffset);
-
-								if (Globals.checkBlock(world.getBlock(oPos.getX(), oPos.getY(), oPos.getZ()), oPacket)) {
-									bHasConnected = true;
-									break ConnectionCheck;
-								}
-							}
-				
-				if (!bHasConnected || !SpiralUpDown(excavateY)) break DirectionLoops;
-			}
-			break;
-		case DOWN:	// Y = Depth ++ | X = Width | Z = Height
-			for (int excavateY = oInitialPos.getY(); excavateY <= (oInitialPos.getY() + (!bLayerOnlyToggled ? SettingsExcavator.iBlockRadius : 0)); excavateY++) {
-				// Ensure we have a direct connection.
-				bHasConnected = false;
-				
-				ConnectionCheck:
-				if (!bHasConnected)
-					for (int yOffset = (excavateY != oInitialPos.getY() ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++)
-						for (int xOffset = -1; xOffset <= 1; xOffset++)
+				if (!bHasConnected) {
+					for (int yOffset = (excavateY != oInitialPos.getY() ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++) {
+						for (int xOffset = -1; xOffset <= 1; xOffset++) {
 							for (int zOffset = -1; zOffset <= 1; zOffset++) {
 								oPos = new BlockPos(oInitialPos.getX() + xOffset, excavateY - yOffset, oInitialPos.getZ() + zOffset);
 								
@@ -269,8 +288,37 @@ public class ExcavationHelper {
 									break ConnectionCheck;
 								}
 							}
+						}
+					}
+				}
 				
-				if (!bHasConnected || !SpiralUpDown(excavateY)) break DirectionLoops;
+				if (!bHasConnected || !SpiralUpDown(excavateY))
+					break DirectionLoops;
+			}
+			break;
+		case DOWN: // Y = Depth ++ | X = Width | Z = Height
+			for (int excavateY = oInitialPos.getY(); excavateY <= (oInitialPos.getY() + (!bLayerOnlyToggled ? SettingsExcavator.iBlockRadius : 0)); excavateY++) {
+				// Ensure we have a direct connection.
+				bHasConnected = false;
+				
+				ConnectionCheck:
+				if (!bHasConnected) {
+					for (int yOffset = (excavateY != oInitialPos.getY() ? -1 : 0); yOffset <= (!bLayerOnlyToggled ? 1 : 0); yOffset++) {
+						for (int xOffset = -1; xOffset <= 1; xOffset++) {
+							for (int zOffset = -1; zOffset <= 1; zOffset++) {
+								oPos = new BlockPos(oInitialPos.getX() + xOffset, excavateY - yOffset, oInitialPos.getZ() + zOffset);
+								
+								if (Globals.checkBlock(world.getBlock(oPos.getX(), oPos.getY(), oPos.getZ()), oPacket)) {
+									bHasConnected = true;
+									break ConnectionCheck;
+								}
+							}
+						}
+					}
+				}
+				
+				if (!bHasConnected || !SpiralUpDown(excavateY))
+					break DirectionLoops;
 			}
 			break;
 		}
@@ -278,11 +326,13 @@ public class ExcavationHelper {
 	
 	/**
 	 * Harvest Blocks in a spiral motion on the current Z axis.
-	 * @param excavateZ = the current Z axis.
+	 * 
+	 * @param excavateZ
+	 *            = the current Z axis.
 	 * @return true - false if total blocks found is greater than or equal to BlockLimit.
 	 */
 	private boolean SpiralNorthSouth(int excavateZ) {
-		for (int iSpiral = 1; iSpiral <= (int)(SettingsExcavator.iBlockRadius / 2); iSpiral++) {
+		for (int iSpiral = 1; iSpiral <= SettingsExcavator.iBlockRadius / 2; iSpiral++) {
 			iUnconnectedCount = 0;
 			for (int xOffset = -iSpiral; xOffset <= iSpiral; xOffset++)
 				for (int yOffset = (!bLayerOnlyToggled ? -iSpiral : 0); yOffset <= (!bLayerOnlyToggled ? iSpiral : 0); yOffset++)
@@ -291,7 +341,8 @@ public class ExcavationHelper {
 						if (Globals.checkBlock(world.getBlock(curPos.getX(), curPos.getY(), curPos.getZ()), oPacket))
 							AddCoordsToList(curPos);
 						
-						if (iBlocksFound >= SettingsExcavator.iBlockLimit) return false;
+						if (iBlocksFound >= SettingsExcavator.iBlockLimit)
+							return false;
 					}
 		}
 		return true;
@@ -299,11 +350,13 @@ public class ExcavationHelper {
 	
 	/**
 	 * Harvest Blocks in a spiral motion on the current X axis.
-	 * @param excavateX = the current X axis.
+	 * 
+	 * @param excavateX
+	 *            = the current X axis.
 	 * @return true - false if total blocks found is greater than or equal to BlockLimit.
 	 */
 	private boolean SpiralEastWest(int excavateX) {
-		for (int iSpiral = 1; iSpiral <= (int)(SettingsExcavator.iBlockRadius / 2); iSpiral++) {
+		for (int iSpiral = 1; iSpiral <= SettingsExcavator.iBlockRadius / 2; iSpiral++) {
 			iUnconnectedCount = 0;
 			for (int zOffset = -iSpiral; zOffset <= iSpiral; zOffset++)
 				for (int yOffset = (!bLayerOnlyToggled ? -iSpiral : 0); yOffset <= (!bLayerOnlyToggled ? iSpiral : 0); yOffset++)
@@ -312,7 +365,8 @@ public class ExcavationHelper {
 						if (Globals.checkBlock(world.getBlock(curPos.getX(), curPos.getY(), curPos.getZ()), oPacket))
 							AddCoordsToList(curPos);
 						
-						if (iBlocksFound >= SettingsExcavator.iBlockLimit) return false;
+						if (iBlocksFound >= SettingsExcavator.iBlockLimit)
+							return false;
 					}
 		}
 		return true;
@@ -320,11 +374,13 @@ public class ExcavationHelper {
 	
 	/**
 	 * Harvest Blocks in a spiral motion on the current Y axis.
-	 * @param excavateY = the current Y axis.
+	 * 
+	 * @param excavateY
+	 *            = the current Y axis.
 	 * @return true - false if total blocks found is greater than or equal to BlockLimit.
 	 */
 	private boolean SpiralUpDown(int excavateY) {
-		for (int iSpiral = 1; iSpiral <= (int)(SettingsExcavator.iBlockRadius / 2); iSpiral++) {
+		for (int iSpiral = 1; iSpiral <= SettingsExcavator.iBlockRadius / 2; iSpiral++) {
 			iUnconnectedCount = 0;
 			for (int xOffset = -iSpiral; xOffset <= iSpiral; xOffset++)
 				for (int zOffset = -iSpiral; zOffset <= iSpiral; zOffset++)
@@ -333,15 +389,16 @@ public class ExcavationHelper {
 						if (Globals.checkBlock(world.getBlock(curPos.getX(), curPos.getY(), curPos.getZ()), oPacket))
 							AddCoordsToList(curPos);
 						
-						if (iBlocksFound >= SettingsExcavator.iBlockLimit) return false;
+						if (iBlocksFound >= SettingsExcavator.iBlockLimit)
+							return false;
 					}
 		}
 		return true;
 	}
-
+	
 	private void AddCoordsToList(BlockPos oPos) {
 		boolean bValidBlock = false;
-				
+		
 		if (!oPositions.contains(oPos)) {
 			// Ensure that the current Block is connected to at least one of the previously found blocks
 			ConnectionCheck:
@@ -352,11 +409,12 @@ public class ExcavationHelper {
 							bValidBlock = true;
 							break ConnectionCheck;
 						}
-			
+					
 			if (bValidBlock) {
 				oPositions.offer(oPos);
 				
-				if (oPos.getY() < this.iLowestY) this.iLowestY = oPos.getY();
+				if (oPos.getY() < this.iLowestY)
+					this.iLowestY = oPos.getY();
 				
 				iBlocksFound++;
 			} else
@@ -364,16 +422,17 @@ public class ExcavationHelper {
 		} else
 			iUnconnectedCount++;
 	}
-
+	
 	private static boolean isAllowedToMine(EntityPlayer player, Block block) {
-		if (null == block || Blocks.air == block || block.getMaterial().isLiquid() || Blocks.bedrock == block) return false;
+		if (null == block || Blocks.air == block || block.getMaterial().isLiquid() || Blocks.bedrock == block)
+			return false;
 		return player.canHarvestBlock(block);
 	}
 	
-	public void getShaftBlocks(){
+	public void getShaftBlocks() {
 		oPositions.offer(oInitialPos);
-
-		iFeetPos = (int)player.boundingBox.minY;
+		
+		iFeetPos = (int) player.boundingBox.minY;
 		
 		this.iLowestY = iFeetPos;
 		
@@ -383,35 +442,35 @@ public class ExcavationHelper {
 		// if the ShaftWidth is divisible by 2 we don't want to do anything
 		double dDivision = ((SettingsShaftanator.iShaftWidth & 1) != 0 ? 0 : 0.5);
 		
-		switch (oPacket.sideHit){
+		switch (oPacket.sideHit) {
 		case NORTH:
-			iWidthStart = oPacket.oPos.getX() - ((int)(SettingsShaftanator.iShaftWidth/2));
-			iWidthEnd = oPacket.oPos.getX() + ((int)((SettingsShaftanator.iShaftWidth/2)-dDivision));
+			iWidthStart = oPacket.oPos.getX() - (SettingsShaftanator.iShaftWidth / 2);
+			iWidthEnd = oPacket.oPos.getX() + ((int) ((SettingsShaftanator.iShaftWidth / 2) - dDivision));
 			iLengthStart = oPacket.oPos.getZ();
 			iLengthEnd = oPacket.oPos.getZ() + SettingsShaftanator.iShaftLength;
 			break;
 		case SOUTH:
-			iWidthStart = oPacket.oPos.getX() + ((int)((SettingsShaftanator.iShaftWidth/2)-dDivision));
-			iWidthEnd = oPacket.oPos.getX() - ((int)(SettingsShaftanator.iShaftWidth/2));
+			iWidthStart = oPacket.oPos.getX() + ((int) ((SettingsShaftanator.iShaftWidth / 2) - dDivision));
+			iWidthEnd = oPacket.oPos.getX() - (SettingsShaftanator.iShaftWidth / 2);
 			iLengthStart = oPacket.oPos.getZ();
 			iLengthEnd = oPacket.oPos.getZ() - SettingsShaftanator.iShaftLength;
 			break;
 		case WEST:
-			iWidthStart = oPacket.oPos.getZ() - ((int)(SettingsShaftanator.iShaftWidth/2));
-			iWidthEnd  = oPacket.oPos.getZ() + ((int)((SettingsShaftanator.iShaftWidth/2)-dDivision));
+			iWidthStart = oPacket.oPos.getZ() - (SettingsShaftanator.iShaftWidth / 2);
+			iWidthEnd = oPacket.oPos.getZ() + ((int) ((SettingsShaftanator.iShaftWidth / 2) - dDivision));
 			iLengthStart = oPacket.oPos.getX();
 			iLengthEnd = oPacket.oPos.getX() + SettingsShaftanator.iShaftLength;
 			break;
 		case EAST:
-			iWidthStart = oPacket.oPos.getZ() + ((int)((SettingsShaftanator.iShaftWidth/2)-dDivision));
-			iWidthEnd  = oPacket.oPos.getZ() - ((int)(SettingsShaftanator.iShaftWidth/2));
+			iWidthStart = oPacket.oPos.getZ() + ((int) ((SettingsShaftanator.iShaftWidth / 2) - dDivision));
+			iWidthEnd = oPacket.oPos.getZ() - (SettingsShaftanator.iShaftWidth / 2);
 			iLengthStart = oPacket.oPos.getX();
 			iLengthEnd = oPacket.oPos.getX() - SettingsShaftanator.iShaftLength;
 			break;
 		default:
 			break;
 		}
-
+		
 		int iAirCount = 0;
 		
 		BlockLoops:
@@ -422,16 +481,17 @@ public class ExcavationHelper {
 				iAirCount = 0;
 				for (int iWidthPos = iWidthStart; iWidthPos <= iWidthEnd; iWidthPos++)
 					for (int iHeightPos = iHeightStart; iHeightPos <= iHeightEnd; iHeightPos++) {
-						BlockPos curPos = new BlockPos(	(oPacket.sideHit == EnumFacing.NORTH ? iWidthPos : iLengthPos), 
-														iHeightPos, 
-														(oPacket.sideHit == EnumFacing.NORTH ? iLengthPos : iWidthPos));
+						BlockPos curPos = new BlockPos((oPacket.sideHit == EnumFacing.NORTH ? iWidthPos : iLengthPos),
+								iHeightPos,
+								(oPacket.sideHit == EnumFacing.NORTH ? iLengthPos : iWidthPos));
 						
 						if (isAllowedToMine(player, this.world.getBlock(curPos.getX(), curPos.getY(), curPos.getZ())))
 							AddCoordsToList(curPos);
 						else
 							iAirCount++;
 						
-						if (iAirCount >= (SettingsShaftanator.iShaftHeight * SettingsShaftanator.iShaftWidth)) break BlockLoops;
+						if (iAirCount >= (SettingsShaftanator.iShaftHeight * SettingsShaftanator.iShaftWidth))
+							break BlockLoops;
 					}
 			}
 			break;
@@ -441,16 +501,17 @@ public class ExcavationHelper {
 				iAirCount = 0;
 				for (int iWidthPos = iWidthStart; iWidthPos >= iWidthEnd; iWidthPos--)
 					for (int iHeightPos = iHeightStart; iHeightPos <= iHeightEnd; iHeightPos++) {
-						BlockPos curPos = new BlockPos(	(oPacket.sideHit == EnumFacing.SOUTH ? iWidthPos : iLengthPos), 
-														iHeightPos, 
-														(oPacket.sideHit == EnumFacing.SOUTH ? iLengthPos : iWidthPos));
+						BlockPos curPos = new BlockPos((oPacket.sideHit == EnumFacing.SOUTH ? iWidthPos : iLengthPos),
+								iHeightPos,
+								(oPacket.sideHit == EnumFacing.SOUTH ? iLengthPos : iWidthPos));
 						
 						if (isAllowedToMine(player, this.world.getBlock(curPos.getX(), curPos.getY(), curPos.getZ())))
 							AddCoordsToList(curPos);
 						else
 							iAirCount++;
 						
-						if (iAirCount >= (SettingsShaftanator.iShaftHeight * SettingsShaftanator.iShaftWidth)) break BlockLoops;
+						if (iAirCount >= (SettingsShaftanator.iShaftHeight * SettingsShaftanator.iShaftWidth))
+							break BlockLoops;
 					}
 			}
 			break;
@@ -458,14 +519,14 @@ public class ExcavationHelper {
 			break;
 		}
 	}
-
- 	public void getOreVein() {
- 		bCallerIsVeinator = true;
- 		
+	
+	public void getOreVein() {
+		bCallerIsVeinator = true;
+		
 		oPositions.offer(oInitialPos);
 		
 		BlockPos oPos;
-					
+		
 		for (int iSearchRadius = 1; iSearchRadius <= 8; iSearchRadius++)
 			for (int xOffset = -iSearchRadius; xOffset <= iSearchRadius; xOffset++)
 				for (int zOffset = -iSearchRadius; zOffset <= iSearchRadius; zOffset++)
@@ -476,41 +537,50 @@ public class ExcavationHelper {
 							AddCoordsToList(oPos);
 						}
 					}
-
+				
 		LogHelper.log(Level.INFO, "Found (" + oPositions.size() + ") blocks in Ore Vein");
-	}	
+	}
 	
 	public void FinalizeExcavation() {
 		if (SettingsExcavator.bGatherDrops) {
 			List<Entity> list = Globals.getNearbyEntities(world, player.boundingBox.expand(SettingsExcavator.iBlockRadius + 2, SettingsExcavator.iBlockRadius + 2, SettingsExcavator.iBlockRadius + 2));
-			if (null != list && !list.isEmpty())
-				for (Entity entity : list)
+			if (null != list && !list.isEmpty()) {
+				for (Entity entity : list) {
 					if (!entity.isDead)
 						entity.setPosition(oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ());
+				}
+			}
 		}
 	}
 	
 	public void FinalizeShaft() {
 		if (SettingsShaftanator.bGatherDrops) {
-			List<Entity> list = Globals.getNearbyEntities(world, player.boundingBox.expand(	(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH
-																											? SettingsShaftanator.iShaftWidth + 2 : SettingsShaftanator.iShaftLength + 4), 
-																										SettingsShaftanator.iShaftHeight + 2, 
-																										(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH 
-																											? SettingsShaftanator.iShaftLength + 4 : SettingsShaftanator.iShaftWidth + 2)));
-			if (null != list && !list.isEmpty())
-				for (Entity entity : list)
+			List<Entity> list = Globals.getNearbyEntities(world, player.boundingBox.expand(
+					(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH
+							? SettingsShaftanator.iShaftWidth + 2
+							: SettingsShaftanator.iShaftLength + 4),
+					SettingsShaftanator.iShaftHeight + 2,
+					(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH
+							? SettingsShaftanator.iShaftLength + 4
+							: SettingsShaftanator.iShaftWidth + 2)));
+			if (null != list && !list.isEmpty()) {
+				for (Entity entity : list) {
 					if (!entity.isDead)
 						entity.setPosition(oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ());
+				}
+			}
 		}
 	}
-
+	
 	public void FinalizeVeination() {
 		if (SettingsVeinator.bGatherDrops) {
 			List<Entity> list = Globals.getNearbyEntities(world, player.boundingBox.expand(16, 16, 16));
-			if (null != list && !list.isEmpty())
-				for (Entity entity : list)
+			if (null != list && !list.isEmpty()) {
+				for (Entity entity : list) {
 					if (!entity.isDead)
 						entity.setPosition(oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ());
+				}
+			}
 		}
 		
 		LogHelper.log(Level.INFO, "Finalized Vein");

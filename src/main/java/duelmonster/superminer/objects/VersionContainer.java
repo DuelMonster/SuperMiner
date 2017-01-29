@@ -13,17 +13,17 @@ public class VersionContainer {
 				return version.getModVersion();
 		return "Latest Version is Unknown...";
 	}
-
+	
 	public static class Version {
-		private String mc_version;
-		private String modVersion;
-		private List<String> changeLog;
-		private String updateURL;
-		private boolean isDirectLink;
-		private String newFileName;
-
+		private String			mc_version;
+		private String			modVersion;
+		private List<String>	changeLog;
+		private String			updateURL;
+		private boolean			isDirectLink;
+		private String			newFileName;
+		
 		private Version(String mc_version, String modVersion, List<String> changeLog,
-						String updateURL, boolean isDirectLink, String newFileName) {
+				String updateURL, boolean isDirectLink, String newFileName) {
 			this.mc_version = mc_version;
 			this.modVersion = modVersion;
 			this.changeLog = changeLog;
@@ -31,12 +31,29 @@ public class VersionContainer {
 			this.isDirectLink = isDirectLink;
 			this.newFileName = newFileName;
 		}
-
-		public String getmc_version() { return mc_version; }
-		public String getModVersion() { return modVersion; }
-		public List<String> getChangeLog() { return changeLog; }
-		public String getUpdateURL() { return updateURL; }
-		public boolean isDirectLink() { return isDirectLink; }
-		public String getNewFileName() { return newFileName; }
+		
+		public String getmc_version() {
+			return mc_version;
+		}
+		
+		public String getModVersion() {
+			return modVersion;
+		}
+		
+		public List<String> getChangeLog() {
+			return changeLog;
+		}
+		
+		public String getUpdateURL() {
+			return updateURL;
+		}
+		
+		public boolean isDirectLink() {
+			return isDirectLink;
+		}
+		
+		public String getNewFileName() {
+			return newFileName;
+		}
 	}
 }

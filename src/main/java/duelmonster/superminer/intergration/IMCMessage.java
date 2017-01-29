@@ -1,15 +1,15 @@
 package duelmonster.superminer.intergration;
 
-import net.minecraft.block.material.Material;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInterModComms;
+import net.minecraft.block.material.Material;
 
 /**
  * Helper functions to send intermod communication messages
  */
 public class IMCMessage {
 	private final static String MOD = "superminer_";
-
+	
 	public static void addTool(ToolType toolType, String toolID) {
 		String sModID = MOD;
 		String sToolType = "";
@@ -28,18 +28,18 @@ public class IMCMessage {
 			sModID += "veinator";
 			break;
 		case shovel:
-//			sToolType = "Shovel";
-//			sModID += "excavator";
+			// sToolType = "Shovel";
+			// sModID += "excavator";
 			break;
 		case shears:
-//			sToolType = "Shears";
-//			sModID += "excavator";
+			// sToolType = "Shears";
+			// sModID += "excavator";
 			break;
 		default:
-			break;		
+			break;
 		}
 		
-		if (sModID != MOD && Loader.isModLoaded(sModID))			
+		if (sModID != MOD && Loader.isModLoaded(sModID))
 			FMLInterModComms.sendMessage(sModID, "add" + sToolType, toolID);
 	}
 	
@@ -57,5 +57,5 @@ public class IMCMessage {
 		
 		if (sModID != MOD && Loader.isModLoaded(sModID)) FMLInterModComms.sendMessage(sModID, "add" + sBlockType, blockName);
 	}
-
+	
 }
