@@ -1,3 +1,8 @@
+#### **2.1.13:**
+> | Excavator: | ---
+> | --- | ---
+> | _CHANGE_: | Added a new Toggle Mode option.  When Enabled, pressing the Excavator keybindings will act as ON/OFF toggle switches.  A notification message will be shown in chat to let you know if the Toggle is ON or OFF.
+
 #### **2.1.12:**
 > | Core: | ---
 > | --- | ---
