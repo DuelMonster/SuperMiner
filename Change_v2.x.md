@@ -1,8 +1,18 @@
-#### **2.1.5:**
+#### **2.1.7:**
+> | Veinator: | ---
+> | --- | ---
+> | _FIX_: | Solved an issue that was causing the new Vein detection algorithm to fail.  Veins will now be harvested in full again.
+
+> | Excavator: | ---
+> | --- | ---
+> | _CHANGE_: | Added a new Toggle Mode option.  When Enabled, pressing the Excavator keybindings will act as ON/OFF toggle switches.  A notification message will be shown in chat to let you know if the Toggle is ON or OFF.
+
+#### **2.1.6:**
 > | Core: | ---
 > | --- | ---
 > | _FIX_: | Modifications made to help solve the "Concurrent Modification" exception issues.
 > | _FIX_: | Backported all other fixes made to later MC Versions [1.10.2,1.11.x]
+
 #### **2.1.5:**
 > | Veinator: | ---
 > | --- | ---

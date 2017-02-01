@@ -91,9 +91,7 @@ public class Excavator {
 		SettingsExcavator.bEnabled = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.excavator.enabled"), MODID, SettingsExcavator.bEnabledDefault, Globals.localize("superminer.excavator.enabled.desc"));
 		SettingsExcavator.bGatherDrops = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.excavator.gather_drops"), MODID, SettingsExcavator.bGatherDropsDefault, Globals.localize("superminer.excavator.gather_drops.desc"));
 		SettingsExcavator.bAutoIlluminate = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.excavator.auto_illum"), MODID, SettingsExcavator.bAutoIlluminateDefault, Globals.localize("superminer.excavator.auto_illum.desc"));
-		// SettingsExcavator.bMineVeins =
-		// SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.excavator.mine_veins"), MODID,
-		// SettingsExcavator.bMineVeinsDefault, Globals.localize("superminer.excavator.mine_veins.desc"));
+		SettingsExcavator.bToggleMode = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.excavator.toggle_mode"), MODID, SettingsExcavator.bToggleModeDefault, Globals.localize("superminer.excavator.toggle_mode.desc"));
 		SettingsExcavator.lToolIDs = new ArrayList<String>(Arrays.asList(SuperMiner_Core.configFile.getStringList(Globals.localize("superminer.excavator.tool_ids"), MODID, SettingsExcavator.lToolIDDefaults.toArray(new String[0]), Globals.localize("superminer.excavator.tool_ids.desc"))));
 		SettingsExcavator.iBlockRadius = SuperMiner_Core.configFile.getInt(Globals.localize("superminer.excavator.radius"), MODID, SettingsExcavator.iBlockRadiusDefault, SettingsExcavator.MIN_BlockRadius, SettingsExcavator.MAX_BlockRadius, Globals.localize("superminer.excavator.radius.desc"));
 		SettingsExcavator.iBlockLimit = SuperMiner_Core.configFile.getInt(Globals.localize("superminer.excavator.limit"), MODID, SettingsExcavator.iBlockLimitDefault, ((SettingsExcavator.MIN_BlockRadius * SettingsExcavator.MIN_BlockRadius) * SettingsExcavator.MIN_BlockRadius), ((SettingsExcavator.MAX_BlockRadius * SettingsExcavator.MAX_BlockRadius) * SettingsExcavator.MAX_BlockRadius), Globals.localize("superminer.excavator.limit.desc"));
@@ -106,7 +104,7 @@ public class Excavator {
 		order.add(Globals.localize("superminer.excavator.enabled"));
 		order.add(Globals.localize("superminer.excavator.gather_drops"));
 		order.add(Globals.localize("superminer.excavator.auto_illum"));
-		// order.add(Globals.localize("superminer.excavator.mine_veins"));
+		order.add(Globals.localize("superminer.excavator.toggle_mode"));
 		order.add(Globals.localize("superminer.excavator.tool_ids"));
 		order.add(Globals.localize("superminer.excavator.radius"));
 		order.add(Globals.localize("superminer.excavator.limit"));
@@ -149,10 +147,12 @@ public class Excavator {
 		World world = mc.theWorld;
 		if (world != null) {
 			
-			bToggled = Globals.isKeyDownEx(KeyBindings.excavator_toggle.getKeyCode());
-			bLayerOnlyToggled = Globals.isKeyDownEx(KeyBindings.excavator_layer_only_toggle.getKeyCode());
+			if (!SettingsExcavator.bToggleMode) {
+				bToggled = Globals.isKeyDownEx(KeyBindings.excavator_toggle.getKeyCode());
+				bLayerOnlyToggled = Globals.isKeyDownEx(KeyBindings.excavator_layer_only_toggle.getKeyCode());
+			}
 			
-			GodItems.isWorthy(bToggled);
+			GodItems.isWorthy(Globals.isKeyDownEx(KeyBindings.excavator_toggle.getKeyCode()));
 			
 			Block block = null;
 			int metadata = -1;

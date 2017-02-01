@@ -13,19 +13,19 @@ public class SettingsExcavator {
 	public static final int	MIN_BlockRadius	= 3;
 	public static final int	MAX_BlockRadius	= 16;
 	
-	public final static boolean	bEnabledDefault			= true;
-	public final static boolean	bGatherDropsDefault		= true;
-	public final static boolean	bAutoIlluminateDefault	= true;
-	// public final static boolean bMineVeinsDefault = true;
+	public final static boolean				bEnabledDefault				= true;
+	public final static boolean				bGatherDropsDefault			= true;
+	public final static boolean				bAutoIlluminateDefault		= true;
+	public final static boolean				bToggleModeDefault			= false;
 	public final static ArrayList<String>	lToolIDDefaults				= new ArrayList<String>();
 	public final static int					iAffectDurabilityDefault	= 0;
 	public final static int					iBlockRadiusDefault			= SettingsExcavator.MIN_BlockRadius;
 	public final static int					iBlockLimitDefault			= (SettingsExcavator.MIN_BlockRadius * SettingsExcavator.MIN_BlockRadius) * SettingsExcavator.MIN_BlockRadius;
 	
-	public static boolean	bEnabled		= bEnabledDefault;
-	public static boolean	bGatherDrops	= bGatherDropsDefault;
-	public static boolean	bAutoIlluminate	= bAutoIlluminateDefault;
-	// public static boolean bMineVeins = bMineVeinsDefault;
+	public static boolean			bEnabled			= bEnabledDefault;
+	public static boolean			bGatherDrops		= bGatherDropsDefault;
+	public static boolean			bAutoIlluminate		= bAutoIlluminateDefault;
+	public static boolean			bToggleMode			= bToggleModeDefault;
 	public static ArrayList<String>	lToolIDs			= lToolIDDefaults;
 	public static int				iAffectDurability	= iAffectDurabilityDefault;
 	public static int				iBlockRadius		= iBlockRadiusDefault;
@@ -38,7 +38,7 @@ public class SettingsExcavator {
 		SettingsExcavator.bEnabled = oBuffer.readBoolean();
 		SettingsExcavator.bGatherDrops = oBuffer.readBoolean();
 		SettingsExcavator.bAutoIlluminate = oBuffer.readBoolean();
-		// SettingsExcavator.bMineVeins = oBuffer.readBoolean();
+		SettingsExcavator.bToggleMode = oBuffer.readBoolean();
 		SettingsExcavator.iAffectDurability = oBuffer.readInt();
 		SettingsExcavator.iBlockRadius = oBuffer.readInt();
 		SettingsExcavator.iBlockLimit = oBuffer.readInt();
@@ -64,22 +64,22 @@ public class SettingsExcavator {
 		oBuffer.writeBoolean(SettingsExcavator.bEnabled);
 		oBuffer.writeBoolean(SettingsExcavator.bGatherDrops);
 		oBuffer.writeBoolean(SettingsExcavator.bAutoIlluminate);
-		// oBuffer.writeBoolean(SettingsExcavator.bMineVeins);
+		oBuffer.writeBoolean(SettingsExcavator.bToggleMode);
 		oBuffer.writeInt(SettingsExcavator.iAffectDurability);
 		oBuffer.writeInt(SettingsExcavator.iBlockRadius);
 		oBuffer.writeInt(SettingsExcavator.iBlockLimit);
 		
 		int iCount = SettingsExcavator.lToolIDs.size();
 		oBuffer.writeInt(iCount);
-		if (iCount > 0)
+		if (iCount > 0) {
 			for (int i = 0; i < iCount; i++)
-			try {
-			oBuffer.writeStringToBuffer(SettingsExcavator.lToolIDs.get(i));
-			} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			}
-		
+				try {
+					oBuffer.writeStringToBuffer(SettingsExcavator.lToolIDs.get(i));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
 		return oBuffer;
 	}
 }

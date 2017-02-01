@@ -206,40 +206,35 @@ public class Veinator {
 		if (world != null) {
 			
 			Block block = null;
-			int x = -1;
-			int y = -1;
-			int z = -1;
+			int metadata = -1;
+			BlockPos oPos = null;
 			
-			if (player.getHealth() > 0.0F
-					&& mc.objectMouseOver != null
+			if ((Globals.isAttacking(mc) || Globals.isUsingItem(mc))
+					&& player.getHealth() > 0.0F && mc.objectMouseOver != null
 					&& mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK) {
-				x = mc.objectMouseOver.blockX;
-				y = mc.objectMouseOver.blockY;
-				z = mc.objectMouseOver.blockZ;
 				
-				block = world.getBlock(x, y, z);
+				oPos = new BlockPos(mc.objectMouseOver.blockX, mc.objectMouseOver.blockY, mc.objectMouseOver.blockZ);
+				block = world.getBlock(oPos.getX(), oPos.getY(), oPos.getZ());
+				metadata = world.getBlockMetadata(oPos.getX(), oPos.getY(), oPos.getZ());
 				
 				if (!Globals.isAttacking(mc) && block != null && block == Blocks.air)
 					block = null;
-			}
-			
-			if (block != null && Globals.isIdInList(block, myGlobals.lBlockIDs)) {
-				if (!bHungerNotified && player.getFoodStats().getFoodLevel() <= Globals.MIN_HUNGER) {
-					Globals.NotifyClient(Globals.tooHungry() + MODName);
-					bHungerNotified = true;
-					return;
-				}
 				
-				if (player.getFoodStats().getFoodLevel() > Globals.MIN_HUNGER) {
-					int metadata = world.getBlockMetadata(x, y, z);
-					myGlobals.addAttackBlock(
-							player,
-							block, metadata,
-							new BlockPos(x, y, z),
-							false, true, true, false);
-				}
-			} else
-				bHungerNotified = false;
+				if (block != null) {
+					
+					if (!bHungerNotified && player.getFoodStats().getFoodLevel() <= Globals.MIN_HUNGER) {
+						Globals.NotifyClient(Globals.tooHungry() + MODName);
+						bHungerNotified = true;
+						return;
+					}
+					
+					if (player.getFoodStats().getFoodLevel() > Globals.MIN_HUNGER) {
+						myGlobals.addAttackBlock(player,
+								block, metadata, oPos,
+								false, true, true, false);
+					}
+				} else bHungerNotified = false;
+			}
 			
 			// Removes packets from the history.
 			for (Iterator<SMPacket> attackPackets = myGlobals.attackHistory.iterator(); attackPackets.hasNext();) {
@@ -249,7 +244,7 @@ public class Veinator {
 						attackPackets.remove(); // Removes packet from the history if it has been there too long.
 					} catch (ConcurrentModificationException e) {}
 				} else {
-					block = world.getBlock(packet.oPos.getX(), packet.oPos.getZ(), packet.oPos.getZ());
+					block = world.getBlock(packet.oPos.getX(), packet.oPos.getY(), packet.oPos.getZ());
 					if (block == null || block == Blocks.air) {
 						try {
 							attackPackets.remove(); // Removes packet from the history.

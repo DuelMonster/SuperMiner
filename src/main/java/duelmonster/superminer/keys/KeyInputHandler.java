@@ -40,6 +40,27 @@ public class KeyInputHandler {
 				Globals.NotifyClient(SettingsExcavator.bEnabled, Excavator.MODName);
 			}
 			
+			if (SettingsExcavator.bToggleMode) {
+				if (KeyBindings.excavator_toggle.isPressed()) {
+					if (Excavator.bLayerOnlyToggled) {
+						Excavator.bLayerOnlyToggled = false;
+						Globals.NotifyClient(Excavator.MODName + " Single Layer Toggled: OFF");
+					}
+					
+					Excavator.bToggled = !Excavator.bToggled;
+					Globals.NotifyClient(Excavator.MODName + " Toggled: " + (Excavator.bToggled ? "ON" : "OFF"));
+					
+				} else if (KeyBindings.excavator_layer_only_toggle.isPressed()) {
+					if (Excavator.bToggled) {
+						Excavator.bToggled = false;
+						Globals.NotifyClient(Excavator.MODName + " Toggled: OFF");
+					}
+					
+					Excavator.bLayerOnlyToggled = !Excavator.bLayerOnlyToggled;
+					Globals.NotifyClient(Excavator.MODName + " Single Layer Toggled: " + (Excavator.bLayerOnlyToggled ? "ON" : "OFF"));
+				}
+			}
+			
 			if (KeyBindings.illuminator.isPressed()) {
 				SettingsIlluminator.bEnabled = !SettingsIlluminator.bEnabled;
 				SuperMiner_Core.configFile.getCategory(Illuminator.MODID).get(Globals.localize("superminer.illuminator.enabled")).setValue(SettingsIlluminator.bEnabled);
