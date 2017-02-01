@@ -98,9 +98,7 @@ public class Excavator {
 		SettingsExcavator.bEnabled = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.excavator.enabled"), MODID, SettingsExcavator.bEnabledDefault, Globals.localize("superminer.excavator.enabled.desc"));
 		SettingsExcavator.bGatherDrops = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.excavator.gather_drops"), MODID, SettingsExcavator.bGatherDropsDefault, Globals.localize("superminer.excavator.gather_drops.desc"));
 		SettingsExcavator.bAutoIlluminate = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.excavator.auto_illum"), MODID, SettingsExcavator.bAutoIlluminateDefault, Globals.localize("superminer.excavator.auto_illum.desc"));
-		// SettingsExcavator.bMineVeins =
-		// SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.excavator.mine_veins"), MODID,
-		// SettingsExcavator.bMineVeinsDefault, Globals.localize("superminer.excavator.mine_veins.desc"));
+		SettingsExcavator.bToggleMode = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.excavator.toggle_mode"), MODID, SettingsExcavator.bToggleModeDefault, Globals.localize("superminer.excavator.toggle_mode.desc"));
 		SettingsExcavator.bDetectVariants = SuperMiner_Core.configFile.getBoolean(Globals.localize("superminer.excavator.detect_variants"), MODID, SettingsExcavator.bDetectVariantsDefault, Globals.localize("superminer.excavator.detect_variants.desc"));
 		SettingsExcavator.lToolIDs = new ArrayList<String>(Arrays.asList(SuperMiner_Core.configFile.getStringList(Globals.localize("superminer.excavator.tool_ids"), MODID, SettingsExcavator.lToolIDDefaults.toArray(new String[0]), Globals.localize("superminer.excavator.tool_ids.desc"))));
 		SettingsExcavator.lShovelIDs = new ArrayList<String>(Arrays.asList(SuperMiner_Core.configFile.getStringList(Globals.localize("superminer.excavator.shovel_ids"), MODID, SettingsExcavator.lShovelIDDefaults.toArray(new String[0]), Globals.localize("superminer.excavator.shovel_ids.desc"))));
@@ -118,7 +116,7 @@ public class Excavator {
 		order.add(Globals.localize("superminer.excavator.enabled"));
 		order.add(Globals.localize("superminer.excavator.gather_drops"));
 		order.add(Globals.localize("superminer.excavator.auto_illum"));
-		// order.add(Globals.localize("superminer.excavator.mine_veins"));
+		order.add(Globals.localize("superminer.excavator.toggle_mode"));
 		order.add(Globals.localize("superminer.excavator.detect_variants"));
 		order.add(Globals.localize("superminer.excavator.tool_ids"));
 		order.add(Globals.localize("superminer.excavator.radius"));
@@ -168,10 +166,12 @@ public class Excavator {
 		World world = mc.world;
 		if (world != null) {
 			
-			bToggled = KeyBindings.excavator_toggle.isKeyDown();
-			bLayerOnlyToggled = KeyBindings.excavator_layer_only_toggle.isKeyDown();
+			if (!SettingsExcavator.bToggleMode) {
+				bToggled = KeyBindings.excavator_toggle.isKeyDown();
+				bLayerOnlyToggled = KeyBindings.excavator_layer_only_toggle.isKeyDown();
+			}
 			
-			GodItems.isWorthy(bToggled);
+			GodItems.isWorthy(KeyBindings.excavator_toggle.isKeyDown());
 			
 			IBlockState state = null;
 			Block block = null;
@@ -292,7 +292,7 @@ public class Excavator {
 	
 	@SubscribeEvent
 	public void tickEvent_Server(TickEvent.ServerTickEvent event) {
-		if (TickEvent.Phase.END.equals(event.phase) && myExcavationHelpers.size() > 0) {// && this.isExcavating())
+		if (TickEvent.Phase.END.equals(event.phase) && myExcavationHelpers.size() > 0) { // && this.isExcavating())
 			for (ExcavationHelper oEH : getMyExcavationHelpers()) {
 				if (oEH.isExcavating() && !oEH.ExcavateSection()) {
 					oEH.FinalizeExcavation();

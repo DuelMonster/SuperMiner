@@ -13,10 +13,10 @@ public class SettingsExcavator {
 	public static final int	MIN_BlockRadius	= 3;
 	public static final int	MAX_BlockRadius	= 16;
 	
-	public final static boolean	bEnabledDefault			= true;
-	public final static boolean	bGatherDropsDefault		= true;
-	public final static boolean	bAutoIlluminateDefault	= true;
-	// public final static boolean bMineVeinsDefault = true;
+	public final static boolean				bEnabledDefault				= true;
+	public final static boolean				bGatherDropsDefault			= true;
+	public final static boolean				bAutoIlluminateDefault		= true;
+	public final static boolean				bToggleModeDefault			= false;
 	public final static boolean				bDetectVariantsDefault		= true;
 	public final static ArrayList<String>	lToolIDDefaults				= new ArrayList<String>();
 	public final static ArrayList<String>	lShovelIDDefaults			= new ArrayList<String>(Arrays.asList("Minecraft:wooden_shovel", "Minecraft:stone_shovel", "Minecraft:iron_shovel", "Minecraft:golden_shovel", "Minecraft:diamond_shovel"));
@@ -26,10 +26,10 @@ public class SettingsExcavator {
 	public final static int					iPathWidthDefault			= 3;
 	public final static int					iPathLengthDefault			= 6;
 	
-	public static boolean	bEnabled		= bEnabledDefault;
-	public static boolean	bGatherDrops	= bGatherDropsDefault;
-	public static boolean	bAutoIlluminate	= bAutoIlluminateDefault;
-	// public static boolean bMineVeins = bMineVeinsDefault;
+	public static boolean			bEnabled			= bEnabledDefault;
+	public static boolean			bGatherDrops		= bGatherDropsDefault;
+	public static boolean			bAutoIlluminate		= bAutoIlluminateDefault;
+	public static boolean			bToggleMode			= bToggleModeDefault;
 	public static boolean			bDetectVariants		= bDetectVariantsDefault;
 	public static ArrayList<String>	lToolIDs			= lToolIDDefaults;
 	public static ArrayList<String>	lShovelIDs			= lShovelIDDefaults;
@@ -46,7 +46,7 @@ public class SettingsExcavator {
 		SettingsExcavator.bEnabled = oBuffer.readBoolean();
 		SettingsExcavator.bGatherDrops = oBuffer.readBoolean();
 		SettingsExcavator.bAutoIlluminate = oBuffer.readBoolean();
-		// SettingsExcavator.bMineVeins = oBuffer.readBoolean();
+		SettingsExcavator.bToggleMode = oBuffer.readBoolean();
 		SettingsExcavator.bDetectVariants = oBuffer.readBoolean();
 		SettingsExcavator.iAffectDurability = oBuffer.readInt();
 		SettingsExcavator.iBlockRadius = oBuffer.readInt();
@@ -77,7 +77,7 @@ public class SettingsExcavator {
 		oBuffer.writeBoolean(SettingsExcavator.bEnabled);
 		oBuffer.writeBoolean(SettingsExcavator.bGatherDrops);
 		oBuffer.writeBoolean(SettingsExcavator.bAutoIlluminate);
-		// oBuffer.writeBoolean(SettingsExcavator.bMineVeins);
+		oBuffer.writeBoolean(SettingsExcavator.bToggleMode);
 		oBuffer.writeBoolean(SettingsExcavator.bDetectVariants);
 		oBuffer.writeInt(SettingsExcavator.iAffectDurability);
 		oBuffer.writeInt(SettingsExcavator.iBlockRadius);
