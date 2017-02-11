@@ -2,10 +2,14 @@ package duelmonster.superminer;
 
 import java.io.File;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import duelmonster.superminer.events.PlayerEvents;
 import duelmonster.superminer.intergration.ModSupport;
 import duelmonster.superminer.keys.KeyBindings;
 import duelmonster.superminer.keys.KeyInputHandler;
+import duelmonster.superminer.objects.ExcavationHelper;
 import duelmonster.superminer.proxy.SM_Proxy;
 import duelmonster.superminer.submods.Captivator;
 import duelmonster.superminer.submods.Cropinator;
@@ -15,14 +19,18 @@ import duelmonster.superminer.submods.Lumbinator;
 import duelmonster.superminer.submods.Shaftanator;
 import duelmonster.superminer.submods.Substitutor;
 import duelmonster.superminer.submods.Veinator;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -48,6 +56,8 @@ public class SuperMiner_Core {
 	@SidedProxy(clientSide = "duelmonster.superminer.proxy.SM_Client",
 				serverSide = "duelmonster.superminer.proxy.SM_Proxy")
 	public static SM_Proxy proxy;
+	
+	public static Logger LOGGER = LogManager.getLogger(MODName);
 	
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
@@ -81,6 +91,25 @@ public class SuperMiner_Core {
 		if (eventArgs.getModID().equals(SuperMiner_Core.MODID)) {
 			SuperMiner_Core.configFile.save();
 			loadConfigData();
+		}
+	}
+	
+	public static ExcavationHelper ehWorker = null;
+	
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onEntitySpawn(EntityJoinWorldEvent event) {
+		if (event.getWorld().isRemote || event.getEntity().isDead || event.isCanceled())
+			return;
+		
+		if (ehWorker != null && event.getEntity() instanceof EntityItem) {
+			ehWorker.recordDrop(event.getEntity());
+			
+			event.setCanceled(true);
+			
+		} else if (ehWorker != null && event.getEntity() instanceof EntityXPOrb) {
+			ehWorker.addXP(((EntityXPOrb) event.getEntity()).getXpValue());
+			
+			event.setCanceled(true);
 		}
 	}
 	

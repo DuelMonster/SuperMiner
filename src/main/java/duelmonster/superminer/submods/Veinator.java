@@ -244,13 +244,17 @@ public class Veinator {
 				if (System.nanoTime() - packet.nanoTime >= Globals.attackHistoryDelayNanoTime) {
 					try {
 						attackPackets.remove(); // Removes packet from the history if it has been there too long.
-					} catch (ConcurrentModificationException e) {}
+					} catch (ConcurrentModificationException e) {
+						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					}
 				} else {
 					block = world.getBlockState(packet.oPos).getBlock();
 					if (block == null || block == Blocks.AIR) {
 						try {
 							attackPackets.remove(); // Removes packet from the history.
-						} catch (ConcurrentModificationException e) {}
+						} catch (ConcurrentModificationException e) {
+							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						}
 						
 						packet.block = packet.prevBlock;
 						
@@ -294,7 +298,9 @@ public class Veinator {
 			oEH.FinalizeVeination();
 			try {
 				myExcavationHelpers.remove(oEH);
-			} catch (ConcurrentModificationException e) {}
+			} catch (ConcurrentModificationException e) {
+				SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			}
 		}
 		
 		myGlobals.clearHistory();
@@ -316,7 +322,9 @@ public class Veinator {
 					if (myExcavationHelpers.indexOf(oEH) >= 0) {
 						try {
 							myExcavationHelpers.remove(oEH);
-						} catch (ConcurrentModificationException e) {}
+						} catch (ConcurrentModificationException e) {
+							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						}
 					}
 				}
 			}

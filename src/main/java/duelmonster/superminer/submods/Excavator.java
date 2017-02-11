@@ -221,13 +221,17 @@ public class Excavator {
 				if (System.nanoTime() - packet.nanoTime >= Globals.attackHistoryDelayNanoTime) {
 					try {
 						attackPackets.remove(); // Removes packet from the history if it has been there too long.
-					} catch (ConcurrentModificationException e) {}
+					} catch (ConcurrentModificationException e) {
+						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					}
 				} else {
 					block = world.getBlockState(packet.oPos).getBlock();
 					if (block == null || block == Blocks.AIR) {
 						try {
 							attackPackets.remove(); // Removes packet from the history.
-						} catch (ConcurrentModificationException e) {}
+						} catch (ConcurrentModificationException e) {
+							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						}
 						
 						packet.block = packet.prevBlock;
 						packet.bLayerOnlyToggled = bLayerOnlyToggled;
@@ -286,7 +290,9 @@ public class Excavator {
 			oEH.FinalizeExcavation();
 			try {
 				myExcavationHelpers.remove(oEH);
-			} catch (ConcurrentModificationException e) {}
+			} catch (ConcurrentModificationException e) {
+				SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			}
 		}
 	}
 	
@@ -298,7 +304,9 @@ public class Excavator {
 					oEH.FinalizeExcavation();
 					try {
 						myExcavationHelpers.remove(oEH);
-					} catch (ConcurrentModificationException e) {}
+					} catch (ConcurrentModificationException e) {
+						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					}
 				}
 			}
 		}
@@ -326,7 +334,14 @@ public class Excavator {
 		int iPathableFound = oPacket.lstPositions.size();
 		int iPathed = 0;
 		while (iPathed <= iPathableFound) {
-			BlockPos blockPos = oPacket.lstPositions.poll();
+			BlockPos blockPos = null;
+			
+			try {
+				blockPos = oPacket.lstPositions.poll();
+			} catch (ConcurrentModificationException e) {
+				SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			}
+			
 			if (blockPos == null)
 				break;
 			
@@ -344,7 +359,9 @@ public class Excavator {
 				if (curItem.getMaxDamage() <= 0) {
 					try {
 						player.inventory.removeStackFromSlot(player.inventory.currentItem);
-					} catch (ConcurrentModificationException e) {}
+					} catch (ConcurrentModificationException e) {
+						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					}
 					
 					player.openContainer.detectAndSendChanges();
 					break;
@@ -386,8 +403,11 @@ public class Excavator {
 				
 				if ((oBlock == Blocks.GRASS || oBlock == Blocks.DIRT) &&
 						world.getBlockState(oPos.up()).getBlock() == Blocks.AIR) {
-					
-					oPacket.lstPositions.offer(oPos);
+					try {
+						oPacket.lstPositions.offer(oPos);
+					} catch (ConcurrentModificationException e) {
+						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					}
 					
 				} else {
 					BlockPos oPosOffset = oPos.down();
@@ -398,7 +418,11 @@ public class Excavator {
 							world.getBlockState(oPosOffset.up()).getBlock() == Blocks.AIR) {
 						
 						iYOffset = -1;
-						oPacket.lstPositions.offer(oPosOffset);
+						try {
+							oPacket.lstPositions.offer(oPosOffset);
+						} catch (ConcurrentModificationException e) {
+							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						}
 						
 					} else {
 						oPosOffset = oPos.up();
@@ -409,7 +433,11 @@ public class Excavator {
 								world.getBlockState(oPosOffset.up()).getBlock() == Blocks.AIR) {
 							
 							iYOffset = 1;
-							oPacket.lstPositions.offer(oPosOffset);
+							try {
+								oPacket.lstPositions.offer(oPosOffset);
+							} catch (ConcurrentModificationException e) {
+								SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+							}
 						}
 					}
 				}

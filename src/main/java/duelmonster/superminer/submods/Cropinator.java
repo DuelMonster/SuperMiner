@@ -208,7 +208,14 @@ public class Cropinator {
 		int iFarmableFound = oPacket.lstPositions.size();
 		int iFarmed = 0;
 		while (iFarmed <= iFarmableFound) {
-			BlockPos blockPos = oPacket.lstPositions.poll();
+			BlockPos blockPos = null;
+			
+			try {
+				blockPos = oPacket.lstPositions.poll();
+			} catch (ConcurrentModificationException e) {
+				SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			}
+			
 			if (blockPos == null)
 				break;
 			
@@ -235,7 +242,9 @@ public class Cropinator {
 				if (curItem.getMaxDamage() <= 0) {
 					try {
 						player.inventory.removeStackFromSlot(player.inventory.currentItem);
-					} catch (ConcurrentModificationException e) {}
+					} catch (ConcurrentModificationException e) {
+						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					}
 					
 					player.openContainer.detectAndSendChanges();
 					break;
@@ -261,9 +270,13 @@ public class Cropinator {
 				if (oBlock != null
 						&& !world.isAirBlock(blockPos)
 						&& world.isAirBlock(blockPos.up())
-						&& (oBlock == Blocks.GRASS || oBlock == Blocks.DIRT))
-					oPacket.lstPositions.offer(blockPos);
-				else
+						&& (oBlock == Blocks.GRASS || oBlock == Blocks.DIRT)) {
+					try {
+						oPacket.lstPositions.offer(blockPos);
+					} catch (ConcurrentModificationException e) {
+						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					}
+				} else
 					break;
 			}
 	}
@@ -296,7 +309,14 @@ public class Cropinator {
 		int iFarmableFound = oPacket.lstPositions.size();
 		int iFarmed = 0;
 		while (iFarmed <= iFarmableFound) {
-			BlockPos blockPos = oPacket.lstPositions.poll();
+			BlockPos blockPos = null;
+			
+			try {
+				blockPos = oPacket.lstPositions.poll();
+			} catch (ConcurrentModificationException e) {
+				SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			}
+			
 			if (blockPos == null)
 				break;
 			
@@ -336,7 +356,9 @@ public class Cropinator {
 				if (curItem.getMaxDamage() <= 0) {
 					try {
 						player.inventory.removeStackFromSlot(player.inventory.currentItem);
-					} catch (ConcurrentModificationException e) {}
+					} catch (ConcurrentModificationException e) {
+						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					}
 					
 					player.openContainer.detectAndSendChanges();
 					break;
@@ -363,9 +385,13 @@ public class Cropinator {
 					if (oBlock != null &&
 							oBlock != Blocks.AIR &&
 							oBlock instanceof BlockCrops &&
-							oPacket.isPositionConnected(blockPos))
-						
-						oPacket.lstPositions.offer(blockPos);
+							oPacket.isPositionConnected(blockPos)) {
+						try {
+							oPacket.lstPositions.offer(blockPos);
+						} catch (ConcurrentModificationException e) {
+							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						}
+					}
 				}
 	}
 	

@@ -11,10 +11,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+import duelmonster.superminer.SuperMiner_Core;
 import duelmonster.superminer.network.packets.SMPacket;
-import duelmonster.superminer.submods.Excavator;
-import duelmonster.superminer.submods.Shaftanator;
-import duelmonster.superminer.submods.Veinator;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockQuartz;
 import net.minecraft.block.BlockRotatedPillar;
@@ -161,28 +159,29 @@ public class Globals {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<Entity> getNearbyEntities(World world, AxisAlignedBB area) {
-		if (!Excavator.isExcavating() &&
-				!Shaftanator.isExcavating() &&
-				!Veinator.isExcavating()) {
-			
-			try {
-				List<?> list = world.getEntitiesWithinAABB(Entity.class, area);
-				if (null == list || list.isEmpty())
-					return null;
-				
-				List<Entity> ret = new ArrayList();
-				for (Object o : list) {
-					Entity e = (Entity) o;
-					if (!e.isDead && (e instanceof EntityItem || e instanceof EntityXPOrb))
-						ret.add(e);
-				}
-				return ret.isEmpty() ? null : ret;
-				
-			} catch (ConcurrentModificationException e) {
+		// if (!Excavator.isExcavating() &&
+		// !Shaftanator.isExcavating() &&
+		// !Veinator.isExcavating()) {
+		
+		try {
+			List<?> list = world.getEntitiesWithinAABB(Entity.class, area);
+			if (null == list || list.isEmpty())
 				return null;
+			
+			List<Entity> ret = new ArrayList();
+			for (Object o : list) {
+				Entity e = (Entity) o;
+				if (!e.isDead && (e instanceof EntityItem || e instanceof EntityXPOrb))
+					ret.add(e);
 			}
+			return ret.isEmpty() ? null : ret;
+			
+		} catch (ConcurrentModificationException e) {
+			SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			return null;
 		}
-		return null;
+		// }
+		// return null;
 	}
 	
 	public void checkConnection(World world, BlockPos oPos, SMPacket p, boolean bDestroyUnder) {
@@ -208,7 +207,11 @@ public class Globals {
 						continue;
 					
 					if (checkBlock(world.getBlockState(blockPos), p)) {
-						p.positions.offer(blockPos);
+						try {
+							p.positions.offer(blockPos);
+						} catch (ConcurrentModificationException e) {
+							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						}
 						
 						iBlocksFound++;
 						if (iBlocksFound >= iBlockLimit)

@@ -83,7 +83,12 @@ public class Captivator {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
-		if (!PlayerEvents.IsPlayerInWorld() || !SettingsCaptivator.bEnabled || !TickEvent.Phase.END.equals(event.phase) || Excavator.isExcavating() || Shaftanator.isExcavating() || Veinator.isExcavating())
+		if (!PlayerEvents.IsPlayerInWorld() || !SettingsCaptivator.bEnabled || !TickEvent.Phase.END.equals(event.phase))// ||
+																														// Excavator.isExcavating()
+																														// ||
+																														// Shaftanator.isExcavating()
+																														// ||
+																														// Veinator.isExcavating())
 			return;
 		
 		Minecraft minecraft = FMLClientHandler.instance().getClient();
