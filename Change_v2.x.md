@@ -1,3 +1,13 @@
+#### **2.1.15:**
+> | Core: | ---
+> | --- | ---
+> | _FIX_: | "Concurrent Modification" exception issue solution tweaked to ensure 100% success rate.
+
+#### **2.1.14:**
+> | Core: | ---
+> | --- | ---
+> | _FIX_: | "Concurrent Modification" exception issues have finally been solved.
+
 #### **2.1.13:**
 > | Excavator: | ---
 > | --- | ---

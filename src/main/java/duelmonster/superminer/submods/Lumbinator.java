@@ -51,7 +51,7 @@ public class Lumbinator {
 	
 	public static final String ChannelName = MODID.substring(0, (MODID.length() < 20 ? MODID.length() : 20));
 	
-	public static final int BREAK_LIMIT = 2;
+	public static final int BREAK_LIMIT = 8;
 	
 	public static Globals myGlobals = new Globals();
 	
@@ -61,7 +61,7 @@ public class Lumbinator {
 		return new ArrayList<SMPacket>(myPackets);
 	}
 	
-	private static EntityPlayerMP oPlayer = null;
+	private static EntityPlayerMP player = null;
 	
 	private boolean			bHungerNotified		= false;
 	public static boolean	bShouldSyncSettings	= true;
@@ -195,13 +195,17 @@ public class Lumbinator {
 				if (System.nanoTime() - packet.nanoTime >= Globals.attackHistoryDelayNanoTime) {
 					try {
 						attackPackets.remove(); // Removes packet from the history if it has been there too long.
-					} catch (ConcurrentModificationException e) {}
+					} catch (ConcurrentModificationException e) {
+						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					}
 				} else {
 					block = world.getBlockState(packet.oPos).getBlock();
 					if (block == null || block == Blocks.AIR) {
 						try {
 							attackPackets.remove(); // Removes packet from the history.
-						} catch (ConcurrentModificationException e) {}
+						} catch (ConcurrentModificationException e) {
+							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						}
 						
 						Globals.sendPacket(new CPacketCustomPayload(ChannelName, packet.writePacketData()));
 					}
@@ -225,8 +229,8 @@ public class Lumbinator {
 			SMPacket packet = new SMPacket();
 			packet.readPacketData(payLoad);
 			
-			if (oPlayer == null)
-				oPlayer = ((NetHandlerPlayServer) event.getHandler()).playerEntity;
+			if (player == null)
+				player = ((NetHandlerPlayServer) event.getHandler()).playerEntity;
 			
 			if (isChoppableTree(packet)) {
 				myPackets.add(packet);
@@ -241,18 +245,23 @@ public class Lumbinator {
 		if (block == null || state.getMaterial() != Material.WOOD || !Globals.isIdInList(block, myGlobals.lBlockIDs))
 			return false;
 		
-		ItemStack oEquippedItem = oPlayer.getHeldItemMainhand();
+		ItemStack oEquippedItem = player.getHeldItemMainhand();
 		if (oEquippedItem == null
 				|| oEquippedItem.stackSize <= 0
 				|| !Globals.isIdInList(oEquippedItem.getItem(), myGlobals.lToolIDs)
 				|| !Globals.isIdInList(block, myGlobals.lBlockIDs))
 			return false;
 		
-		if (!currentPacket.positions.contains(currentPacket.oPos))
-			currentPacket.positions.offer(currentPacket.oPos);
+		if (!currentPacket.positions.contains(currentPacket.oPos)) {
+			try {
+				currentPacket.positions.offer(currentPacket.oPos);
+			} catch (ConcurrentModificationException e) {
+				SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			}
+		}
 		
 		// Ensure that it is a Tree ( Has Leaves )
-		TreeHelper oTreeHelper = new TreeHelper(oPlayer, myGlobals);
+		TreeHelper oTreeHelper = new TreeHelper(player, myGlobals);
 		int yStart = currentPacket.oPos.getY();
 		int yLevel = yStart;
 		
@@ -273,7 +282,7 @@ public class Lumbinator {
 			
 			boolean bBelowGot = false;
 			
-			while (yLevel < oPlayer.world.getHeight()) {
+			while (yLevel < player.world.getHeight()) {
 				for (int xPos = iMinX; xPos <= iMaxX; xPos++)
 					for (int zPos = iMinZ; zPos <= iMaxZ; zPos++)
 						bIsTree = oTreeHelper.processPosition(currentPacket, new BlockPos(xPos, yLevel, zPos), bIsTree);
@@ -307,8 +316,8 @@ public class Lumbinator {
 		int iCount = 0;
 		
 		if (oHeldItem == null) {
-			oHeldItem = oPlayer.getHeldItemMainhand().copy();
-			iHeldSlot = oPlayer.inventory.currentItem;
+			oHeldItem = player.getHeldItemMainhand().copy();
+			iHeldSlot = player.inventory.currentItem;
 		}
 		
 		while (iCount < BREAK_LIMIT && !currentPacket.positions.isEmpty())
@@ -317,14 +326,14 @@ public class Lumbinator {
 		
 		if (currentPacket.positions.isEmpty()) {
 			
-			if (oHeldItem != null && oPlayer.inventory.getStackInSlot(iHeldSlot) != oHeldItem) {
+			if (oHeldItem != null && player.inventory.getStackInSlot(iHeldSlot) != oHeldItem) {
 				// Set current slot back to the original ItemStack
-				oPlayer.inventory.setInventorySlotContents(iHeldSlot, oHeldItem);
-				oPlayer.openContainer.detectAndSendChanges();
+				player.inventory.setInventorySlotContents(iHeldSlot, oHeldItem);
+				player.openContainer.detectAndSendChanges();
 			}
 			
 			if (SettingsLumbinator.bGatherDrops) {
-				List<Entity> list = Globals.getNearbyEntities(oPlayer.world, oPlayer.getEntityBoundingBox().expand(8, 8, 8));
+				List<Entity> list = Globals.getNearbyEntities(player.world, player.getEntityBoundingBox().expand(8, 8, 8));
 				if (null != list && !list.isEmpty()) {
 					for (Entity entity : list) {
 						if (!entity.isDead)
@@ -335,7 +344,9 @@ public class Lumbinator {
 			
 			try {
 				myPackets.remove(currentPacket);
-			} catch (ConcurrentModificationException e) {}
+			} catch (ConcurrentModificationException e) {
+				SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			}
 			
 			oHeldItem = null;
 			iHeldSlot = -99;
@@ -343,35 +354,44 @@ public class Lumbinator {
 	}
 	
 	private static boolean breakBlock(SMPacket currentPacket) {
-		BlockPos blockPos = currentPacket.positions.poll();
+		BlockPos blockPos = null;
+		
+		try {
+			blockPos = currentPacket.positions.poll();
+		} catch (ConcurrentModificationException e) {
+			SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+		}
+		
 		if (blockPos == null)
 			return false;
 		
-		IBlockState state = oPlayer.world.getBlockState(blockPos);
+		IBlockState state = player.world.getBlockState(blockPos);
 		Block block = state.getBlock();
 		boolean bIsLeaves = state.getMaterial() == Material.LEAVES && Globals.isIdInList(block, myGlobals.lLeafIDs);
 		
-		boolean bRtrn = false;
+		boolean bHarvested = false;
 		// Double check that the block isn't air
-		if (!oPlayer.world.isAirBlock(blockPos)) {
+		if (!player.world.isAirBlock(blockPos)) {
 			if (bIsLeaves && !SettingsLumbinator.bLeavesAffectDurability) {
 				// Set ItemStack in the current slot to null to ensure the leaves don't affect durability
 				try {
-					oPlayer.inventory.removeStackFromSlot(iHeldSlot);
-				} catch (ConcurrentModificationException e) {}
+					player.inventory.removeStackFromSlot(iHeldSlot);
+				} catch (ConcurrentModificationException e) {
+					SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+				}
 				
-				oPlayer.openContainer.detectAndSendChanges();
+				player.openContainer.detectAndSendChanges();
 			}
 			
-			bRtrn = oPlayer.interactionManager.tryHarvestBlock(blockPos);
+			bHarvested = player.interactionManager.tryHarvestBlock(blockPos);
 			
-			if (oHeldItem != null && oPlayer.inventory.getStackInSlot(iHeldSlot) != oHeldItem) {
+			if (oHeldItem != null && player.inventory.getStackInSlot(iHeldSlot) != oHeldItem) {
 				// Set current slot back to the original ItemStack
-				oPlayer.inventory.setInventorySlotContents(iHeldSlot, oHeldItem);
-				oPlayer.openContainer.detectAndSendChanges();
+				player.inventory.setInventorySlotContents(iHeldSlot, oHeldItem);
+				player.openContainer.detectAndSendChanges();
 			}
 		}
 		
-		return bRtrn;
+		return bHarvested;
 	}
 }

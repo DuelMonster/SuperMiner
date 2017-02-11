@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import duelmonster.superminer.SuperMiner_Core;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -243,7 +244,9 @@ public class SubstitutionHelper {
 					try {
 						if (stackList_1.size() > 0) stackIterator_1.remove();
 						if (stackList_2.size() > 0) stackIterator_2.remove();
-					} catch (ConcurrentModificationException e) {}
+					} catch (ConcurrentModificationException e) {
+						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					}
 					
 					continue outerLoop;
 				}

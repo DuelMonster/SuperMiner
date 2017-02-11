@@ -1,11 +1,12 @@
 package duelmonster.superminer.objects;
 
+import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.logging.Level;
 
+import duelmonster.superminer.SuperMiner_Core;
 import duelmonster.superminer.config.SettingsExcavator;
 import duelmonster.superminer.config.SettingsShaftanator;
 import duelmonster.superminer.config.SettingsVeinator;
@@ -16,6 +17,7 @@ import duelmonster.superminer.submods.Veinator;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -23,6 +25,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 
 public class ExcavationHelper {
@@ -46,6 +49,8 @@ public class ExcavationHelper {
 	int						iWidthStart			= 0;
 	int						iWidthEnd			= 0;
 	boolean					bCallerIsVeinator	= false;
+	int						recordedXPCount		= 0;
+	List<Entity>			recordedDrops		= new ArrayList<Entity>();
 	
 	private boolean bAutoIlluminate() {
 		return SettingsExcavator.bAutoIlluminate || SettingsShaftanator.bAutoIlluminate;
@@ -75,6 +80,8 @@ public class ExcavationHelper {
 	 */
 	public boolean ExcavateSection() {
 		if (!oPositions.isEmpty()) {
+			SuperMiner_Core.ehWorker = this;
+			
 			if (!bIsExcavating)
 				bIsExcavating = true;
 			
@@ -86,6 +93,7 @@ public class ExcavationHelper {
 					try {
 						workingPos = oPositions.removeFirst();
 					} catch (ConcurrentModificationException e) {
+						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
 						bCrash = true;
 					} catch (NoSuchElementException e) {
 						bCrash = true;
@@ -125,8 +133,24 @@ public class ExcavationHelper {
 								boolean bHarvested = false;
 								
 								try {
+									player.world.captureBlockSnapshots = true;
+									player.world.capturedBlockSnapshots.clear();
+									
 									bHarvested = player.interactionManager.tryHarvestBlock(workingPos);
-								} catch (ConcurrentModificationException e) {}
+									
+									player.world.captureBlockSnapshots = false;
+									SuperMiner_Core.ehWorker = null;
+									while (player.world.capturedBlockSnapshots.size() > 0) {
+										BlockSnapshot snap = player.world.capturedBlockSnapshots.remove(0);
+										
+										player.world.markAndNotifyBlock(snap.getPos(), player.world.getChunkFromChunkCoords(snap.getPos().getX() >> 4, snap.getPos().getZ() >> 4), snap.getReplacedBlock(), snap.getCurrentBlock(), snap.getFlag());
+									}
+									
+									SuperMiner_Core.ehWorker = this;
+									
+								} catch (ConcurrentModificationException e) {
+									SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+								}
 								
 								// Illuminate the new shaft if Harvested, Illuminator is enabled and blocks Y level is
 								// at the lowest
@@ -155,16 +179,25 @@ public class ExcavationHelper {
 						}
 					}
 				}
+			
+			// spawnDrops();
 		}
 		
-		if (oPositions.isEmpty())
+		if (oPositions.isEmpty()) {
 			bIsExcavating = false;
+			
+			SuperMiner_Core.ehWorker = null;
+		}
 		
 		return bIsExcavating;
 	}
 	
 	public void getExcavationBlocks() {
-		oPositions.offer(oInitialPos);
+		try {
+			oPositions.offer(oInitialPos);
+		} catch (ConcurrentModificationException e) {
+			SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+		}
 		
 		iLowestY = oInitialPos.getY();
 		
@@ -415,7 +448,11 @@ public class ExcavationHelper {
 						}
 					
 			if (bValidBlock) {
-				oPositions.offer(oPos);
+				try {
+					oPositions.offer(oPos);
+				} catch (ConcurrentModificationException e) {
+					SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+				}
 				
 				if (oPos.getY() < this.iLowestY)
 					this.iLowestY = oPos.getY();
@@ -435,7 +472,11 @@ public class ExcavationHelper {
 	}
 	
 	public void getShaftBlocks() {
-		oPositions.offer(oInitialPos);
+		try {
+			oPositions.offer(oInitialPos);
+		} catch (ConcurrentModificationException e) {
+			SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+		}
 		
 		iFeetPos = (int) player.getEntityBoundingBox().minY;
 		
@@ -528,7 +569,11 @@ public class ExcavationHelper {
 	public void getOreVein() {
 		bCallerIsVeinator = true;
 		
-		oPositions.offer(oInitialPos);
+		try {
+			oPositions.offer(oInitialPos);
+		} catch (ConcurrentModificationException e) {
+			SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+		}
 		
 		BlockPos oPos;
 		
@@ -542,13 +587,17 @@ public class ExcavationHelper {
 							AddCoordsToList(oPos);
 						}
 					}
-				
-		LogHelper.log(Level.INFO, "Found (" + oPositions.size() + ") blocks in Ore Vein");
 	}
 	
 	public void FinalizeExcavation() {
+		spawnDrops();
+		
+		SuperMiner_Core.ehWorker = null;
+		
 		if (SettingsExcavator.bGatherDrops) {
-			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(SettingsExcavator.iBlockRadius + 2, SettingsExcavator.iBlockRadius + 2, SettingsExcavator.iBlockRadius + 2));
+			List<Entity> list = Globals.getNearbyEntities(world,
+					player.getEntityBoundingBox().expand(SettingsExcavator.iBlockRadius + 2, SettingsExcavator.iBlockRadius + 2,
+							SettingsExcavator.iBlockRadius + 2));
 			if (null != list && !list.isEmpty()) {
 				for (Entity entity : list) {
 					if (!entity.isDead)
@@ -559,6 +608,10 @@ public class ExcavationHelper {
 	}
 	
 	public void FinalizeShaft() {
+		spawnDrops();
+		
+		SuperMiner_Core.ehWorker = null;
+		
 		if (SettingsShaftanator.bGatherDrops) {
 			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(
 					(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH
@@ -578,6 +631,10 @@ public class ExcavationHelper {
 	}
 	
 	public void FinalizeVeination() {
+		spawnDrops();
+		
+		SuperMiner_Core.ehWorker = null;
+		
 		if (SettingsVeinator.bGatherDrops) {
 			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(16, 16, 16));
 			if (null != list && !list.isEmpty()) {
@@ -587,8 +644,33 @@ public class ExcavationHelper {
 				}
 			}
 		}
-		
-		LogHelper.log(Level.INFO, "Finalized Vein");
 	}
 	
+	public void recordDrop(Entity entity) {
+		this.recordedDrops.add(entity);
+	}
+	
+	public void addXP(int value) {
+		this.recordedXPCount += value;
+	}
+	
+	public void spawnDrops() {
+		// Pause the existing ehWorker
+		ExcavationHelper ehWorkerLog = SuperMiner_Core.ehWorker;
+		SuperMiner_Core.ehWorker = null;
+		
+		// Respawn the recorded Drops
+		for (Entity entity : this.recordedDrops)
+			this.player.world.spawnEntity(entity);
+		
+		// Respawn the recorded XP
+		if (this.recordedXPCount > 0)
+			this.player.world.spawnEntity(new EntityXPOrb(this.player.world, oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ(), this.recordedXPCount));
+		
+		this.recordedDrops.clear();
+		this.recordedXPCount = 0;
+		
+		// Resume the previous ehWorker
+		SuperMiner_Core.ehWorker = ehWorkerLog;
+	}
 }

@@ -1,5 +1,8 @@
 package duelmonster.superminer.objects;
 
+import java.util.ConcurrentModificationException;
+
+import duelmonster.superminer.SuperMiner_Core;
 import duelmonster.superminer.config.SettingsLumbinator;
 import duelmonster.superminer.network.packets.SMPacket;
 import net.minecraft.block.Block;
@@ -170,13 +173,22 @@ public class TreeHelper {
 				if (bIsValidLeaves && currentPacket.sLeafName.isEmpty())
 					currentPacket.sLeafName = sNextName;
 				
-				if (bIsValidWood || (bIsValidLeaves && SettingsLumbinator.bDestroyLeaves))
-					currentPacket.positions.offer(nextPos);
-				
+				if (bIsValidWood || (bIsValidLeaves && SettingsLumbinator.bDestroyLeaves)) {
+					try {
+						currentPacket.positions.offer(nextPos);
+					} catch (ConcurrentModificationException e) {
+						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					}
+				}
 				if (bIsValidLeaves && !bIsTree) return true;
 				
-			} else if (SettingsLumbinator.bDestroyLeaves && nextBlock instanceof BlockSnow)
-				currentPacket.positions.offer(nextPos);
+			} else if (SettingsLumbinator.bDestroyLeaves && nextBlock instanceof BlockSnow) {
+				try {
+					currentPacket.positions.offer(nextPos);
+				} catch (ConcurrentModificationException e) {
+					SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+				}
+			}
 		}
 		
 		return bIsTree;
