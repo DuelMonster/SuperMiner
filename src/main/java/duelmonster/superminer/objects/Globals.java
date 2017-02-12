@@ -26,6 +26,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -309,5 +310,25 @@ public class Globals {
 	public static void sendPacket(Packet<?> packetIn, EntityPlayerMP player) {
 		if (FMLCommonHandler.instance().getSide().isServer())
 			player.connection.sendPacket(packetIn);
+	}
+	
+	/**
+	 * Finds the stack or an equivalent one in the main inventory
+	 */
+	public static int getSlotFromInventory(EntityPlayerMP player, ItemStack stack) {
+		for (int i = 0; i < player.inventory.mainInventory.size(); ++i) {
+			if (!player.inventory.mainInventory.get(i).isEmpty() && stackEqualExact(stack, player.inventory.mainInventory.get(i))) {
+				return i;
+			}
+		}
+		
+		return -1;
+	}
+	
+	/**
+	 * Checks item, NBT, and meta if the item is not damageable
+	 */
+	private static boolean stackEqualExact(ItemStack stack1, ItemStack stack2) {
+		return stack1.getItem() == stack2.getItem() && (!stack1.getHasSubtypes() || stack1.getMetadata() == stack2.getMetadata()) && ItemStack.areItemStackTagsEqual(stack1, stack2);
 	}
 }

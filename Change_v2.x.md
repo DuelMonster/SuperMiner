@@ -1,3 +1,12 @@
+#### **2.1.18:**
+> | Cropinator: | ---
+> | --- | ---
+> | _FIX_: | Adjusted too hungry notification to not show unless using a valid tool.
+
+> | Excavator, Illuminator, Shaftanator & Veinator: | ---
+> | --- | ---
+> | _FIX_: | Solved Server Crash issues.
+
 #### **2.1.17:**
 > | Core: | ---
 > | --- | ---
