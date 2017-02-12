@@ -143,7 +143,9 @@ public class Cropinator {
 				if (!Globals.isAttacking(mc) && block != null && block == Blocks.AIR)
 					block = null;
 				
-				if (block != null) {
+				if (block != null
+						&& player.getHeldItemMainhand() != null
+						&& Globals.isIdInList(player.getHeldItemMainhand().getItem(), lHoeIDs)) {
 					
 					if (!bHungerNotified && player.getFoodStats().getFoodLevel() <= Globals.MIN_HUNGER) {
 						Globals.NotifyClient(Globals.tooHungry() + MODName);
@@ -151,10 +153,7 @@ public class Cropinator {
 						return;
 					}
 					
-					if (player.getFoodStats().getFoodLevel() > Globals.MIN_HUNGER
-							&& player.getHeldItemMainhand() != null
-							&& Globals.isIdInList(player.getHeldItemMainhand().getItem(), lHoeIDs))
-						
+					if (player.getFoodStats().getFoodLevel() > Globals.MIN_HUNGER)
 						if (Globals.isUsingItem(mc) && (block == Blocks.GRASS || block == Blocks.DIRT || block == Blocks.FARMLAND))
 							Globals.sendPacket(new CPacketCustomPayload(ChannelName, (new AutoFurrowPacket(PacketIDs.Cropinator_HoePacket.value(), oPos)).writePacketData()));
 						

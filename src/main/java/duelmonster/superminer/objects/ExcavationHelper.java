@@ -25,11 +25,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 
 public class ExcavationHelper {
-	private final int SECTION_LIMIT = 4;
+	private final int SECTION_LIMIT = 16;
 	
 	World					world;
 	EntityPlayerMP			player;
@@ -133,21 +132,7 @@ public class ExcavationHelper {
 								boolean bHarvested = false;
 								
 								try {
-									player.world.captureBlockSnapshots = true;
-									player.world.capturedBlockSnapshots.clear();
-									
 									bHarvested = player.interactionManager.tryHarvestBlock(workingPos);
-									
-									player.world.captureBlockSnapshots = false;
-									SuperMiner_Core.ehWorker = null;
-									while (player.world.capturedBlockSnapshots.size() > 0) {
-										BlockSnapshot snap = player.world.capturedBlockSnapshots.remove(0);
-										
-										player.world.markAndNotifyBlock(snap.getPos(), player.world.getChunkFromChunkCoords(snap.getPos().getX() >> 4, snap.getPos().getZ() >> 4), snap.getReplacedBlock(), snap.getCurrentBlock(), snap.getFlag());
-									}
-									
-									SuperMiner_Core.ehWorker = this;
-									
 								} catch (ConcurrentModificationException e) {
 									SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
 								}
@@ -179,8 +164,6 @@ public class ExcavationHelper {
 						}
 					}
 				}
-			
-			// spawnDrops();
 		}
 		
 		if (oPositions.isEmpty()) {
@@ -659,16 +642,26 @@ public class ExcavationHelper {
 		ExcavationHelper ehWorkerLog = SuperMiner_Core.ehWorker;
 		SuperMiner_Core.ehWorker = null;
 		
-		// Respawn the recorded Drops
-		for (Entity entity : this.recordedDrops)
-			this.player.world.spawnEntity(entity);
-		
-		// Respawn the recorded XP
-		if (this.recordedXPCount > 0)
-			this.player.world.spawnEntity(new EntityXPOrb(this.player.world, oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ(), this.recordedXPCount));
-		
-		this.recordedDrops.clear();
-		this.recordedXPCount = 0;
+		try {
+			while (!this.recordedDrops.isEmpty()) {
+				List<Entity> dropsClone = new ArrayList<Entity>(this.recordedDrops);
+				this.recordedDrops.clear();
+				
+				// Respawn the recorded Drops
+				for (Entity entity : dropsClone) {
+					this.player.world.spawnEntity(entity);
+				}
+				
+				// Respawn the recorded XP
+				if (this.recordedXPCount > 0) {
+					this.player.world.spawnEntity(new EntityXPOrb(this.player.world, oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ(), this.recordedXPCount));
+					this.recordedXPCount = 0;
+				}
+				
+			}
+		} catch (ConcurrentModificationException e) {
+			SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+		}
 		
 		// Resume the previous ehWorker
 		SuperMiner_Core.ehWorker = ehWorkerLog;
