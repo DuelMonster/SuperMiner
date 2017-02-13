@@ -245,7 +245,8 @@ public class SubstitutionHelper {
 						if (stackList_1.size() > 0) stackIterator_1.remove();
 						if (stackList_2.size() > 0) stackIterator_2.remove();
 					} catch (ConcurrentModificationException e) {
-						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 					}
 					
 					continue outerLoop;

@@ -1,3 +1,7 @@
+#### **2.1.18:**
+> | _FIX_: | Additional fix to solve Issue #15.
+> | _CHANGE_: | Added More informational Error messages for "Concurrent Modification" exceptions.
+
 #### **2.1.17:**
 > | Cropinator: | ---
 > | --- | ---
