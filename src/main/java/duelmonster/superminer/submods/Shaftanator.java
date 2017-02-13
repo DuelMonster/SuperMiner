@@ -174,7 +174,8 @@ public class Shaftanator {
 					try {
 						attackPackets.remove(); // Removes packet from the history if it has been there too long.
 					} catch (ConcurrentModificationException e) {
-						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 					}
 				} else {
 					block = world.getBlockState(packet.oPos).getBlock();
@@ -182,7 +183,8 @@ public class Shaftanator {
 						try {
 							attackPackets.remove(); // Removes packet from the history.
 						} catch (ConcurrentModificationException e) {
-							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+							StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 						}
 						
 						packet.block = packet.prevBlock;
@@ -224,7 +226,8 @@ public class Shaftanator {
 			try {
 				myExcavationHelpers.remove(oEH);
 			} catch (ConcurrentModificationException e) {
-				SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+				StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 			}
 		}
 	}
@@ -238,7 +241,8 @@ public class Shaftanator {
 					try {
 						myExcavationHelpers.remove(oEH);
 					} catch (ConcurrentModificationException e) {
-						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 					}
 				}
 			}

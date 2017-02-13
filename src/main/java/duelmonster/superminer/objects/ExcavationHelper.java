@@ -17,6 +17,7 @@ import duelmonster.superminer.submods.Veinator;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -92,7 +93,8 @@ public class ExcavationHelper {
 					try {
 						workingPos = oPositions.removeFirst();
 					} catch (ConcurrentModificationException e) {
-						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 						bCrash = true;
 					} catch (NoSuchElementException e) {
 						bCrash = true;
@@ -134,7 +136,8 @@ public class ExcavationHelper {
 								try {
 									bHarvested = player.interactionManager.tryHarvestBlock(workingPos);
 								} catch (ConcurrentModificationException e) {
-									SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+									StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+									SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 								}
 								
 								// Illuminate the new shaft if Harvested, Illuminator is enabled and blocks Y level is
@@ -175,7 +178,8 @@ public class ExcavationHelper {
 		try {
 			oPositions.offer(oInitialPos);
 		} catch (ConcurrentModificationException e) {
-			SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 		}
 		
 		iLowestY = oInitialPos.getY();
@@ -430,7 +434,8 @@ public class ExcavationHelper {
 				try {
 					oPositions.offer(oPos);
 				} catch (ConcurrentModificationException e) {
-					SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+					SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 				}
 				
 				if (oPos.getY() < this.iLowestY)
@@ -454,7 +459,8 @@ public class ExcavationHelper {
 		try {
 			oPositions.offer(oInitialPos);
 		} catch (ConcurrentModificationException e) {
-			SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 		}
 		
 		iFeetPos = (int) player.getEntityBoundingBox().minY;
@@ -551,7 +557,8 @@ public class ExcavationHelper {
 		try {
 			oPositions.offer(oInitialPos);
 		} catch (ConcurrentModificationException e) {
-			SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 		}
 		
 		BlockPos oPos;
@@ -645,7 +652,8 @@ public class ExcavationHelper {
 				
 				// Respawn the recorded Drops
 				for (Entity entity : dropsClone) {
-					this.player.world.spawnEntity(entity);
+					if (entity != null && entity instanceof EntityItem)
+						this.player.world.spawnEntity(entity);
 				}
 				
 				// Respawn the recorded XP
@@ -656,7 +664,8 @@ public class ExcavationHelper {
 				
 			}
 		} catch (ConcurrentModificationException e) {
-			SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 		}
 		
 		// Resume the previous ehWorker

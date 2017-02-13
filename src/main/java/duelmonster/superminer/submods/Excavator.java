@@ -222,7 +222,8 @@ public class Excavator {
 					try {
 						attackPackets.remove(); // Removes packet from the history if it has been there too long.
 					} catch (ConcurrentModificationException e) {
-						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 					}
 				} else {
 					block = world.getBlockState(packet.oPos).getBlock();
@@ -230,7 +231,8 @@ public class Excavator {
 						try {
 							attackPackets.remove(); // Removes packet from the history.
 						} catch (ConcurrentModificationException e) {
-							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+							StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 						}
 						
 						packet.block = packet.prevBlock;
@@ -291,7 +293,8 @@ public class Excavator {
 			try {
 				myExcavationHelpers.remove(oEH);
 			} catch (ConcurrentModificationException e) {
-				SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+				StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 			}
 		}
 	}
@@ -305,7 +308,8 @@ public class Excavator {
 					try {
 						myExcavationHelpers.remove(oEH);
 					} catch (ConcurrentModificationException e) {
-						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 					}
 				}
 			}
@@ -339,7 +343,8 @@ public class Excavator {
 			try {
 				blockPos = oPacket.lstPositions.poll();
 			} catch (ConcurrentModificationException e) {
-				SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+				StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 			}
 			
 			if (blockPos == null)
@@ -360,7 +365,8 @@ public class Excavator {
 					try {
 						player.inventory.removeStackFromSlot(player.inventory.currentItem);
 					} catch (ConcurrentModificationException e) {
-						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 					}
 					
 					player.openContainer.detectAndSendChanges();
@@ -406,7 +412,8 @@ public class Excavator {
 					try {
 						oPacket.lstPositions.offer(oPos);
 					} catch (ConcurrentModificationException e) {
-						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 					}
 					
 				} else {
@@ -421,7 +428,8 @@ public class Excavator {
 						try {
 							oPacket.lstPositions.offer(oPosOffset);
 						} catch (ConcurrentModificationException e) {
-							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+							StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 						}
 						
 					} else {
@@ -436,7 +444,8 @@ public class Excavator {
 							try {
 								oPacket.lstPositions.offer(oPosOffset);
 							} catch (ConcurrentModificationException e) {
-								SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+								StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+								SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 							}
 						}
 					}

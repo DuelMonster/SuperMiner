@@ -177,7 +177,8 @@ public class TreeHelper {
 					try {
 						currentPacket.positions.offer(nextPos);
 					} catch (ConcurrentModificationException e) {
-						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 					}
 				}
 				if (bIsValidLeaves && !bIsTree) return true;
@@ -186,7 +187,8 @@ public class TreeHelper {
 				try {
 					currentPacket.positions.offer(nextPos);
 				} catch (ConcurrentModificationException e) {
-					SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+					StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+					SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 				}
 			}
 		}

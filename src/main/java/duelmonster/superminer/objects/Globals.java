@@ -178,7 +178,8 @@ public class Globals {
 			return ret.isEmpty() ? null : ret;
 			
 		} catch (ConcurrentModificationException e) {
-			SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+			StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 			return null;
 		}
 		// }
@@ -211,7 +212,8 @@ public class Globals {
 						try {
 							p.positions.offer(blockPos);
 						} catch (ConcurrentModificationException e) {
-							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
+							StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
+							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
 						}
 						
 						iBlocksFound++;
