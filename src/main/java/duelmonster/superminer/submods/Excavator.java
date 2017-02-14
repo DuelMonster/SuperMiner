@@ -285,7 +285,7 @@ public class Excavator {
 		World world = server.worldServerForDimension(player.dimension);
 		if (world == null || !isAllowedToMine(player, packet.block)) return;
 		
-		ExcavationHelper oEH = new ExcavationHelper(world, player, packet);
+		ExcavationHelper oEH = new ExcavationHelper(world, player, packet, SettingsExcavator.bGatherDrops);
 		myExcavationHelpers.add(oEH);
 		oEH.getExcavationBlocks();
 		if (!oEH.ExcavateSection()) {

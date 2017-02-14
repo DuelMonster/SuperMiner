@@ -1,3 +1,7 @@
+#### **2.1.20:**
+> | _FIX_: | Added fix to solve ArrayIndexOutOfBoundsException on java.util.ArrayList.add.  Was caused by a list being unsynchronised across threads.
+> | _FIX_: | Improved the entity gathering to solve another "Concurrent Modification" exception.
+
 #### **2.1.19:**
 > | _FIX_: | Additional fix to solve Issue #15.
 > | _CHANGE_: | Added More informational Error messages for "Concurrent Modification" exceptions.

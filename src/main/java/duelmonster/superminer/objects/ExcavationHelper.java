@@ -1,6 +1,7 @@
 package duelmonster.superminer.objects;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,7 +10,6 @@ import java.util.NoSuchElementException;
 import duelmonster.superminer.SuperMiner_Core;
 import duelmonster.superminer.config.SettingsExcavator;
 import duelmonster.superminer.config.SettingsShaftanator;
-import duelmonster.superminer.config.SettingsVeinator;
 import duelmonster.superminer.network.packets.IlluminatorPacket;
 import duelmonster.superminer.network.packets.SMPacket;
 import duelmonster.superminer.submods.Shaftanator;
@@ -49,8 +49,9 @@ public class ExcavationHelper {
 	int						iWidthStart			= 0;
 	int						iWidthEnd			= 0;
 	boolean					bCallerIsVeinator	= false;
+	boolean					bGatherDrops		= false;
 	int						recordedXPCount		= 0;
-	List<Entity>			recordedDrops		= new ArrayList<Entity>();
+	List<Entity>			recordedDrops		= Collections.synchronizedList(new ArrayList<Entity>());
 	
 	private boolean bAutoIlluminate() {
 		return SettingsExcavator.bAutoIlluminate || SettingsShaftanator.bAutoIlluminate;
@@ -64,13 +65,14 @@ public class ExcavationHelper {
 		return bIsExcavating;
 	}
 	
-	public ExcavationHelper(World world, EntityPlayerMP player, SMPacket oPacket) {
+	public ExcavationHelper(World world, EntityPlayerMP player, SMPacket oPacket, boolean bGatherDrops) {
 		this.world = world;
 		this.player = player;
 		this.oPacket = oPacket;
 		this.oInitialPos = new BlockPos(oPacket.oPos);
 		this.bLayerOnlyToggled = oPacket.bLayerOnlyToggled;
 		this.sideHit = oPacket.sideHit;
+		this.bGatherDrops = bGatherDrops;
 	}
 	
 	/**
@@ -579,61 +581,12 @@ public class ExcavationHelper {
 		spawnDrops();
 		
 		SuperMiner_Core.ehWorker = null;
-		
-		if (SettingsExcavator.bGatherDrops) {
-			List<Entity> list = Globals.getNearbyEntities(world,
-					player.getEntityBoundingBox().expand(SettingsExcavator.iBlockRadius + 2, SettingsExcavator.iBlockRadius + 2,
-							SettingsExcavator.iBlockRadius + 2));
-			if (null != list && !list.isEmpty()) {
-				for (Entity entity : list) {
-					if (!entity.isDead)
-						entity.setPosition(oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ());
-				}
-			}
-		}
-	}
-	
-	public void FinalizeShaft() {
-		spawnDrops();
-		
-		SuperMiner_Core.ehWorker = null;
-		
-		if (SettingsShaftanator.bGatherDrops) {
-			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(
-					(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH
-							? SettingsShaftanator.iShaftWidth + 2
-							: SettingsShaftanator.iShaftLength + 4),
-					SettingsShaftanator.iShaftHeight + 2,
-					(oPacket.sideHit == EnumFacing.NORTH || oPacket.sideHit == EnumFacing.SOUTH
-							? SettingsShaftanator.iShaftLength + 4
-							: SettingsShaftanator.iShaftWidth + 2)));
-			if (null != list && !list.isEmpty()) {
-				for (Entity entity : list) {
-					if (!entity.isDead)
-						entity.setPosition(oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ());
-				}
-			}
-		}
-	}
-	
-	public void FinalizeVeination() {
-		spawnDrops();
-		
-		SuperMiner_Core.ehWorker = null;
-		
-		if (SettingsVeinator.bGatherDrops) {
-			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(16, 16, 16));
-			if (null != list && !list.isEmpty()) {
-				for (Entity entity : list) {
-					if (!entity.isDead)
-						entity.setPosition(oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ());
-				}
-			}
-		}
 	}
 	
 	public void recordDrop(Entity entity) {
-		this.recordedDrops.add(entity);
+		synchronized (this.recordedDrops) {
+			this.recordedDrops.add(entity);
+		}
 	}
 	
 	public void addXP(int value) {
@@ -646,22 +599,28 @@ public class ExcavationHelper {
 		SuperMiner_Core.ehWorker = null;
 		
 		try {
-			while (!this.recordedDrops.isEmpty()) {
-				List<Entity> dropsClone = new ArrayList<Entity>(this.recordedDrops);
-				this.recordedDrops.clear();
-				
-				// Respawn the recorded Drops
-				for (Entity entity : dropsClone) {
-					if (entity != null && entity instanceof EntityItem)
-						this.player.world.spawnEntity(entity);
+			synchronized (this.recordedDrops) {
+				while (!this.recordedDrops.isEmpty()) {
+					List<Entity> dropsClone = new ArrayList<Entity>(this.recordedDrops);
+					this.recordedDrops.clear();
+					
+					// Respawn the recorded Drops
+					for (Entity entity : dropsClone) {
+						if (entity != null && entity instanceof EntityItem) {
+							if (bGatherDrops) {
+								world.spawnEntity(new EntityItem(world, oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ(), ((EntityItem) entity).getEntityItem()));
+							} else
+								world.spawnEntity(entity);
+						}
+					}
+					
+					// Respawn the recorded XP
+					if (this.recordedXPCount > 0) {
+						world.spawnEntity(new EntityXPOrb(world, oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ(), this.recordedXPCount));
+						this.recordedXPCount = 0;
+					}
+					
 				}
-				
-				// Respawn the recorded XP
-				if (this.recordedXPCount > 0) {
-					this.player.world.spawnEntity(new EntityXPOrb(this.player.world, oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ(), this.recordedXPCount));
-					this.recordedXPCount = 0;
-				}
-				
 			}
 		} catch (ConcurrentModificationException e) {
 			StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
