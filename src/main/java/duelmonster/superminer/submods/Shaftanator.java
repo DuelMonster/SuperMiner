@@ -218,11 +218,11 @@ public class Shaftanator {
 		World world = server.worldServerForDimension(player.dimension);
 		if (world == null || !isAllowedToMine(player, packet.block)) return;
 		
-		ExcavationHelper oEH = new ExcavationHelper(world, player, packet);
+		ExcavationHelper oEH = new ExcavationHelper(world, player, packet, SettingsShaftanator.bGatherDrops);
 		myExcavationHelpers.add(oEH);
 		oEH.getShaftBlocks();
 		if (!oEH.ExcavateSection()) {
-			oEH.FinalizeShaft();
+			oEH.FinalizeExcavation();
 			try {
 				myExcavationHelpers.remove(oEH);
 			} catch (ConcurrentModificationException e) {
@@ -237,7 +237,7 @@ public class Shaftanator {
 		if (TickEvent.Phase.END.equals(event.phase) && myExcavationHelpers.size() > 0) { // && this.isExcavating())
 			for (ExcavationHelper oEH : getMyExcavationHelpers()) {
 				if (oEH.isExcavating() && !oEH.ExcavateSection()) {
-					oEH.FinalizeShaft();
+					oEH.FinalizeExcavation();
 					try {
 						myExcavationHelpers.remove(oEH);
 					} catch (ConcurrentModificationException e) {

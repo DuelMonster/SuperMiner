@@ -293,11 +293,11 @@ public class Veinator {
 		if (!isAllowedToMine(player, packet))
 			return;
 		
-		ExcavationHelper oEH = new ExcavationHelper(world, player, packet);
+		ExcavationHelper oEH = new ExcavationHelper(world, player, packet, SettingsVeinator.bGatherDrops);
 		myExcavationHelpers.add(oEH);
 		oEH.getOreVein();
 		if (!oEH.ExcavateSection()) {
-			oEH.FinalizeVeination();
+			oEH.FinalizeExcavation();
 			try {
 				myExcavationHelpers.remove(oEH);
 			} catch (ConcurrentModificationException e) {
@@ -321,7 +321,7 @@ public class Veinator {
 		if (myExcavationHelpers.size() > 0) {
 			for (ExcavationHelper oEH : getMyExcavationHelpers()) {
 				if (oEH.isExcavating() && !oEH.ExcavateSection()) {
-					oEH.FinalizeVeination();
+					oEH.FinalizeExcavation();
 					if (myExcavationHelpers.indexOf(oEH) >= 0) {
 						try {
 							myExcavationHelpers.remove(oEH);
