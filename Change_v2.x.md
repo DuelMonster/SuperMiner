@@ -1,3 +1,12 @@
+#### **2.1.26:**
+> | Captivator | ---
+> | --- | ---
+> | _FIX_: | Rewrote block captivation algorithm in order to solve several Crash issues.
+
+> | Excavator, Shaftanator & Veinator: | ---
+> | --- | ---
+> | _FIX_: | Rewrote block harvesting algorithms in order to solve several Crash issues.
+
 #### **2.1.20:**
 > | _FIX_: | Added fix to solve ArrayIndexOutOfBoundsException on java.util.ArrayList.add.  Was caused by a list being unsynchronised across threads.
 > | _FIX_: | Improved the entity gathering to solve another "Concurrent Modification" exception.

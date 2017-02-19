@@ -16,6 +16,9 @@ import duelmonster.superminer.objects.Globals;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -28,10 +31,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
@@ -174,8 +179,7 @@ public class Shaftanator {
 					try {
 						attackPackets.remove(); // Removes packet from the history if it has been there too long.
 					} catch (ConcurrentModificationException e) {
-						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
 				} else {
 					block = world.getBlockState(packet.oPos).getBlock();
@@ -183,8 +187,7 @@ public class Shaftanator {
 						try {
 							attackPackets.remove(); // Removes packet from the history.
 						} catch (ConcurrentModificationException e) {
-							StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 						}
 						
 						packet.block = packet.prevBlock;
@@ -226,8 +229,7 @@ public class Shaftanator {
 			try {
 				myExcavationHelpers.remove(oEH);
 			} catch (ConcurrentModificationException e) {
-				StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 			}
 		}
 	}
@@ -241,9 +243,32 @@ public class Shaftanator {
 					try {
 						myExcavationHelpers.remove(oEH);
 					} catch (ConcurrentModificationException e) {
-						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
+				}
+			}
+		}
+	}
+	
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onEntitySpawn(EntityJoinWorldEvent event) {
+		Entity entity = event.getEntity();
+		
+		if (getMyExcavationHelpers().isEmpty() || !isExcavating() || event.getWorld().isRemote || entity.isDead || event.isCanceled())
+			return;
+		
+		for (ExcavationHelper oEH : getMyExcavationHelpers()) {
+			if (!oEH.isSpawningDrops() && (entity instanceof EntityXPOrb || entity instanceof EntityItem)) {
+				
+				if (entity instanceof EntityItem) {
+					oEH.recordDrop(entity);
+					
+					event.setCanceled(true);
+					
+				} else if (entity instanceof EntityXPOrb) {
+					oEH.addXP(((EntityXPOrb) entity).getXpValue());
+					
+					event.setCanceled(true);
 				}
 			}
 		}

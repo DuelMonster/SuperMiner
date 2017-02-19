@@ -11,7 +11,8 @@ public class SettingsExcavator {
 	public static final int packetID = PacketIDs.Settings_Excavator.value();
 	
 	public static final int	MIN_BlockRadius	= 3;
-	public static final int	MAX_BlockRadius	= 16;
+	public static final int	MAX_BlockRadius	= 14;
+	public static final int	MAX_BlockLimit	= 2048;
 	
 	public final static boolean				bEnabledDefault				= true;
 	public final static boolean				bGatherDropsDefault			= true;

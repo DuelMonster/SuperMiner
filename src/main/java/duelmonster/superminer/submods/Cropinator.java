@@ -212,8 +212,7 @@ public class Cropinator {
 			try {
 				blockPos = oPacket.lstPositions.poll();
 			} catch (ConcurrentModificationException e) {
-				StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 			}
 			
 			if (blockPos == null)
@@ -243,8 +242,7 @@ public class Cropinator {
 					try {
 						player.inventory.removeStackFromSlot(player.inventory.currentItem);
 					} catch (ConcurrentModificationException e) {
-						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
 					
 					player.openContainer.detectAndSendChanges();
@@ -275,8 +273,7 @@ public class Cropinator {
 					try {
 						oPacket.lstPositions.offer(blockPos);
 					} catch (ConcurrentModificationException e) {
-						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
 				} else
 					break;
@@ -316,8 +313,7 @@ public class Cropinator {
 			try {
 				blockPos = oPacket.lstPositions.poll();
 			} catch (ConcurrentModificationException e) {
-				StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 			}
 			
 			if (blockPos == null)
@@ -360,8 +356,7 @@ public class Cropinator {
 					try {
 						player.inventory.removeStackFromSlot(player.inventory.currentItem);
 					} catch (ConcurrentModificationException e) {
-						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
 					
 					player.openContainer.detectAndSendChanges();
@@ -393,8 +388,7 @@ public class Cropinator {
 						try {
 							oPacket.lstPositions.offer(blockPos);
 						} catch (ConcurrentModificationException e) {
-							StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 						}
 					}
 				}

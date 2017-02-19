@@ -1,6 +1,7 @@
 package duelmonster.superminer.submods;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import duelmonster.superminer.SuperMiner_Core;
@@ -18,12 +19,15 @@ import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
@@ -111,15 +115,29 @@ public class Captivator {
 			if (null == list || list.isEmpty())
 				return;
 			
-			for (Object entity : list)
-				if (!((Entity) entity).isDead && (entity instanceof EntityXPOrb || (lItemIDs.isEmpty() || Globals.isIdInList(((EntityItem) entity).getEntityItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist))) {
-					this.packetEnableTime = (System.currentTimeMillis() + Globals.packetWaitMilliSec);
-					
-					PacketBuffer packetData = new PacketBuffer(Unpooled.buffer());
-					packetData.writeInt(PacketIDs.BLOCKINFO.value());
-					
-					Globals.sendPacket(new CPacketCustomPayload(ChannelName, packetData));
-				}
+			if (System.currentTimeMillis() >= this.packetEnableTime) {
+				this.packetEnableTime = (System.currentTimeMillis() + Globals.packetWaitMilliSec);
+				
+				PacketBuffer packetData = new PacketBuffer(Unpooled.buffer());
+				packetData.writeInt(PacketIDs.BLOCKINFO.value());
+				
+				Globals.sendPacket(new CPacketCustomPayload(ChannelName, packetData));
+			}
+		}
+	}
+	
+	List<Entity> recordedDrops = Collections.synchronizedList(new ArrayList<Entity>());
+	
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onEntitySpawn(EntityJoinWorldEvent event) {
+		if (event.getWorld().isRemote || event.getEntity().isDead || event.isCanceled()
+				|| Excavator.isExcavating() || Shaftanator.isExcavating() || Veinator.isExcavating())
+			return;
+		
+		if ((event.getEntity() instanceof EntityXPOrb || event.getEntity() instanceof EntityItem)) {
+			synchronized (this.recordedDrops) {
+				this.recordedDrops.add(0, event.getEntity());
+			}
 		}
 	}
 	
@@ -140,16 +158,45 @@ public class Captivator {
 			if (null == server)
 				return;
 			
-			World world = server.worldServerForDimension(player.dimension);
-			
-			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal));
-			if (null == list || list.isEmpty())
-				return;
-			
-			for (Entity entity : list)
-				if (entity != null && !entity.isDead && (entity instanceof EntityXPOrb || (lItemIDs == null || lItemIDs.isEmpty() || Globals.isIdInList(((EntityItem) entity).getEntityItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist))) {
-					entity.onCollideWithPlayer(player);
+			synchronized (this.recordedDrops) {
+				AxisAlignedBB captivateArea = player.getEntityBoundingBox().expand(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal);
+				
+				if (player.world != null) {
+					List<Entity> tmpDrops = new ArrayList<Entity>(Globals.getNearbyEntities(player.world, captivateArea));
+					if (tmpDrops != null && !tmpDrops.isEmpty()) {
+						for (Entity entity : tmpDrops) {
+							if (this.recordedDrops.isEmpty() || this.recordedDrops.contains(entity))
+								this.recordedDrops.add(entity);
+						}
+					}
+					
+					if (this.recordedDrops.isEmpty()) return;
+					tmpDrops = new ArrayList<Entity>(this.recordedDrops);
+					for (Entity entity : tmpDrops) {
+						
+						if (entity != null && !entity.isDead && Globals.isEntityWithinArea(entity, captivateArea)) {
+							if (entity instanceof EntityXPOrb) {
+								
+								entity.onCollideWithPlayer(player);
+								this.recordedDrops.remove(entity);
+								
+							} else if (entity instanceof EntityItem && Globals.hasInventoryGotSpace(player, ((EntityItem) entity).getEntityItem())) {
+								EntityItem eItem = (EntityItem) entity;
+								
+								if (!eItem.cannotPickup()
+										&& (lItemIDs == null || lItemIDs.isEmpty() || Globals.isIdInList(eItem.getEntityItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist)) {
+									
+									eItem.onCollideWithPlayer(player);
+									
+									if (eItem.isDead)
+										this.recordedDrops.remove(eItem);
+								}
+							}
+						} else
+							this.recordedDrops.remove(entity);
+					}
 				}
+			}
 		}
 	}
 }
