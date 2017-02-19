@@ -160,30 +160,35 @@ public class Globals {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<Entity> getNearbyEntities(World world, AxisAlignedBB area) {
-		// if (!Excavator.isExcavating() &&
-		// !Shaftanator.isExcavating() &&
-		// !Veinator.isExcavating()) {
-		
+		List<Entity> rtrn = new ArrayList();
 		try {
-			List<?> list = world.getEntitiesWithinAABB(Entity.class, area);
+			List<?> list = new ArrayList(world.getEntitiesWithinAABB(Entity.class, area));
 			if (null == list || list.isEmpty())
 				return null;
 			
-			List<Entity> ret = new ArrayList();
 			for (Object o : list) {
 				Entity e = (Entity) o;
 				if (!e.isDead && (e instanceof EntityItem || e instanceof EntityXPOrb))
-					ret.add(e);
+					rtrn.add(e);
 			}
-			return ret.isEmpty() ? null : ret;
+			return rtrn;
 			
 		} catch (ConcurrentModificationException e) {
-			StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
-			return null;
+			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception: " + Globals.getStackTrace());
+		} catch (Exception e) {
+			SuperMiner_Core.LOGGER.error(e.getClass().getName() + " Exception: " + Globals.getStackTrace());
 		}
-		// }
-		// return null;
+		return rtrn;
+	}
+	
+	public static String getStackTrace() {
+		String sRtrn = "";
+		StackTraceElement[] stes = Thread.currentThread().getStackTrace();
+		
+		for (int i = 2; i < stes.length; i++)
+			sRtrn += System.getProperty("line.separator") + "	at " + stes[i].toString();
+		
+		return sRtrn;
 	}
 	
 	public void checkConnection(World world, BlockPos oPos, SMPacket p, boolean bDestroyUnder) {
@@ -212,8 +217,7 @@ public class Globals {
 						try {
 							p.positions.offer(blockPos);
 						} catch (ConcurrentModificationException e) {
-							StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 						}
 						
 						iBlocksFound++;
@@ -304,6 +308,13 @@ public class Globals {
 		return ((distanceX * distanceX) + (distanceY * distanceY) + (distanceZ * distanceZ)) <= (range * range);
 	}
 	
+	public static boolean isEntityWithinArea(Entity entity, AxisAlignedBB area) {
+		return area != null &&
+				entity.getPosition().getX() >= area.minX && entity.getPosition().getX() <= area.maxX &&
+				entity.getPosition().getZ() >= area.minZ && entity.getPosition().getZ() <= area.maxZ &&
+				entity.getPosition().getY() >= area.minY && entity.getPosition().getY() <= area.maxY;
+	}
+	
 	public static void sendPacket(Packet<?> packetIn) {
 		if (FMLCommonHandler.instance().getSide().isClient())
 			FMLClientHandler.instance().getClientToServerNetworkManager().sendPacket(packetIn);
@@ -312,6 +323,19 @@ public class Globals {
 	public static void sendPacket(Packet<?> packetIn, EntityPlayerMP player) {
 		if (FMLCommonHandler.instance().getSide().isServer())
 			player.connection.sendPacket(packetIn);
+	}
+	
+	/**
+	 * Identifies whether the player has room in their inventory
+	 */
+	public static boolean hasInventoryGotSpace(EntityPlayer player, ItemStack stack) {
+		for (int i = 0; i < player.inventory.mainInventory.length; ++i) {
+			if (player.inventory.mainInventory[i] == null || (stack.getItem().equals(player.inventory.mainInventory[i].getItem()) && player.inventory.mainInventory[i].stackSize != player.inventory.mainInventory[i].getMaxStackSize())) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	/**

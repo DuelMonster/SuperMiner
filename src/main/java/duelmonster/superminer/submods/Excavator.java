@@ -19,6 +19,9 @@ import duelmonster.superminer.objects.GodItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -33,11 +36,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
@@ -103,7 +108,7 @@ public class Excavator {
 		SettingsExcavator.lToolIDs = new ArrayList<String>(Arrays.asList(SuperMiner_Core.configFile.getStringList(Globals.localize("superminer.excavator.tool_ids"), MODID, SettingsExcavator.lToolIDDefaults.toArray(new String[0]), Globals.localize("superminer.excavator.tool_ids.desc"))));
 		SettingsExcavator.lShovelIDs = new ArrayList<String>(Arrays.asList(SuperMiner_Core.configFile.getStringList(Globals.localize("superminer.excavator.shovel_ids"), MODID, SettingsExcavator.lShovelIDDefaults.toArray(new String[0]), Globals.localize("superminer.excavator.shovel_ids.desc"))));
 		SettingsExcavator.iBlockRadius = SuperMiner_Core.configFile.getInt(Globals.localize("superminer.excavator.radius"), MODID, SettingsExcavator.iBlockRadiusDefault, SettingsExcavator.MIN_BlockRadius, SettingsExcavator.MAX_BlockRadius, Globals.localize("superminer.excavator.radius.desc"));
-		SettingsExcavator.iBlockLimit = SuperMiner_Core.configFile.getInt(Globals.localize("superminer.excavator.limit"), MODID, SettingsExcavator.iBlockLimitDefault, ((SettingsExcavator.MIN_BlockRadius * SettingsExcavator.MIN_BlockRadius) * SettingsExcavator.MIN_BlockRadius), ((SettingsExcavator.MAX_BlockRadius * SettingsExcavator.MAX_BlockRadius) * SettingsExcavator.MAX_BlockRadius), Globals.localize("superminer.excavator.limit.desc"));
+		SettingsExcavator.iBlockLimit = SuperMiner_Core.configFile.getInt(Globals.localize("superminer.excavator.limit"), MODID, SettingsExcavator.iBlockLimitDefault, ((SettingsExcavator.MIN_BlockRadius * SettingsExcavator.MIN_BlockRadius) * SettingsExcavator.MIN_BlockRadius), SettingsExcavator.MAX_BlockLimit, Globals.localize("superminer.excavator.limit.desc"));
 		SettingsExcavator.iPathWidth = SuperMiner_Core.configFile.getInt(Globals.localize("superminer.excavator.path_width"), MODID, SettingsExcavator.iPathWidthDefault, 1, 16, Globals.localize("superminer.excavator.path_width.desc"));
 		SettingsExcavator.iPathLength = SuperMiner_Core.configFile.getInt(Globals.localize("superminer.excavator.path_length"), MODID, SettingsExcavator.iPathLengthDefault, 1, 64, Globals.localize("superminer.excavator.path_length.desc"));
 		
@@ -298,7 +303,7 @@ public class Excavator {
 	
 	@SubscribeEvent
 	public void tickEvent_Server(TickEvent.ServerTickEvent event) {
-		if (TickEvent.Phase.END.equals(event.phase) && myExcavationHelpers.size() > 0) { // && this.isExcavating())
+		if (TickEvent.Phase.END.equals(event.phase) && !getMyExcavationHelpers().isEmpty()) {
 			for (ExcavationHelper oEH : getMyExcavationHelpers()) {
 				if (oEH.isExcavating() && !oEH.ExcavateSection()) {
 					oEH.FinalizeExcavation();
@@ -307,6 +312,29 @@ public class Excavator {
 					} catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
 					}
+				}
+			}
+		}
+	}
+	
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onEntitySpawn(EntityJoinWorldEvent event) {
+		Entity entity = event.getEntity();
+		
+		if (getMyExcavationHelpers().isEmpty() || !isExcavating() || event.getWorld().isRemote || entity.isDead || event.isCanceled())
+			return;
+		
+		for (ExcavationHelper oEH : getMyExcavationHelpers()) {
+			if (!oEH.isSpawningDrops() && oEH.isExcavating() && (entity instanceof EntityXPOrb || entity instanceof EntityItem) && Globals.isEntityWithinArea(entity, oEH.getExcavationArea())) {
+				if (entity instanceof EntityItem) {
+					oEH.recordDrop(entity);
+					
+					event.setCanceled(true);
+					
+				} else if (entity instanceof EntityXPOrb) {
+					oEH.addXP(((EntityXPOrb) entity).getXpValue());
+					
+					event.setCanceled(true);
 				}
 			}
 		}

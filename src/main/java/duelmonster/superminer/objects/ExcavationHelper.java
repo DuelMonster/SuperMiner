@@ -24,6 +24,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
@@ -40,8 +41,9 @@ public class ExcavationHelper {
 	int						iBlocksFound		= 0;
 	int						iUnconnectedCount	= 0;
 	LinkedList<BlockPos>	oPositions			= new LinkedList<BlockPos>();
+	AxisAlignedBB			excavationArea		= null;
 	int						iSpiral				= 1;
-	boolean					bIsExcavating		= true;
+	boolean					bIsExcavating		= false;
 	int						iLowestY			= 0;
 	int						iFeetPos			= 0;
 	int						iLengthStart		= 0;
@@ -52,6 +54,7 @@ public class ExcavationHelper {
 	boolean					bGatherDrops		= false;
 	int						recordedXPCount		= 0;
 	List<Entity>			recordedDrops		= Collections.synchronizedList(new ArrayList<Entity>());
+	boolean					bIsSpawningDrops	= false;
 	
 	private boolean bAutoIlluminate() {
 		return SettingsExcavator.bAutoIlluminate || SettingsShaftanator.bAutoIlluminate;
@@ -63,6 +66,32 @@ public class ExcavationHelper {
 	
 	public boolean isExcavating() {
 		return bIsExcavating;
+	}
+	
+	public boolean isSpawningDrops() {
+		return bIsSpawningDrops;
+	}
+	
+	public AxisAlignedBB getExcavationArea() {
+		return this.excavationArea;
+	}
+	
+	private void setExcavationArea() {
+		if (excavationArea == null) {
+			int minX = oInitialPos.getX(), minY = oInitialPos.getY(), minZ = oInitialPos.getZ();
+			int maxX = minX, maxY = minY, maxZ = minZ;
+			
+			for (BlockPos oPos : oPositions) {
+				if (oPos.getX() < minX) minX = oPos.getX();
+				if (oPos.getX() > maxX) maxX = oPos.getX();
+				if (oPos.getY() < minY) minY = oPos.getY();
+				if (oPos.getY() > maxY) maxY = oPos.getY();
+				if (oPos.getZ() < minZ) minZ = oPos.getZ();
+				if (oPos.getZ() > maxZ) maxZ = oPos.getZ();
+			}
+			
+			this.excavationArea = new AxisAlignedBB(minX - 2, minY - 2, minZ - 2, maxX + 2, maxY + 2, maxZ + 2);
+		}
 	}
 	
 	public ExcavationHelper(World world, EntityPlayerMP player, SMPacket oPacket, boolean bGatherDrops) {
@@ -82,10 +111,7 @@ public class ExcavationHelper {
 	 */
 	public boolean ExcavateSection() {
 		if (!oPositions.isEmpty()) {
-			SuperMiner_Core.ehWorker = this;
-			
-			if (!bIsExcavating)
-				bIsExcavating = true;
+			if (!bIsExcavating) bIsExcavating = true;
 			
 			for (int indx = 0; indx <= SECTION_LIMIT; indx++)
 				if (!oPositions.isEmpty()) {
@@ -95,8 +121,7 @@ public class ExcavationHelper {
 					try {
 						workingPos = oPositions.removeFirst();
 					} catch (ConcurrentModificationException e) {
-						StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 						bCrash = true;
 					} catch (NoSuchElementException e) {
 						bCrash = true;
@@ -138,8 +163,7 @@ public class ExcavationHelper {
 								try {
 									bHarvested = player.interactionManager.tryHarvestBlock(workingPos);
 								} catch (ConcurrentModificationException e) {
-									StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-									SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+									SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 								}
 								
 								// Illuminate the new shaft if Harvested, Illuminator is enabled and blocks Y level is
@@ -171,11 +195,7 @@ public class ExcavationHelper {
 				}
 		}
 		
-		if (oPositions.isEmpty()) {
-			bIsExcavating = false;
-			
-			SuperMiner_Core.ehWorker = null;
-		}
+		if (oPositions.isEmpty()) bIsExcavating = false;
 		
 		return bIsExcavating;
 	}
@@ -184,12 +204,11 @@ public class ExcavationHelper {
 		try {
 			oPositions.offer(oInitialPos);
 		} catch (ConcurrentModificationException e) {
-			StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 		}
 		
 		iLowestY = oInitialPos.getY();
-		
+		excavationArea = null;
 		iBlocksFound = 1;
 		boolean bHasConnected = false;
 		
@@ -348,6 +367,8 @@ public class ExcavationHelper {
 			}
 			break;
 		}
+		
+		setExcavationArea();
 	}
 	
 	/**
@@ -440,8 +461,7 @@ public class ExcavationHelper {
 				try {
 					oPositions.offer(oPos);
 				} catch (ConcurrentModificationException e) {
-					StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-					SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+					SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 				}
 				
 				if (oPos.getY() < this.iLowestY)
@@ -465,14 +485,12 @@ public class ExcavationHelper {
 		try {
 			oPositions.offer(oInitialPos);
 		} catch (ConcurrentModificationException e) {
-			StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 		}
 		
-		iFeetPos = (int) player.getEntityBoundingBox().minY;
-		
+		this.iFeetPos = (int) player.getEntityBoundingBox().minY;
 		this.iLowestY = iFeetPos;
-		
+		this.excavationArea = null;
 		int iHeightStart = iFeetPos;
 		int iHeightEnd = iFeetPos + (SettingsShaftanator.iShaftHeight - 1);
 		
@@ -555,18 +573,20 @@ public class ExcavationHelper {
 		default:
 			break;
 		}
+		
+		setExcavationArea();
 	}
 	
 	public void getOreVein() {
-		bCallerIsVeinator = true;
+		this.bCallerIsVeinator = true;
 		
 		try {
 			oPositions.offer(oInitialPos);
 		} catch (ConcurrentModificationException e) {
-			StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 		}
 		
+		this.excavationArea = null;
 		BlockPos oPos;
 		
 		for (int iSearchRadius = 1; iSearchRadius <= 8; iSearchRadius++)
@@ -579,12 +599,12 @@ public class ExcavationHelper {
 							AddCoordsToList(oPos);
 						}
 					}
+				
+		setExcavationArea();
 	}
 	
 	public void FinalizeExcavation() {
 		spawnDrops();
-		
-		SuperMiner_Core.ehWorker = null;
 	}
 	
 	public void recordDrop(Entity entity) {
@@ -598,9 +618,7 @@ public class ExcavationHelper {
 	}
 	
 	public void spawnDrops() {
-		// Pause the existing ehWorker
-		ExcavationHelper ehWorkerLog = SuperMiner_Core.ehWorker;
-		SuperMiner_Core.ehWorker = null;
+		bIsSpawningDrops = true;
 		
 		try {
 			synchronized (this.recordedDrops) {
@@ -610,11 +628,12 @@ public class ExcavationHelper {
 					
 					// Respawn the recorded Drops
 					for (Entity entity : dropsClone) {
-						if (entity != null && entity instanceof EntityItem) {
+						if (entity != null && entity instanceof EntityItem && Globals.isEntityWithinArea(entity, getExcavationArea())) {
 							if (bGatherDrops) {
 								world.spawnEntity(new EntityItem(world, oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ(), ((EntityItem) entity).getEntityItem()));
-							} else
+							} else {
 								world.spawnEntity(entity);
+							}
 						}
 					}
 					
@@ -627,11 +646,9 @@ public class ExcavationHelper {
 				}
 			}
 		} catch (ConcurrentModificationException e) {
-			StackTraceElement ste = Thread.currentThread().getStackTrace()[1];
-			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + ste.getClassName() + ":" + ste.getMethodName() + " [" + ste.getLineNumber() + "]");
+			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 		}
 		
-		// Resume the previous ehWorker
-		SuperMiner_Core.ehWorker = ehWorkerLog;
+		bIsSpawningDrops = false;
 	}
 }
