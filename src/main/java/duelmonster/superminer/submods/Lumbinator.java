@@ -2,6 +2,7 @@ package duelmonster.superminer.submods;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +19,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -25,14 +28,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
@@ -46,25 +52,35 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 		version = SuperMiner_Core.VERSION,
 		acceptedMinecraftVersions = SuperMiner_Core.MCVERSION)
 public class Lumbinator {
-	public static final String	MODID	= "superminer_lumbinator";
-	public static final String	MODName	= "Lumbinator";
+	public static final String	MODID		= "superminer_lumbinator";
+	public static final String	MODName		= "Lumbinator";
+	public static final String	ChannelName	= MODID.substring(0, (MODID.length() < 20 ? MODID.length() : 20));
 	
-	public static final String ChannelName = MODID.substring(0, (MODID.length() < 20 ? MODID.length() : 20));
+	public static final int			BREAK_LIMIT			= 8;
+	public static Globals			myGlobals			= new Globals();
+	public static boolean			bShouldSyncSettings	= true;
+	private static EntityPlayerMP	player				= null;
+	private boolean					bHungerNotified		= false;
+	private static List<SMPacket>	myPackets			= new ArrayList<SMPacket>();
+	private static ItemStack		oHeldItem			= null;
+	private static int				iHeldSlot			= -99;
+	private static boolean			bIsChopping			= false;
+	private static int				recordedXPCount		= 0;
+	private static List<Entity>		recordedDrops		= Collections.synchronizedList(new ArrayList<Entity>());
+	private static boolean			bIsSpawningDrops	= false;
+	private static AxisAlignedBB	choppingArea		= null;
 	
-	public static final int BREAK_LIMIT = 8;
+	public static Boolean isChopping() {
+		return bIsChopping;
+	}
 	
-	public static Globals myGlobals = new Globals();
-	
-	private static List<SMPacket> myPackets = new ArrayList<SMPacket>();
+	public static boolean isSpawningDrops() {
+		return bIsSpawningDrops;
+	}
 	
 	private static List<SMPacket> getMyPackets() {
 		return new ArrayList<SMPacket>(myPackets);
 	}
-	
-	private static EntityPlayerMP player = null;
-	
-	private boolean			bHungerNotified		= false;
-	public static boolean	bShouldSyncSettings	= true;
 	
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent event) {
@@ -135,10 +151,10 @@ public class Lumbinator {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
-		if (!PlayerEvents.IsPlayerInWorld()
+		if (!SettingsLumbinator.bEnabled
+				|| !PlayerEvents.IsPlayerInWorld()
 				|| Excavator.isToggled()
 				|| Shaftanator.bToggled
-				|| !SettingsLumbinator.bEnabled
 				|| !TickEvent.Phase.END.equals(event.phase))
 			return;
 		
@@ -261,7 +277,7 @@ public class Lumbinator {
 		}
 		
 		// Ensure that it is a Tree ( Has Leaves )
-		TreeHelper oTreeHelper = new TreeHelper(player, myGlobals);
+		TreeHelper oTreeHelper = currentPacket.oTreeHelper = new TreeHelper(player, myGlobals);
 		int yStart = currentPacket.oPos.getY();
 		int yLevel = yStart;
 		
@@ -269,12 +285,13 @@ public class Lumbinator {
 		// Get Leaf Name
 		currentPacket.sLeafName = oTreeHelper.getLeafName(currentPacket);
 		
-		// Get Tree Width at breaking point
-		oTreeHelper.DetectTreeWidth(currentPacket);
-		
 		boolean bIsTree = false;
 		
 		if (!currentPacket.sLeafName.isEmpty()) {
+			// Get Tree Width at breaking point
+			oTreeHelper.DetectTreeSize(currentPacket);
+			setChoppingArea(currentPacket);
+			
 			int iMinX = (currentPacket.oPos.getX() - SettingsLumbinator.iLeafRange) - (oTreeHelper.iTreeWidthMinusX == 0 ? 1 : oTreeHelper.iTreeWidthMinusX);
 			int iMaxX = (currentPacket.oPos.getX() + SettingsLumbinator.iLeafRange) + (oTreeHelper.iTreeWidthPlusX == 0 ? 1 : oTreeHelper.iTreeWidthPlusX);
 			int iMinZ = (currentPacket.oPos.getZ() - SettingsLumbinator.iLeafRange) - (oTreeHelper.iTreeWidthMinusZ == 0 ? 1 : oTreeHelper.iTreeWidthMinusZ);
@@ -282,12 +299,13 @@ public class Lumbinator {
 			
 			boolean bBelowGot = false;
 			
-			while (yLevel < player.world.getHeight()) {
+			while (yLevel <= oTreeHelper.iTreeHeight) {
 				for (int xPos = iMinX; xPos <= iMaxX; xPos++)
 					for (int zPos = iMinZ; zPos <= iMaxZ; zPos++)
 						bIsTree = oTreeHelper.processPosition(currentPacket, new BlockPos(xPos, yLevel, zPos), bIsTree);
 					
 				if (SettingsLumbinator.bChopTreeBelow && yLevel <= yStart && !bBelowGot) {
+					oTreeHelper.iTreeMinY = yLevel;
 					yLevel--;
 					if (yLevel <= 0) {
 						yLevel = yStart;
@@ -303,17 +321,48 @@ public class Lumbinator {
 	
 	@SubscribeEvent
 	public void tickEvent_Server(TickEvent.ServerTickEvent event) {
-		if (TickEvent.Phase.END.equals(event.phase) && !myPackets.isEmpty())
-			for (SMPacket currentPacket : getMyPackets())
-			if (currentPacket != null)
-				chopTree(currentPacket);
+		if (!isChopping() && TickEvent.Phase.END.equals(event.phase) && !myPackets.isEmpty()) {
+			for (SMPacket currentPacket : getMyPackets()) {
+				if (currentPacket != null)
+					chopTree(currentPacket);
+			}
+		}
 	}
 	
-	private static ItemStack	oHeldItem	= null;
-	private static int			iHeldSlot	= -99;
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onEntitySpawn(EntityJoinWorldEvent event) {
+		Entity entity = event.getEntity();
+		
+		if (getMyPackets().isEmpty() || !isChopping() || event.getWorld().isRemote || entity.isDead || event.isCanceled())
+			return;
+		
+		if (!isSpawningDrops() && isChopping() && (entity instanceof EntityXPOrb || entity instanceof EntityItem) && Globals.isEntityWithinArea(entity, choppingArea)) {
+			if (entity instanceof EntityItem) {
+				this.recordDrop(entity);
+				
+				event.setCanceled(true);
+				
+			} else if (entity instanceof EntityXPOrb) {
+				this.addXP(((EntityXPOrb) entity).getXpValue());
+				
+				event.setCanceled(true);
+			}
+		}
+	}
+	
+	public void recordDrop(Entity entity) {
+		synchronized (recordedDrops) {
+			recordedDrops.add(entity);
+		}
+	}
+	
+	public void addXP(int value) {
+		recordedXPCount += value;
+	}
 	
 	private static void chopTree(SMPacket currentPacket) {
 		int iCount = 0;
+		bIsChopping = true;
 		
 		if (oHeldItem == null) {
 			oHeldItem = player.getHeldItemMainhand().copy();
@@ -332,16 +381,6 @@ public class Lumbinator {
 				player.openContainer.detectAndSendChanges();
 			}
 			
-			if (SettingsLumbinator.bGatherDrops) {
-				List<Entity> list = Globals.getNearbyEntities(player.world, player.getEntityBoundingBox().expand(8, 8, 8));
-				if (null != list && !list.isEmpty()) {
-					for (Entity entity : list) {
-						if (!entity.isDead)
-							entity.setPosition(currentPacket.oPos.getX(), currentPacket.oPos.getZ(), currentPacket.oPos.getZ());
-					}
-				}
-			}
-			
 			try {
 				myPackets.remove(currentPacket);
 			} catch (ConcurrentModificationException e) {
@@ -351,6 +390,9 @@ public class Lumbinator {
 			oHeldItem = null;
 			iHeldSlot = -99;
 		}
+		bIsChopping = false;
+		
+		spawnDrops(currentPacket);
 	}
 	
 	private static boolean breakBlock(SMPacket currentPacket) {
@@ -393,5 +435,53 @@ public class Lumbinator {
 		}
 		
 		return bHarvested;
+	}
+	
+	private static void setChoppingArea(SMPacket currentPacket) {
+		TreeHelper oTreeHelper = currentPacket.oTreeHelper;
+		
+		int iMinX = (currentPacket.oPos.getX() - SettingsLumbinator.iLeafRange) - (oTreeHelper.iTreeWidthMinusX == 0 ? 1 : oTreeHelper.iTreeWidthMinusX);
+		int iMaxX = (currentPacket.oPos.getX() + SettingsLumbinator.iLeafRange) + (oTreeHelper.iTreeWidthPlusX == 0 ? 1 : oTreeHelper.iTreeWidthPlusX);
+		int iMinZ = (currentPacket.oPos.getZ() - SettingsLumbinator.iLeafRange) - (oTreeHelper.iTreeWidthMinusZ == 0 ? 1 : oTreeHelper.iTreeWidthMinusZ);
+		int iMaxZ = (currentPacket.oPos.getZ() + SettingsLumbinator.iLeafRange) + (oTreeHelper.iTreeWidthPlusZ == 0 ? 1 : oTreeHelper.iTreeWidthPlusZ);
+		int iMinY = (currentPacket.oPos.getY() - oTreeHelper.iTreeMinY);
+		int iMaxY = (currentPacket.oPos.getY() + oTreeHelper.iTreeHeight);
+		
+		choppingArea = new AxisAlignedBB(iMinX - 2, iMinY - 2, iMinZ - 2, iMaxX + 2, iMaxY + 2, iMaxZ + 2);
+	}
+	
+	public static void spawnDrops(SMPacket currentPacket) {
+		bIsSpawningDrops = true;
+		
+		try {
+			synchronized (recordedDrops) {
+				while (!recordedDrops.isEmpty()) {
+					List<Entity> dropsClone = new ArrayList<Entity>(recordedDrops);
+					recordedDrops.clear();
+					
+					// Respawn the recorded Drops
+					for (Entity entity : dropsClone) {
+						if (entity != null && entity instanceof EntityItem && Globals.isEntityWithinArea(entity, choppingArea)) {
+							if (SettingsLumbinator.bGatherDrops) {
+								player.getServerWorld().spawnEntity(new EntityItem(player.getServerWorld(), currentPacket.oPos.getX(), currentPacket.oPos.getY(), currentPacket.oPos.getZ(), ((EntityItem) entity).getEntityItem()));
+							} else {
+								player.getServerWorld().spawnEntity(entity);
+							}
+						}
+					}
+					
+					// Respawn the recorded XP
+					if (recordedXPCount > 0) {
+						player.getServerWorld().spawnEntity(new EntityXPOrb(player.getServerWorld(), currentPacket.oPos.getX(), currentPacket.oPos.getY(), currentPacket.oPos.getZ(), recordedXPCount));
+						recordedXPCount = 0;
+					}
+					
+				}
+			}
+		} catch (ConcurrentModificationException e) {
+			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
+		}
+		
+		bIsSpawningDrops = false;
 	}
 }

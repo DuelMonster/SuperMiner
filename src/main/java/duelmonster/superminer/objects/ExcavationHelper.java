@@ -175,7 +175,11 @@ public class ExcavationHelper {
 											? workingPos.west()
 											: (this.sideHit == EnumFacing.NORTH
 													? workingPos.west()
-													: workingPos));
+													: (this.sideHit == EnumFacing.EAST
+															? workingPos.north()
+															: (this.sideHit == EnumFacing.WEST
+																	? workingPos.north()
+																	: workingPos))));
 									iPacket.playerID = player.getEntityId();
 									
 									// Add the data packet into a NBTTagCompound

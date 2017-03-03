@@ -2,6 +2,7 @@ package duelmonster.superminer.network.packets;
 
 import java.util.LinkedList;
 
+import duelmonster.superminer.objects.TreeHelper;
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.network.PacketBuffer;
@@ -23,8 +24,9 @@ public class SMPacket {
 	public int					playerID			= 0;
 	public LinkedList<BlockPos>	positions			= new LinkedList<BlockPos>();
 	
-	public String	sWoodName	= "";
-	public String	sLeafName	= "";
+	public String		sWoodName	= "";
+	public String		sLeafName	= "";
+	public TreeHelper	oTreeHelper	= null;
 	
 	public void readPacketData(PacketBuffer oBuffer) {
 		this.packetID = oBuffer.readInt();

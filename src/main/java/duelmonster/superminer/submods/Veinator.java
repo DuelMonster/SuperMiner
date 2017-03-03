@@ -89,6 +89,16 @@ public class Veinator {
 		return bIsExcavating;
 	}
 	
+	public static Boolean isSpawningDrops() {
+		boolean bIsSpawningDrops = false;
+		
+		for (ExcavationHelper oEH : getMyExcavationHelpers())
+			if (!bIsSpawningDrops)
+				bIsSpawningDrops = (oEH != null && oEH.isSpawningDrops());
+		
+		return bIsSpawningDrops;
+	}
+	
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent event) {
 		FMLEventChannel eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(ChannelName);
@@ -312,15 +322,18 @@ public class Veinator {
 	}
 	
 	@SubscribeEvent
-	public void tickEvent_Server(TickEvent.ServerTickEvent event) {
-		if (!SettingsVeinator.bEnabled || !TickEvent.Phase.END.equals(event.phase))
+	public void tickEvent_World(TickEvent.WorldTickEvent event) {
+		// }
+		// @SubscribeEvent
+		// public void tickEvent_Server(TickEvent.ServerTickEvent event) {
+		if (!SettingsVeinator.bEnabled || TickEvent.Phase.END.equals(event.phase))
 			return;
 		
 		// Retrieve any FMLInterModComm messages that may have been sent from other mods
 		for (final FMLInterModComms.IMCMessage imcMessage : FMLInterModComms.fetchRuntimeMessages(this.instance))
 			processIMC(imcMessage);
 		
-		if (myExcavationHelpers.size() > 0) {
+		if (!getMyExcavationHelpers().isEmpty()) {
 			for (ExcavationHelper oEH : getMyExcavationHelpers()) {
 				if (oEH.isExcavating() && !oEH.ExcavateSection()) {
 					oEH.FinalizeExcavation();

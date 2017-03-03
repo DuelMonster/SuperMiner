@@ -8,6 +8,7 @@ import java.util.List;
 
 import duelmonster.superminer.SuperMiner_Core;
 import duelmonster.superminer.config.SettingsExcavator;
+import duelmonster.superminer.config.SettingsShaftanator;
 import duelmonster.superminer.events.PlayerEvents;
 import duelmonster.superminer.keys.KeyBindings;
 import duelmonster.superminer.network.packets.AutoFurrowPacket;
@@ -61,21 +62,17 @@ public class Excavator {
 	
 	public static final String ChannelName = MODID.substring(0, (MODID.length() < 20 ? MODID.length() : 20));
 	
-	public static boolean	bToggled			= false;
-	public static boolean	bLayerOnlyToggled	= false;
+	public static boolean					bToggled			= false;
+	public static boolean					bLayerOnlyToggled	= false;
+	public static Globals					myGlobals			= new Globals();
+	public static List<Object>				lShovelIDs			= null;
+	public static boolean					bShouldSyncSettings	= true;
+	private boolean							bHungerNotified		= false;
+	private static List<ExcavationHelper>	myExcavationHelpers	= new ArrayList<ExcavationHelper>();
 	
 	public static boolean isToggled() {
 		return (bToggled || bLayerOnlyToggled);
 	}
-	
-	public static Globals myGlobals = new Globals();
-	
-	public static List<Object> lShovelIDs = null;
-	
-	private boolean			bHungerNotified		= false;
-	public static boolean	bShouldSyncSettings	= true;
-	
-	private static List<ExcavationHelper> myExcavationHelpers = new ArrayList<ExcavationHelper>();
 	
 	private static List<ExcavationHelper> getMyExcavationHelpers() {
 		return new ArrayList<ExcavationHelper>(myExcavationHelpers);
@@ -89,6 +86,16 @@ public class Excavator {
 				bIsExcavating = (oEH != null && oEH.isExcavating());
 		
 		return bIsExcavating;
+	}
+	
+	public static Boolean isSpawningDrops() {
+		boolean bIsSpawningDrops = false;
+		
+		for (ExcavationHelper oEH : getMyExcavationHelpers())
+			if (!bIsSpawningDrops)
+				bIsSpawningDrops = (oEH != null && oEH.isSpawningDrops());
+		
+		return bIsSpawningDrops;
 	}
 	
 	@Mod.EventHandler
@@ -302,8 +309,14 @@ public class Excavator {
 	}
 	
 	@SubscribeEvent
-	public void tickEvent_Server(TickEvent.ServerTickEvent event) {
-		if (TickEvent.Phase.END.equals(event.phase) && !getMyExcavationHelpers().isEmpty()) {
+	public void tickEvent_World(TickEvent.WorldTickEvent event) {
+		// }
+		// @SubscribeEvent
+		// public void tickEvent_Server(TickEvent.ServerTickEvent event) {
+		if (!SettingsShaftanator.bEnabled || TickEvent.Phase.END.equals(event.phase))
+			return;
+		
+		if (!getMyExcavationHelpers().isEmpty()) {
 			for (ExcavationHelper oEH : getMyExcavationHelpers()) {
 				if (oEH.isExcavating() && !oEH.ExcavateSection()) {
 					oEH.FinalizeExcavation();
