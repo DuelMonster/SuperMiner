@@ -135,10 +135,10 @@ public class Lumbinator {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
-		if (!PlayerEvents.IsPlayerInWorld()
+		if (!SettingsLumbinator.bEnabled
+				|| !PlayerEvents.IsPlayerInWorld()
 				|| Excavator.isToggled()
 				|| Shaftanator.bToggled
-				|| !SettingsLumbinator.bEnabled
 				|| !TickEvent.Phase.END.equals(event.phase))
 			return;
 		
@@ -281,12 +281,17 @@ public class Lumbinator {
 			int iMaxZ = (currentPacket.oPos.getZ() + SettingsLumbinator.iLeafRange) + (oTreeHelper.iTreeWidthPlusZ == 0 ? 1 : oTreeHelper.iTreeWidthPlusZ);
 			
 			boolean bBelowGot = false;
+			int[] iAirCount = { 0 };
 			
 			while (yLevel < player.world.getHeight()) {
+				iAirCount[0] = 0;
+				
 				for (int xPos = iMinX; xPos <= iMaxX; xPos++)
 					for (int zPos = iMinZ; zPos <= iMaxZ; zPos++)
-						bIsTree = oTreeHelper.processPosition(currentPacket, new BlockPos(xPos, yLevel, zPos), bIsTree);
+						bIsTree = oTreeHelper.processPosition(currentPacket, new BlockPos(xPos, yLevel, zPos), bIsTree, iAirCount);
 					
+				if (iAirCount[0] >= oTreeHelper.getTotalLayerCount()) return bIsTree;
+				
 				if (SettingsLumbinator.bChopTreeBelow && yLevel <= yStart && !bBelowGot) {
 					yLevel--;
 					if (yLevel <= 0) {

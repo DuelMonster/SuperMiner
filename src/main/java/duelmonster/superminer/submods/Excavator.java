@@ -91,6 +91,16 @@ public class Excavator {
 		return bIsExcavating;
 	}
 	
+	public static Boolean isSpawningDrops() {
+		boolean bIsSpawningDrops = false;
+		
+		for (ExcavationHelper oEH : getMyExcavationHelpers())
+			if (!bIsSpawningDrops)
+				bIsSpawningDrops = (oEH != null && oEH.isSpawningDrops());
+		
+		return bIsSpawningDrops;
+	}
+	
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent event) {
 		FMLEventChannel eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(ChannelName);

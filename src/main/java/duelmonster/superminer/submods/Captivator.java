@@ -87,10 +87,12 @@ public class Captivator {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void tickEvent(TickEvent.ClientTickEvent event) {
-		if (!PlayerEvents.IsPlayerInWorld() || !SettingsCaptivator.bEnabled || !TickEvent.Phase.END.equals(event.phase))
+		if (!SettingsCaptivator.bEnabled || !PlayerEvents.IsPlayerInWorld() || !TickEvent.Phase.END.equals(event.phase))
 			return;
 		
-		if (Excavator.isExcavating() || Shaftanator.isExcavating() || Veinator.isExcavating())
+		if (Excavator.isExcavating() || Excavator.isSpawningDrops()
+				|| Shaftanator.isExcavating() || Shaftanator.isSpawningDrops()
+				|| Veinator.isExcavating() || Veinator.isSpawningDrops())
 			return;
 		
 		Minecraft minecraft = FMLClientHandler.instance().getClient();
@@ -130,7 +132,8 @@ public class Captivator {
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onEntitySpawn(EntityJoinWorldEvent event) {
-		if (event.getWorld().isRemote || event.getEntity().isDead || event.isCanceled()
+		if (!SettingsCaptivator.bEnabled
+				|| event.getWorld().isRemote || event.getEntity().isDead || event.isCanceled()
 				|| Excavator.isExcavating() || Shaftanator.isExcavating() || Veinator.isExcavating())
 			return;
 		
@@ -150,6 +153,11 @@ public class Captivator {
 			SettingsCaptivator.readPacketData(payLoad);
 		
 		else if (SettingsCaptivator.bEnabled) {
+			if (Excavator.isExcavating() || Excavator.isSpawningDrops()
+					|| Shaftanator.isExcavating() || Shaftanator.isSpawningDrops()
+					|| Veinator.isExcavating() || Veinator.isSpawningDrops())
+				return;
+			
 			EntityPlayer player = ((NetHandlerPlayServer) event.getHandler()).playerEntity;
 			if (null == player)
 				return;
@@ -162,16 +170,16 @@ public class Captivator {
 				AxisAlignedBB captivateArea = player.getEntityBoundingBox().expand(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal);
 				
 				if (player.world != null) {
-					List<Entity> tmpDrops = new ArrayList<Entity>(Globals.getNearbyEntities(player.world, captivateArea));
-					if (tmpDrops != null && !tmpDrops.isEmpty()) {
-						for (Entity entity : tmpDrops) {
-							if (this.recordedDrops.isEmpty() || this.recordedDrops.contains(entity))
-								this.recordedDrops.add(entity);
-						}
-					}
+					// List<Entity> tmpDrops = Globals.getNearbyEntities(player.world, captivateArea);
+					// if (tmpDrops != null && !tmpDrops.isEmpty()) {
+					// for (Entity entity : tmpDrops) {
+					// if (this.recordedDrops.isEmpty() || !this.recordedDrops.contains(entity))
+					// this.recordedDrops.add(entity);
+					// }
+					// }
 					
 					if (this.recordedDrops.isEmpty()) return;
-					tmpDrops = new ArrayList<Entity>(this.recordedDrops);
+					List<Entity> tmpDrops = new ArrayList<Entity>(this.recordedDrops);
 					for (Entity entity : tmpDrops) {
 						
 						if (entity != null && !entity.isDead && Globals.isEntityWithinArea(entity, captivateArea)) {

@@ -77,6 +77,16 @@ public class Shaftanator {
 		return bIsExcavating;
 	}
 	
+	public static Boolean isSpawningDrops() {
+		boolean bIsSpawningDrops = false;
+		
+		for (ExcavationHelper oEH : getMyExcavationHelpers())
+			if (!bIsSpawningDrops)
+				bIsSpawningDrops = (oEH != null && oEH.isSpawningDrops());
+		
+		return bIsSpawningDrops;
+	}
+	
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent evt) {
 		FMLEventChannel eventChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(ChannelName);

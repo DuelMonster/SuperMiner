@@ -27,6 +27,13 @@ public class TreeHelper {
 	public int	iTreeWidthPlusX	= 0, iTreeWidthMinusX = 0;
 	public int	iTreeWidthPlusZ	= 0, iTreeWidthMinusZ = 0;
 	
+	public int getTotalLayerCount() {
+		int iTotalCountX = iTreeWidthPlusX + iTreeWidthMinusX;
+		int iTotalCountZ = iTreeWidthPlusZ + iTreeWidthMinusZ;
+		
+		return iTotalCountX * iTotalCountZ;
+	}
+	
 	private BlockPos oFirstLeafPos = null;
 	
 	public TreeHelper(EntityPlayer player, Globals globals) {
@@ -158,7 +165,7 @@ public class TreeHelper {
 		return false;
 	}
 	
-	public boolean processPosition(SMPacket currentPacket, BlockPos nextPos, boolean bIsTree) {
+	public boolean processPosition(SMPacket currentPacket, BlockPos nextPos, boolean bIsTree, int[] iAirCount) {
 		IBlockState nextState = oPlayer.world.getBlockState(nextPos);
 		Block nextBlock = nextState.getBlock();
 		
@@ -189,7 +196,8 @@ public class TreeHelper {
 					SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 				}
 			}
-		}
+		} else if (nextBlock == null || nextBlock != Blocks.AIR)
+			iAirCount[0] += 1;
 		
 		return bIsTree;
 	}
