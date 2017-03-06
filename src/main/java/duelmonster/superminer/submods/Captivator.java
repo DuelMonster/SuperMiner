@@ -15,16 +15,15 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -48,9 +47,11 @@ public class Captivator {
 	
 	private long packetEnableTime = System.currentTimeMillis() + Globals.packetWaitMilliSec;
 	
-	public static boolean bShouldSyncSettings = true;
-	
-	private static List<Object> lItemIDs = null;
+	public static boolean		bShouldSyncSettings	= true;
+	private static List<Object>	lItemIDs			= null;
+	private EntityPlayerMP		player				= null;
+	private List<Entity>		recordedDrops		= Collections.synchronizedList(new ArrayList<Entity>());
+	private boolean				bShouldCapture		= false;
 	
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent evt) {
@@ -128,13 +129,11 @@ public class Captivator {
 		}
 	}
 	
-	List<Entity> recordedDrops = Collections.synchronizedList(new ArrayList<Entity>());
-	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onEntitySpawn(EntityJoinWorldEvent event) {
 		if (!SettingsCaptivator.bEnabled
 				|| event.getWorld().isRemote || event.getEntity().isDead || event.isCanceled()
-				|| Excavator.isExcavating() || Shaftanator.isExcavating() || Veinator.isExcavating())
+				|| Excavator.isExcavating() || Lumbinator.isChopping() || Shaftanator.isExcavating() || Veinator.isExcavating())
 			return;
 		
 		if ((event.getEntity() instanceof EntityXPOrb || event.getEntity() instanceof EntityItem)) {
@@ -152,59 +151,64 @@ public class Captivator {
 		if (iPacketID == PacketIDs.Settings_Captivator.value())
 			SettingsCaptivator.readPacketData(payLoad);
 		
-		else if (SettingsCaptivator.bEnabled) {
-			if (Excavator.isExcavating() || Excavator.isSpawningDrops()
-					|| Shaftanator.isExcavating() || Shaftanator.isSpawningDrops()
-					|| Veinator.isExcavating() || Veinator.isSpawningDrops())
-				return;
-			
-			EntityPlayer player = ((NetHandlerPlayServer) event.getHandler()).playerEntity;
+		else if (SettingsCaptivator.bEnabled && !bShouldCapture) {
+			player = ((NetHandlerPlayServer) event.getHandler()).playerEntity;
 			if (null == player)
 				return;
+			bShouldCapture = true;
+		}
+	}
+	
+	@SubscribeEvent
+	public void tickEvent_World(TickEvent.WorldTickEvent event) {
+		if (!SettingsCaptivator.bEnabled || !bShouldCapture || TickEvent.Phase.END.equals(event.phase))
+			return;
+		
+		if (Excavator.isExcavating() || Excavator.isSpawningDrops()
+				|| Shaftanator.isExcavating() || Shaftanator.isSpawningDrops()
+				|| Veinator.isExcavating() || Veinator.isSpawningDrops())
+			return;
+		
+		synchronized (this.recordedDrops) {
+			AxisAlignedBB captivateArea = player.getEntityBoundingBox().expand(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal);
 			
-			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-			if (null == server)
-				return;
-			
-			synchronized (this.recordedDrops) {
-				AxisAlignedBB captivateArea = player.getEntityBoundingBox().expand(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal);
-				
-				if (player.world != null) {
-					// List<Entity> tmpDrops = Globals.getNearbyEntities(player.world, captivateArea);
-					// if (tmpDrops != null && !tmpDrops.isEmpty()) {
-					// for (Entity entity : tmpDrops) {
-					// if (this.recordedDrops.isEmpty() || !this.recordedDrops.contains(entity))
-					// this.recordedDrops.add(entity);
-					// }
-					// }
-					
-					if (this.recordedDrops.isEmpty()) return;
-					List<Entity> tmpDrops = new ArrayList<Entity>(this.recordedDrops);
+			if (player.world != null) {
+				List<Entity> tmpDrops = Globals.getNearbyEntities(player.world, captivateArea);
+				if (tmpDrops != null && !tmpDrops.isEmpty()) {
 					for (Entity entity : tmpDrops) {
-						
-						if (entity != null && !entity.isDead && Globals.isEntityWithinArea(entity, captivateArea)) {
-							if (entity instanceof EntityXPOrb) {
-								
-								entity.onCollideWithPlayer(player);
-								this.recordedDrops.remove(entity);
-								
-							} else if (entity instanceof EntityItem && Globals.hasInventoryGotSpace(player, ((EntityItem) entity).getEntityItem())) {
-								EntityItem eItem = (EntityItem) entity;
-								
-								if (!eItem.cannotPickup()
-										&& (lItemIDs == null || lItemIDs.isEmpty() || Globals.isIdInList(eItem.getEntityItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist)) {
-									
-									eItem.onCollideWithPlayer(player);
-									
-									if (eItem.isDead)
-										this.recordedDrops.remove(eItem);
-								}
-							}
-						} else
-							this.recordedDrops.remove(entity);
+						if (this.recordedDrops.isEmpty() || !this.recordedDrops.contains(entity))
+							this.recordedDrops.add(entity);
 					}
+				}
+				
+				if (this.recordedDrops.isEmpty()) return;
+				tmpDrops = new ArrayList<Entity>(this.recordedDrops);
+				for (Entity entity : tmpDrops) {
+					
+					if (entity != null && !entity.isDead && Globals.isEntityWithinArea(entity, captivateArea)) {
+						if (entity instanceof EntityXPOrb) {
+							
+							entity.onCollideWithPlayer(player);
+							this.recordedDrops.remove(entity);
+							
+						} else if (entity instanceof EntityItem) { // && Globals.hasInventoryGotSpace(player,
+																	// ((EntityItem) entity).getEntityItem())) {
+							EntityItem eItem = (EntityItem) entity;
+							
+							if (!eItem.cannotPickup()
+									&& (lItemIDs == null || lItemIDs.isEmpty() || Globals.isIdInList(eItem.getEntityItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist)) {
+								
+								eItem.onCollideWithPlayer(player);
+								
+								if (eItem.isDead)
+									this.recordedDrops.remove(eItem);
+							}
+						}
+					} else
+						this.recordedDrops.remove(entity);
 				}
 			}
 		}
+		bShouldCapture = false;
 	}
 }

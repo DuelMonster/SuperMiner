@@ -245,8 +245,11 @@ public class Shaftanator {
 	}
 	
 	@SubscribeEvent
-	public void tickEvent_Server(TickEvent.ServerTickEvent event) {
-		if (TickEvent.Phase.END.equals(event.phase) && myExcavationHelpers.size() > 0) { // && this.isExcavating())
+	public void tickEvent_World(TickEvent.WorldTickEvent event) {
+		if (!SettingsShaftanator.bEnabled || TickEvent.Phase.END.equals(event.phase))
+			return;
+		
+		if (!getMyExcavationHelpers().isEmpty()) {
 			for (ExcavationHelper oEH : getMyExcavationHelpers()) {
 				if (oEH.isExcavating() && !oEH.ExcavateSection()) {
 					oEH.FinalizeExcavation();

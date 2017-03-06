@@ -322,15 +322,15 @@ public class Veinator {
 	}
 	
 	@SubscribeEvent
-	public void tickEvent_Server(TickEvent.ServerTickEvent event) {
-		if (!SettingsVeinator.bEnabled || !TickEvent.Phase.END.equals(event.phase))
+	public void tickEvent_World(TickEvent.WorldTickEvent event) {
+		if (!SettingsVeinator.bEnabled || TickEvent.Phase.END.equals(event.phase))
 			return;
 		
 		// Retrieve any FMLInterModComm messages that may have been sent from other mods
 		for (final FMLInterModComms.IMCMessage imcMessage : FMLInterModComms.fetchRuntimeMessages(this.instance))
 			processIMC(imcMessage);
 		
-		if (myExcavationHelpers.size() > 0) {
+		if (!getMyExcavationHelpers().isEmpty()) {
 			for (ExcavationHelper oEH : getMyExcavationHelpers()) {
 				if (oEH.isExcavating() && !oEH.ExcavateSection()) {
 					oEH.FinalizeExcavation();

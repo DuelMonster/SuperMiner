@@ -24,6 +24,8 @@ public class TreeHelper {
 	private EntityPlayer	oPlayer;
 	private Globals			myGlobals;
 	
+	public int	iTreeMinY		= 0;
+	public int	iTreeHeight		= 0;
 	public int	iTreeWidthPlusX	= 0, iTreeWidthMinusX = 0;
 	public int	iTreeWidthPlusZ	= 0, iTreeWidthMinusZ = 0;
 	
@@ -41,57 +43,77 @@ public class TreeHelper {
 		myGlobals = globals;
 	}
 	
-	public void DetectTreeWidth(SMPacket currentPacket) {
+	public void DetectTreeSize(SMPacket currentPacket) {
 		if (oFirstLeafPos != null) {
 			int yLevel = oFirstLeafPos.getY();
+			int iPrevYLevel = 0;
 			
 			for (int yLeaf = yLevel; yLeaf < oPlayer.world.getHeight(); yLeaf++) {
 				String sUID = "";
 				boolean bIsValidWood = false, bIsValidLeaf = false;
 				int iWidthPlusX = 0, iWidthMinusX = 0;
 				int iWidthPlusZ = 0, iWidthMinusZ = 0;
-				int iLastWoodPlus = 0, iLastWoodMinus = 0;
+				// int iLastWoodPlus = 0, iLastWoodMinus = 0;
+				int iAirCount = 0;
 				
-				for (int xOffset = 0; xOffset < MAX_TREE_WIDTH; xOffset++) {
+				for (int xOffset = 0; xOffset < SettingsLumbinator.iLeafRange + 2; xOffset++) {
 					// Check X plus width
 					sUID = getUniqueIdentifier(new BlockPos(currentPacket.oPos.getX() + xOffset, yLevel, currentPacket.oPos.getZ()));
 					bIsValidWood = currentPacket.sWoodName.equalsIgnoreCase(sUID);
 					bIsValidLeaf = currentPacket.sLeafName.equalsIgnoreCase(sUID);
 					
-					if (bIsValidWood) iLastWoodPlus = xOffset;
-					if (bIsValidLeaf && (xOffset - iLastWoodPlus) > SettingsLumbinator.iLeafRange) break;
-					if (bIsValidWood || bIsValidLeaf) iWidthPlusX++;
+					if (bIsValidWood || bIsValidLeaf) {
+						iWidthPlusX++;
+						if (yLeaf != iPrevYLevel) {
+							iPrevYLevel = yLeaf;
+							iTreeHeight++;
+						}
+					} else
+						iAirCount++;
 					
 					// Check X minus width
 					sUID = getUniqueIdentifier(new BlockPos(currentPacket.oPos.getX() - xOffset, yLevel, currentPacket.oPos.getZ()));
 					bIsValidWood = currentPacket.sWoodName.equalsIgnoreCase(sUID);
 					bIsValidLeaf = currentPacket.sLeafName.equalsIgnoreCase(sUID);
 					
-					if (bIsValidWood) iLastWoodMinus = xOffset;
-					if (bIsValidLeaf && (xOffset - iLastWoodMinus) > SettingsLumbinator.iLeafRange) break;
-					if (bIsValidWood || bIsValidLeaf) iWidthMinusX++;
+					if (bIsValidWood || bIsValidLeaf) {
+						iWidthMinusX++;
+						if (yLeaf != iPrevYLevel) {
+							iPrevYLevel = yLeaf;
+							iTreeHeight++;
+						}
+					} else
+						iAirCount++;
 				}
 				
-				iLastWoodPlus = 0;
-				iLastWoodMinus = 0;
-				for (int zOffset = 0; zOffset < MAX_TREE_WIDTH; zOffset++) {
+				for (int zOffset = 0; zOffset < SettingsLumbinator.iLeafRange + 2; zOffset++) {
 					// Check Z plus width
 					sUID = getUniqueIdentifier(new BlockPos(currentPacket.oPos.getX(), yLevel, currentPacket.oPos.getZ() + zOffset));
 					bIsValidWood = currentPacket.sWoodName.equalsIgnoreCase(sUID);
 					bIsValidLeaf = currentPacket.sLeafName.equalsIgnoreCase(sUID);
 					
-					if (bIsValidWood) iLastWoodPlus = zOffset;
-					if (bIsValidLeaf && (zOffset - iLastWoodPlus) > SettingsLumbinator.iLeafRange) break;
-					if (bIsValidWood || bIsValidLeaf) iWidthPlusZ++;
+					if (bIsValidWood || bIsValidLeaf) {
+						iWidthPlusZ++;
+						if (yLeaf != iPrevYLevel) {
+							iPrevYLevel = yLeaf;
+							iTreeHeight++;
+						}
+					} else
+						iAirCount++;
 					
 					// Check Z minus width
 					sUID = getUniqueIdentifier(new BlockPos(currentPacket.oPos.getX(), yLevel, currentPacket.oPos.getZ() - zOffset));
 					bIsValidWood = currentPacket.sWoodName.equalsIgnoreCase(sUID);
 					bIsValidLeaf = currentPacket.sLeafName.equalsIgnoreCase(sUID);
 					
-					if (bIsValidWood) iLastWoodMinus = zOffset;
-					if (bIsValidLeaf && (zOffset - iLastWoodMinus) > SettingsLumbinator.iLeafRange) break;
-					if (bIsValidWood || bIsValidLeaf) iWidthMinusZ++;
+					if (bIsValidWood || bIsValidLeaf) {
+						iWidthMinusZ++;
+						if (yLeaf != iPrevYLevel) {
+							iPrevYLevel = yLeaf;
+							iTreeHeight++;
+						}
+					} else
+						iAirCount++;
 				}
 				
 				if (iWidthPlusX > iTreeWidthPlusX) iTreeWidthPlusX = iWidthPlusX;
@@ -99,6 +121,10 @@ public class TreeHelper {
 				if (iWidthPlusZ > iTreeWidthPlusZ) iTreeWidthPlusZ = iWidthPlusZ;
 				if (iWidthMinusZ > iTreeWidthMinusZ) iTreeWidthMinusZ = iWidthMinusZ;
 				
+				iPrevYLevel = yLeaf;
+				
+				if (yLeaf > yLevel && this.getTotalLayerCount() > SettingsLumbinator.iLeafRange * SettingsLumbinator.iLeafRange && iAirCount >= this.getTotalLayerCount())
+					break;
 			}
 		}
 	}
@@ -165,7 +191,7 @@ public class TreeHelper {
 		return false;
 	}
 	
-	public boolean processPosition(SMPacket currentPacket, BlockPos nextPos, boolean bIsTree, int[] iAirCount) {
+	public boolean processPosition(SMPacket currentPacket, BlockPos nextPos, boolean bIsTree) {
 		IBlockState nextState = oPlayer.world.getBlockState(nextPos);
 		Block nextBlock = nextState.getBlock();
 		
@@ -196,8 +222,7 @@ public class TreeHelper {
 					SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 				}
 			}
-		} else if (nextBlock == null || nextBlock != Blocks.AIR)
-			iAirCount[0] += 1;
+		}
 		
 		return bIsTree;
 	}

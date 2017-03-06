@@ -113,8 +113,19 @@ public class Illuminator {
 			else if (bIsPlacingTorch)
 				bIsPlacingTorch = false;
 			else if (SettingsIlluminator.bEnabled && Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
+				EnumFacing sideHit = mc.objectMouseOver.sideHit;
 				
 				BlockPos oPos = new BlockPos(player.getPosition());
+				oPos = new BlockPos(sideHit == EnumFacing.SOUTH
+						? oPos.west()
+						: (sideHit == EnumFacing.NORTH
+								? oPos.west()
+								: (sideHit == EnumFacing.EAST
+										? oPos.north()
+										: (sideHit == EnumFacing.WEST
+												? oPos.north()
+												: oPos))));
+				
 				IBlockState state = world.getBlockState(oPos.down());
 				// If the current light level is below the limit...
 				if (world.getLight(oPos) <= SettingsIlluminator.iLowestLightLevel && world.isAirBlock(oPos) && state.getBlock().canPlaceTorchOnTop(state, world, oPos.down())) {

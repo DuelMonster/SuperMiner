@@ -51,7 +51,7 @@ public class Globals {
 	
 	public static final int		FLAG_CHANGE_NUM				= 10;
 	public static final long	attackHistoryDelayNanoTime	= 3000000000L;
-	public static final long	packetWaitMilliSec			= 100L;
+	public static final long	packetWaitMilliSec			= 200L;
 	public static final int		MIN_HUNGER					= 1;
 	
 	public static final int	SIDE_NONE	= -1;
