@@ -1,3 +1,28 @@
+#### **2.4.32:**
+> | Excavator, Shaftanator & Veinator: | ---
+> | --- | ---
+> | _FIX_: | Lowered the Block Harvesting speed to help solve crash issues.
+> | _FIX_: | Adjusted auto Illumination Torch placement to place torches one block behind the current harvest level. 
+
+#### **2.4.31:**
+> | Core: | ---
+> | --- | ---
+> | _CHANGE_: | Adjusted version number to be more obvious that it relates to a different MC version.
+
+> | Captivator, Excavator, Shaftanator & Veinator: | ---
+> | --- | ---
+> | _FIX_: | Major improvements made to solve numerus crash issues.
+
+> | Illuminator: | ---
+> | --- | ---
+> | _FIX_: | Adjusted Torch placement to be a little more acurate.
+
+> | Lumbinator: | ---
+> | --- | ---
+> | _FIX_: | Rewrote block harvesting algorithms in order to solve several Crash issues that appeared after making improvements to Captivator, Excavator, Shaftanator & Veinator.
+> | _FIX_: | Made improvements to the Tree detection algorithm.  It now detects the tree's dimensions a lot quicker and doesn't waste time looking at non tree related blocks.
+> | _FIX_: | Solved an issue that caused certain oddly shaped Acacia trees to unsuccessfuly be detected as a valid tree.
+
 #### **2.1.26:**
 > | Captivator | ---
 > | --- | ---

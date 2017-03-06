@@ -310,9 +310,6 @@ public class Excavator {
 	
 	@SubscribeEvent
 	public void tickEvent_World(TickEvent.WorldTickEvent event) {
-		// }
-		// @SubscribeEvent
-		// public void tickEvent_Server(TickEvent.ServerTickEvent event) {
 		if (!SettingsShaftanator.bEnabled || TickEvent.Phase.END.equals(event.phase))
 			return;
 		

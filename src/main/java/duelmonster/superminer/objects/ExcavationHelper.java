@@ -30,7 +30,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 
 public class ExcavationHelper {
-	private final int SECTION_LIMIT = 16;
+	private final int SECTION_LIMIT = 2;
 	
 	World					world;
 	EntityPlayerMP			player;
@@ -171,15 +171,18 @@ public class ExcavationHelper {
 								if (bHarvested && this.bAutoIlluminate() && workingPos.getY() == this.iLowestY) {
 									// Setup the Illuminator data packet
 									IlluminatorPacket iPacket = new IlluminatorPacket();
-									iPacket.oPos = new BlockPos(this.sideHit == EnumFacing.SOUTH
-											? workingPos.west()
-											: (this.sideHit == EnumFacing.NORTH
-													? workingPos.west()
-													: (this.sideHit == EnumFacing.EAST
-															? workingPos.north()
-															: (this.sideHit == EnumFacing.WEST
-																	? workingPos.north()
-																	: workingPos))));
+									
+									// Get position one block before the current position
+									if (this.sideHit != EnumFacing.UP && this.sideHit != EnumFacing.DOWN)
+										workingPos = workingPos.offset(this.sideHit);
+									
+									// Hacky fix to solve incorrect torch placement
+									iPacket.oPos = new BlockPos(this.sideHit == EnumFacing.EAST
+											? workingPos.north()
+											: (this.sideHit == EnumFacing.WEST
+													? workingPos.north()
+													: workingPos));
+									
 									iPacket.playerID = player.getEntityId();
 									
 									// Add the data packet into a NBTTagCompound

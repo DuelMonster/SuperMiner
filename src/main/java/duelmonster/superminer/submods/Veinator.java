@@ -323,9 +323,6 @@ public class Veinator {
 	
 	@SubscribeEvent
 	public void tickEvent_World(TickEvent.WorldTickEvent event) {
-		// }
-		// @SubscribeEvent
-		// public void tickEvent_Server(TickEvent.ServerTickEvent event) {
 		if (!SettingsVeinator.bEnabled || TickEvent.Phase.END.equals(event.phase))
 			return;
 		
