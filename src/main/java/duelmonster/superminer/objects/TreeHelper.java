@@ -62,11 +62,6 @@ public class TreeHelper {
 					bIsValidWood = currentPacket.sWoodName.equalsIgnoreCase(sUID);
 					bIsValidLeaf = currentPacket.sLeafName.equalsIgnoreCase(sUID);
 					
-<<<<<<< Updated upstream
-					// if (bIsValidWood) iLastWoodPlus = xOffset;
-					// if (bIsValidLeaf && (xOffset - iLastWoodPlus) > SettingsLumbinator.iLeafRange) break;
-=======
->>>>>>> Stashed changes
 					if (bIsValidWood || bIsValidLeaf) {
 						iWidthPlusX++;
 						if (yLeaf != iPrevYLevel) {
@@ -81,11 +76,6 @@ public class TreeHelper {
 					bIsValidWood = currentPacket.sWoodName.equalsIgnoreCase(sUID);
 					bIsValidLeaf = currentPacket.sLeafName.equalsIgnoreCase(sUID);
 					
-<<<<<<< Updated upstream
-					// if (bIsValidWood) iLastWoodMinus = xOffset;
-					// if (bIsValidLeaf && (xOffset - iLastWoodMinus) > SettingsLumbinator.iLeafRange) break;
-=======
->>>>>>> Stashed changes
 					if (bIsValidWood || bIsValidLeaf) {
 						iWidthMinusX++;
 						if (yLeaf != iPrevYLevel) {
@@ -96,22 +86,12 @@ public class TreeHelper {
 						iAirCount++;
 				}
 				
-<<<<<<< Updated upstream
-				// iLastWoodPlus = 0;
-				// iLastWoodMinus = 0;
-=======
->>>>>>> Stashed changes
 				for (int zOffset = 0; zOffset < SettingsLumbinator.iLeafRange + 2; zOffset++) {
 					// Check Z plus width
 					sUID = getUniqueIdentifier(new BlockPos(currentPacket.oPos.getX(), yLevel, currentPacket.oPos.getZ() + zOffset));
 					bIsValidWood = currentPacket.sWoodName.equalsIgnoreCase(sUID);
 					bIsValidLeaf = currentPacket.sLeafName.equalsIgnoreCase(sUID);
 					
-<<<<<<< Updated upstream
-					// if (bIsValidWood) iLastWoodPlus = zOffset;
-					// if (bIsValidLeaf && (zOffset - iLastWoodPlus) > SettingsLumbinator.iLeafRange) break;
-=======
->>>>>>> Stashed changes
 					if (bIsValidWood || bIsValidLeaf) {
 						iWidthPlusZ++;
 						if (yLeaf != iPrevYLevel) {
@@ -126,11 +106,6 @@ public class TreeHelper {
 					bIsValidWood = currentPacket.sWoodName.equalsIgnoreCase(sUID);
 					bIsValidLeaf = currentPacket.sLeafName.equalsIgnoreCase(sUID);
 					
-<<<<<<< Updated upstream
-					// if (bIsValidWood) iLastWoodMinus = zOffset;
-					// if (bIsValidLeaf && (zOffset - iLastWoodMinus) > SettingsLumbinator.iLeafRange) break;
-=======
->>>>>>> Stashed changes
 					if (bIsValidWood || bIsValidLeaf) {
 						iWidthMinusZ++;
 						if (yLeaf != iPrevYLevel) {
@@ -148,12 +123,8 @@ public class TreeHelper {
 				
 				iPrevYLevel = yLeaf;
 				
-<<<<<<< Updated upstream
-				if (iAirCount >= this.getTotalLayerCount()) break;
-=======
 				if (yLeaf > yLevel && this.getTotalLayerCount() > SettingsLumbinator.iLeafRange * SettingsLumbinator.iLeafRange && iAirCount >= this.getTotalLayerCount())
 					break;
->>>>>>> Stashed changes
 			}
 		}
 	}
