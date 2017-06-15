@@ -73,7 +73,7 @@ public class Shaftanator {
 		for (ExcavationHelper oEH : getMyExcavationHelpers())
 			if (!bIsExcavating)
 				bIsExcavating = (oEH != null && oEH.isExcavating());
-		
+			
 		return bIsExcavating;
 	}
 	
@@ -83,7 +83,7 @@ public class Shaftanator {
 		for (ExcavationHelper oEH : getMyExcavationHelpers())
 			if (!bIsSpawningDrops)
 				bIsSpawningDrops = (oEH != null && oEH.isSpawningDrops());
-		
+			
 		return bIsSpawningDrops;
 	}
 	
@@ -115,7 +115,8 @@ public class Shaftanator {
 		
 		SuperMiner_Core.configFile.setCategoryPropertyOrder(MODID, order);
 		
-		if (!bShouldSyncSettings) bShouldSyncSettings = SuperMiner_Core.configFile.hasChanged();
+		if (!bShouldSyncSettings)
+			bShouldSyncSettings = SuperMiner_Core.configFile.hasChanged();
 	}
 	
 	@SubscribeEvent
@@ -124,10 +125,12 @@ public class Shaftanator {
 		if (!PlayerEvents.IsPlayerInWorld() ||
 				Excavator.isToggled() ||
 				!SettingsShaftanator.bEnabled ||
-				!TickEvent.Phase.END.equals(event.phase)) return;
+				!TickEvent.Phase.END.equals(event.phase))
+			return;
 		
 		Minecraft mc = FMLClientHandler.instance().getClient();
-		if (!mc.inGameHasFocus || mc.isGamePaused()) return;
+		if (!mc.inGameHasFocus || mc.isGamePaused())
+			return;
 		
 		if (bShouldSyncSettings) {
 			Globals.sendPacket(new CPacketCustomPayload(ChannelName, SettingsShaftanator.writePacketData()));
@@ -135,7 +138,8 @@ public class Shaftanator {
 		}
 		
 		EntityPlayer player = mc.player;
-		if (null == player || player.isDead || player.isPlayerSleeping()) return;
+		if (null == player || player.isDead || player.isPlayerSleeping())
+			return;
 		
 		World world = mc.world;
 		if (world != null) {
@@ -179,7 +183,8 @@ public class Shaftanator {
 							}
 						}
 					}
-				} else bHungerNotified = false;
+				} else
+					bHungerNotified = false;
 			}
 			
 			// Removes packets from the history.
@@ -188,7 +193,8 @@ public class Shaftanator {
 				if (System.nanoTime() - packet.nanoTime >= Globals.attackHistoryDelayNanoTime) {
 					try {
 						attackPackets.remove(); // Removes packet from the history if it has been there too long.
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
 				} else {
@@ -196,7 +202,8 @@ public class Shaftanator {
 					if (block == null || block == Blocks.AIR) {
 						try {
 							attackPackets.remove(); // Removes packet from the history.
-						} catch (ConcurrentModificationException e) {
+						}
+						catch (ConcurrentModificationException e) {
 							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 						}
 						
@@ -220,16 +227,18 @@ public class Shaftanator {
 		else if (SettingsShaftanator.bEnabled && iPacketID == PacketIDs.BLOCKINFO.value()) {
 			SMPacket packet = new SMPacket();
 			packet.readPacketData(payLoad);
-			Perforate(packet, ((NetHandlerPlayServer) event.getHandler()).playerEntity);
+			Perforate(packet, ((NetHandlerPlayServer) event.getHandler()).player);
 		}
 	}
 	
 	protected void Perforate(SMPacket packet, EntityPlayerMP player) {
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-		if (null == server) return;
+		if (null == server)
+			return;
 		
-		World world = server.worldServerForDimension(player.dimension);
-		if (world == null || !isAllowedToMine(player, packet.block)) return;
+		World world = server.getWorld(player.dimension);
+		if (world == null || !isAllowedToMine(player, packet.block))
+			return;
 		
 		ExcavationHelper oEH = new ExcavationHelper(world, player, packet, SettingsShaftanator.bGatherDrops);
 		myExcavationHelpers.add(oEH);
@@ -238,7 +247,8 @@ public class Shaftanator {
 			oEH.FinalizeExcavation();
 			try {
 				myExcavationHelpers.remove(oEH);
-			} catch (ConcurrentModificationException e) {
+			}
+			catch (ConcurrentModificationException e) {
 				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 			}
 		}
@@ -255,7 +265,8 @@ public class Shaftanator {
 					oEH.FinalizeExcavation();
 					try {
 						myExcavationHelpers.remove(oEH);
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
 				}
@@ -289,7 +300,8 @@ public class Shaftanator {
 	
 	private static boolean isAllowedToMine(EntityPlayer player, Block block) {
 		IBlockState state = block.getBlockState().getBaseState();
-		if (null == block || Blocks.AIR == block || state.getMaterial().isLiquid() || Blocks.BEDROCK == block) return false;
+		if (null == block || Blocks.AIR == block || state.getMaterial().isLiquid() || Blocks.BEDROCK == block)
+			return false;
 		return player.canHarvestBlock(state);
 	}
 }

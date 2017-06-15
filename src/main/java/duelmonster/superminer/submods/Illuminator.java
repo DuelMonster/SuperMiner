@@ -115,16 +115,16 @@ public class Illuminator {
 			else if (SettingsIlluminator.bEnabled && Globals.isAttacking(mc) && player.getHealth() > 0.0F) {
 				EnumFacing sideHit = mc.objectMouseOver.sideHit;
 				
-				BlockPos oPos = new BlockPos(player.getPosition());
-				oPos = new BlockPos(sideHit == EnumFacing.SOUTH
-						? oPos.west()
+				BlockPos oPosBreak = new BlockPos(player.getPosition());
+				BlockPos oPos = (sideHit == EnumFacing.SOUTH
+						? oPosBreak.west()
 						: (sideHit == EnumFacing.NORTH
-								? oPos.west()
+								? oPosBreak.west()
 								: (sideHit == EnumFacing.EAST
-										? oPos.north()
+										? oPosBreak.south()
 										: (sideHit == EnumFacing.WEST
-												? oPos.north()
-												: oPos))));
+												? oPosBreak.north()
+												: oPosBreak))));
 				
 				IBlockState state = world.getBlockState(oPos.down());
 				// If the current light level is below the limit...
@@ -158,7 +158,7 @@ public class Illuminator {
 			IlluminatorPacket iPacket = new IlluminatorPacket();
 			iPacket.readPacketData(payLoad);
 			
-			Illuminate(((NetHandlerPlayServer) event.getHandler()).playerEntity, iPacket.oPos, iPacket.sideHit);
+			Illuminate(((NetHandlerPlayServer) event.getHandler()).player, iPacket.oPos, iPacket.sideHit);
 		}
 	}
 	
@@ -167,7 +167,7 @@ public class Illuminator {
 		if (null == server)
 			return;
 		
-		World world = server.worldServerForDimension(player.dimension);
+		World world = server.getWorld(player.dimension);
 		if (world == null)
 			return;
 		
@@ -227,7 +227,7 @@ public class Illuminator {
 				if (player == null)
 					return;
 				
-				World world = server.worldServerForDimension(player.dimension);
+				World world = server.getWorld(player.dimension);
 				if (world == null)
 					return;
 				

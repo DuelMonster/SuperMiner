@@ -41,7 +41,7 @@ public class SuperMiner_Core {
 	public static final String	MODID		= "superminer_core";
 	public static final String	MODName		= "SuperMiner";
 	public static final String	MODVERSION	= "${mod_version}";
-	public static final String	MCVERSION	= "[1.11.2]";
+	public static final String	MCVERSION	= "[1.12]";
 	public static final String	VERSION		= MCVERSION + "-" + MODVERSION;
 	
 	public static final String FVC_URL = "http://www.duelmonster.talktalk.net/Minecraft/SuperMiner/forge_update.json";

@@ -84,7 +84,7 @@ public class Excavator {
 		for (ExcavationHelper oEH : getMyExcavationHelpers())
 			if (!bIsExcavating)
 				bIsExcavating = (oEH != null && oEH.isExcavating());
-		
+			
 		return bIsExcavating;
 	}
 	
@@ -94,7 +94,7 @@ public class Excavator {
 		for (ExcavationHelper oEH : getMyExcavationHelpers())
 			if (!bIsSpawningDrops)
 				bIsSpawningDrops = (oEH != null && oEH.isSpawningDrops());
-		
+			
 		return bIsSpawningDrops;
 	}
 	
@@ -139,7 +139,8 @@ public class Excavator {
 		
 		SuperMiner_Core.configFile.setCategoryPropertyOrder(MODID, order);
 		
-		if (!bShouldSyncSettings) bShouldSyncSettings = SuperMiner_Core.configFile.hasChanged();
+		if (!bShouldSyncSettings)
+			bShouldSyncSettings = SuperMiner_Core.configFile.hasChanged();
 	}
 	
 	@Mod.EventHandler
@@ -149,7 +150,7 @@ public class Excavator {
 				
 				if (message.key.equalsIgnoreCase("addShovel"))
 					SettingsExcavator.lShovelIDs.add(message.getStringValue());
-				
+					
 				// else if(message.key.equalsIgnoreCase("addPickaxe"))
 				// mySettings.lToolIDs.add(message.getStringValue());
 				
@@ -162,10 +163,12 @@ public class Excavator {
 		if (!PlayerEvents.IsPlayerInWorld() ||
 				Shaftanator.bToggled ||
 				!SettingsExcavator.bEnabled ||
-				!TickEvent.Phase.END.equals(event.phase)) return;
+				!TickEvent.Phase.END.equals(event.phase))
+			return;
 		
 		Minecraft mc = FMLClientHandler.instance().getClient();
-		if (!mc.inGameHasFocus || mc.isGamePaused()) return;
+		if (!mc.inGameHasFocus || mc.isGamePaused())
+			return;
 		
 		if (bShouldSyncSettings) {
 			Globals.sendPacket(new CPacketCustomPayload(ChannelName, SettingsExcavator.writePacketData()));
@@ -173,7 +176,8 @@ public class Excavator {
 		}
 		
 		EntityPlayer player = mc.player;
-		if (null == player || player.isDead || player.isPlayerSleeping()) return;
+		if (null == player || player.isDead || player.isPlayerSleeping())
+			return;
 		
 		World world = mc.world;
 		if (world != null) {
@@ -224,7 +228,8 @@ public class Excavator {
 									bLayerOnlyToggled);
 						}
 					}
-				} else bHungerNotified = false;
+				} else
+					bHungerNotified = false;
 			}
 			
 			// Removes packets from the history.
@@ -233,7 +238,8 @@ public class Excavator {
 				if (System.nanoTime() - packet.nanoTime >= Globals.attackHistoryDelayNanoTime) {
 					try {
 						attackPackets.remove(); // Removes packet from the history if it has been there too long.
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
 					}
 				} else {
@@ -241,7 +247,8 @@ public class Excavator {
 					if (block == null || block == Blocks.AIR) {
 						try {
 							attackPackets.remove(); // Removes packet from the history.
-						} catch (ConcurrentModificationException e) {
+						}
+						catch (ConcurrentModificationException e) {
 							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
 						}
 						
@@ -268,7 +275,7 @@ public class Excavator {
 			myGlobals.iBlockLimit = SettingsExcavator.iBlockLimit;
 			
 		} else if (SettingsExcavator.bEnabled) {
-			EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).playerEntity;
+			EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).player;
 			
 			if (iPacketID == PacketIDs.BLOCKINFO.value()) {
 				
@@ -290,10 +297,12 @@ public class Excavator {
 	
 	protected void Excavate(SMPacket packet, EntityPlayerMP player) {
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-		if (null == server) return;
+		if (null == server)
+			return;
 		
-		World world = server.worldServerForDimension(player.dimension);
-		if (world == null || !isAllowedToMine(player, packet.block)) return;
+		World world = server.getWorld(player.dimension);
+		if (world == null || !isAllowedToMine(player, packet.block))
+			return;
 		
 		ExcavationHelper oEH = new ExcavationHelper(world, player, packet, SettingsExcavator.bGatherDrops);
 		myExcavationHelpers.add(oEH);
@@ -302,7 +311,8 @@ public class Excavator {
 			oEH.FinalizeExcavation();
 			try {
 				myExcavationHelpers.remove(oEH);
-			} catch (ConcurrentModificationException e) {
+			}
+			catch (ConcurrentModificationException e) {
 				SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
 			}
 		}
@@ -319,7 +329,8 @@ public class Excavator {
 					oEH.FinalizeExcavation();
 					try {
 						myExcavationHelpers.remove(oEH);
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
 					}
 				}
@@ -352,7 +363,8 @@ public class Excavator {
 	
 	private static boolean isAllowedToMine(EntityPlayer player, Block block) {
 		IBlockState state = block.getBlockState().getBaseState();
-		if (null == block || Blocks.AIR == block || state.getMaterial().isLiquid() || Blocks.BEDROCK == block) return false;
+		if (null == block || Blocks.AIR == block || state.getMaterial().isLiquid() || Blocks.BEDROCK == block)
+			return false;
 		return player.canHarvestBlock(state);
 	}
 	
@@ -361,7 +373,7 @@ public class Excavator {
 		if (null == server)
 			return;
 		
-		World world = server.worldServerForDimension(player.dimension);
+		World world = server.getWorld(player.dimension);
 		if (world == null)
 			return;
 		
@@ -376,7 +388,8 @@ public class Excavator {
 			
 			try {
 				blockPos = oPacket.lstPositions.poll();
-			} catch (ConcurrentModificationException e) {
+			}
+			catch (ConcurrentModificationException e) {
 				SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
 			}
 			
@@ -397,7 +410,8 @@ public class Excavator {
 				if (curItem.getMaxDamage() <= 0) {
 					try {
 						player.inventory.removeStackFromSlot(player.inventory.currentItem);
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
 					}
 					
@@ -443,7 +457,8 @@ public class Excavator {
 						world.getBlockState(oPos.up()).getBlock() == Blocks.AIR) {
 					try {
 						oPacket.lstPositions.offer(oPos);
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
 					}
 					
@@ -458,7 +473,8 @@ public class Excavator {
 						iYOffset = -1;
 						try {
 							oPacket.lstPositions.offer(oPosOffset);
-						} catch (ConcurrentModificationException e) {
+						}
+						catch (ConcurrentModificationException e) {
 							SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
 						}
 						
@@ -473,7 +489,8 @@ public class Excavator {
 							iYOffset = 1;
 							try {
 								oPacket.lstPositions.offer(oPosOffset);
-							} catch (ConcurrentModificationException e) {
+							}
+							catch (ConcurrentModificationException e) {
 								SuperMiner_Core.LOGGER.error(e.getMessage() + " : " + e.getStackTrace().toString());
 							}
 						}

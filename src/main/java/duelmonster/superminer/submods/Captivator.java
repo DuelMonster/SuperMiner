@@ -114,7 +114,7 @@ public class Captivator {
 		World world = minecraft.world;
 		if (null != world && System.currentTimeMillis() >= this.packetEnableTime && player.getHealth() > 0.0F) {
 			
-			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().expand(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal));
+			List<Entity> list = Globals.getNearbyEntities(world, player.getEntityBoundingBox().grow(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal));
 			if (null == list || list.isEmpty())
 				return;
 			
@@ -152,7 +152,7 @@ public class Captivator {
 			SettingsCaptivator.readPacketData(payLoad);
 		
 		else if (SettingsCaptivator.bEnabled && !bShouldCapture) {
-			player = ((NetHandlerPlayServer) event.getHandler()).playerEntity;
+			player = ((NetHandlerPlayServer) event.getHandler()).player;
 			if (null == player)
 				return;
 			bShouldCapture = true;
@@ -170,7 +170,7 @@ public class Captivator {
 			return;
 		
 		synchronized (this.recordedDrops) {
-			AxisAlignedBB captivateArea = player.getEntityBoundingBox().expand(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal);
+			AxisAlignedBB captivateArea = player.getEntityBoundingBox().grow(SettingsCaptivator.fHorizontal, SettingsCaptivator.fVertical, SettingsCaptivator.fHorizontal);
 			
 			if (player.world != null) {
 				List<Entity> tmpDrops = Globals.getNearbyEntities(player.world, captivateArea);
@@ -181,7 +181,8 @@ public class Captivator {
 					}
 				}
 				
-				if (this.recordedDrops.isEmpty()) return;
+				if (this.recordedDrops.isEmpty())
+					return;
 				tmpDrops = new ArrayList<Entity>(this.recordedDrops);
 				for (Entity entity : tmpDrops) {
 					
@@ -196,7 +197,7 @@ public class Captivator {
 							EntityItem eItem = (EntityItem) entity;
 							
 							if (!eItem.cannotPickup()
-									&& (lItemIDs == null || lItemIDs.isEmpty() || Globals.isIdInList(eItem.getEntityItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist)) {
+									&& (lItemIDs == null || lItemIDs.isEmpty() || Globals.isIdInList(eItem.getItem().getItem(), lItemIDs) == SettingsCaptivator.bIsWhitelist)) {
 								
 								eItem.onCollideWithPlayer(player);
 								

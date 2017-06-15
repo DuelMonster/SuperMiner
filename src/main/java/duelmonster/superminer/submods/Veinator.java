@@ -85,7 +85,7 @@ public class Veinator {
 		for (ExcavationHelper oEH : getMyExcavationHelpers())
 			if (!bIsExcavating)
 				bIsExcavating = (oEH != null && oEH.isExcavating());
-		
+			
 		return bIsExcavating;
 	}
 	
@@ -95,7 +95,7 @@ public class Veinator {
 		for (ExcavationHelper oEH : getMyExcavationHelpers())
 			if (!bIsSpawningDrops)
 				bIsSpawningDrops = (oEH != null && oEH.isSpawningDrops());
-		
+			
 		return bIsSpawningDrops;
 	}
 	
@@ -146,7 +146,8 @@ public class Veinator {
 								try {
 									int id = Integer.parseInt(sID.trim());
 									myGlobals.lBlockIDs.add(Block.REGISTRY.getObjectById(id));
-								} catch (NumberFormatException e) {
+								}
+								catch (NumberFormatException e) {
 									myGlobals.lBlockIDs.add(Block.REGISTRY.getObject(new ResourceLocation(sID)));
 								}
 							}
@@ -172,7 +173,8 @@ public class Veinator {
 					try {
 						int id = Integer.parseInt(sID);
 						myGlobals.lToolIDs.add(Item.REGISTRY.getObjectById(id));
-					} catch (NumberFormatException e) {
+					}
+					catch (NumberFormatException e) {
 						Item item = Item.REGISTRY.getObject(new ResourceLocation(sID));
 						if (item != null)
 							myGlobals.lToolIDs.add(item);
@@ -186,7 +188,8 @@ public class Veinator {
 					try {
 						int id = Integer.parseInt(sID.trim());
 						myGlobals.lBlockIDs.add(Block.REGISTRY.getObjectById(id));
-					} catch (NumberFormatException e) {
+					}
+					catch (NumberFormatException e) {
 						Block oBlock = Block.REGISTRY.getObject(new ResourceLocation(sID));
 						if (oBlock != null)
 							myGlobals.lBlockIDs.add(oBlock);
@@ -259,7 +262,8 @@ public class Veinator {
 				if (System.nanoTime() - packet.nanoTime >= Globals.attackHistoryDelayNanoTime) {
 					try {
 						attackPackets.remove(); // Removes packet from the history if it has been there too long.
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
 				} else {
@@ -267,7 +271,8 @@ public class Veinator {
 					if (block == null || block == Blocks.AIR) {
 						try {
 							attackPackets.remove(); // Removes packet from the history.
-						} catch (ConcurrentModificationException e) {
+						}
+						catch (ConcurrentModificationException e) {
 							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 						}
 						
@@ -293,7 +298,7 @@ public class Veinator {
 		} else if (SettingsVeinator.bEnabled && iPacketID == PacketIDs.BLOCKINFO.value()) {
 			SMPacket packet = new SMPacket();
 			packet.readPacketData(payLoad);
-			executeVeinator(packet, ((NetHandlerPlayServer) event.getHandler()).playerEntity);
+			executeVeinator(packet, ((NetHandlerPlayServer) event.getHandler()).player);
 		}
 	}
 	
@@ -302,7 +307,7 @@ public class Veinator {
 		if (null == server)
 			return;
 		
-		World world = server.worldServerForDimension(player.dimension);
+		World world = server.getWorld(player.dimension);
 		if (!isAllowedToMine(player, packet))
 			return;
 		
@@ -313,7 +318,8 @@ public class Veinator {
 			oEH.FinalizeExcavation();
 			try {
 				myExcavationHelpers.remove(oEH);
-			} catch (ConcurrentModificationException e) {
+			}
+			catch (ConcurrentModificationException e) {
 				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 			}
 		}
@@ -337,7 +343,8 @@ public class Veinator {
 					if (myExcavationHelpers.indexOf(oEH) >= 0) {
 						try {
 							myExcavationHelpers.remove(oEH);
-						} catch (ConcurrentModificationException e) {
+						}
+						catch (ConcurrentModificationException e) {
 							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 						}
 					}

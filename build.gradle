@@ -1,19 +1,11 @@
-
 buildscript {
-	repositories {
-		jcenter()
-		maven {
-			name = "forge"
-			url = "http://files.minecraftforge.net/maven"
-		}
-		maven {
-			name = "sonatype"
-			url = "https://oss.sonatype.org/content/repositories/snapshots/"
-		}
-	}
-	dependencies {
-		classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-	}
+    repositories {
+        jcenter()
+        maven { url = "http://files.minecraftforge.net/maven" }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
 }
 
 plugins {
@@ -159,7 +151,8 @@ processResources
 	}
 }
 
-version		= "[${project.minecraft.version}]-${project.version}"
+//version		= "[${project.minecraft.version}]-${project.version}"
+version		= "${project.version}"
 
 sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
 
@@ -315,6 +308,14 @@ task APIKeyTest << {
 	println "  mods.io API Key: " + (modsioApiKey != '' ? modsioApiKey : "!! NOT FOUND !!")
 	println "=================================================="
 }
+
+task ManualRelease << {
+	println "=================================================="
+	println "!! CurseForge will need to be updated manually  !!"
+	println "=================================================="
+}
+tasks.ManualRelease.dependsOn release
+tasks.ManualRelease.finalizedBy updateVersionInfo
 
 idea {
     module {

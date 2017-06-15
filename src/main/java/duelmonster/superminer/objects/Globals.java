@@ -123,7 +123,8 @@ public class Globals {
 			
 			try {
 				attackHistory.put(oPacket);
-			} catch (InterruptedException e) {}
+			}
+			catch (InterruptedException e) {}
 		}
 	}
 	
@@ -147,7 +148,8 @@ public class Globals {
 			try {
 				int id = Integer.parseInt(sID.trim());
 				oEntity = rn.getObjectById(id);
-			} catch (NumberFormatException e) {
+			}
+			catch (NumberFormatException e) {
 				oEntity = rn.getObject(new ResourceLocation(sID));
 			}
 			
@@ -168,14 +170,17 @@ public class Globals {
 			
 			for (Object o : list) {
 				Entity e = (Entity) o;
-				if (!e.isDead && (e instanceof EntityItem || e instanceof EntityXPOrb))
+				if (!e.isDead && (e instanceof EntityItem || e instanceof EntityXPOrb))// && isEntityWithinArea(e,
+																						// area))
 					rtrn.add(e);
 			}
 			return rtrn;
 			
-		} catch (ConcurrentModificationException e) {
+		}
+		catch (ConcurrentModificationException e) {
 			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception: " + Globals.getStackTrace());
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			SuperMiner_Core.LOGGER.error(e.getClass().getName() + " Exception: " + Globals.getStackTrace());
 		}
 		return rtrn;
@@ -216,7 +221,8 @@ public class Globals {
 					if (checkBlock(world.getBlockState(blockPos), p)) {
 						try {
 							p.positions.offer(blockPos);
-						} catch (ConcurrentModificationException e) {
+						}
+						catch (ConcurrentModificationException e) {
 							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 						}
 						
@@ -296,7 +302,7 @@ public class Globals {
 		if (FMLCommonHandler.instance().getSide().isClient())
 			if (I18n.canTranslate(key))
 				return I18n.translateToLocal(key);
-		
+			
 		return key;
 	}
 	

@@ -47,9 +47,10 @@ public class GodItems {
 	
 	public static void GiveGodTools(EntityPlayer player) {
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-		if (null == server) return;
+		if (null == server)
+			return;
 		
-		World world = server.worldServerForDimension(player.dimension);
+		World world = server.getWorld(player.dimension);
 		
 		// Sword: "/give @p 276 1 0 {Unbreakable:1,ench:[{id:16,lvl:10},{id:20,lvl:2},{id:21,lvl:10}]}"
 		ItemStack oItemStack = new ItemStack(Items.DIAMOND_SWORD);

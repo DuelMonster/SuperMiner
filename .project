@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>SuperMiner v2-1.11.2</name>
-	<comment>Project SuperMiner v2-1.11.2 created by Buildship.</comment>
+	<name>SuperMiner v2-1.12</name>
+	<comment>Project SuperMiner v2-1.12 created by Buildship.</comment>
 	<projects/>
 	<natures>
 		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>

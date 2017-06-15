@@ -19,10 +19,21 @@ public class SMGuiFactory implements IModGuiFactory {
 	public Set<RuntimeOptionCategoryElement> runtimeGuiCategories() {
 		return null;
 	}
-	
+
+	@Override
+	public boolean hasConfigGui() {
+		return true;
+	}
+
+	@Override
+	public GuiScreen createConfigGui(GuiScreen parentScreen) {
+		return new SMGuiConfig(parentScreen);
+	}
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }

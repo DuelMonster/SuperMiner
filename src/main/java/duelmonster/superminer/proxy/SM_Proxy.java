@@ -30,7 +30,7 @@ public class SM_Proxy {
 	
 	public EntityPlayer getPlayerFromNetHandler(INetHandler handler) {
 		if ((handler instanceof NetHandlerPlayServer))
-			return ((NetHandlerPlayServer) handler).playerEntity;
+			return ((NetHandlerPlayServer) handler).player;
 		
 		return null;
 	}

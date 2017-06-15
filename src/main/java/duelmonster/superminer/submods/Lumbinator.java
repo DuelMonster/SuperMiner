@@ -211,7 +211,8 @@ public class Lumbinator {
 				if (System.nanoTime() - packet.nanoTime >= Globals.attackHistoryDelayNanoTime) {
 					try {
 						attackPackets.remove(); // Removes packet from the history if it has been there too long.
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
 				} else {
@@ -219,7 +220,8 @@ public class Lumbinator {
 					if (block == null || block == Blocks.AIR) {
 						try {
 							attackPackets.remove(); // Removes packet from the history.
-						} catch (ConcurrentModificationException e) {
+						}
+						catch (ConcurrentModificationException e) {
 							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 						}
 						
@@ -246,7 +248,7 @@ public class Lumbinator {
 			packet.readPacketData(payLoad);
 			
 			if (player == null)
-				player = ((NetHandlerPlayServer) event.getHandler()).playerEntity;
+				player = ((NetHandlerPlayServer) event.getHandler()).player;
 			
 			if (isChoppableTree(packet)) {
 				myPackets.add(packet);
@@ -271,7 +273,8 @@ public class Lumbinator {
 		if (!currentPacket.positions.contains(currentPacket.oPos)) {
 			try {
 				currentPacket.positions.offer(currentPacket.oPos);
-			} catch (ConcurrentModificationException e) {
+			}
+			catch (ConcurrentModificationException e) {
 				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 			}
 		}
@@ -372,7 +375,7 @@ public class Lumbinator {
 		while (iCount < BREAK_LIMIT && !currentPacket.positions.isEmpty())
 			if (breakBlock(currentPacket))
 				iCount++;
-		
+			
 		if (currentPacket.positions.isEmpty()) {
 			
 			if (oHeldItem != null && player.inventory.getStackInSlot(iHeldSlot) != oHeldItem) {
@@ -383,7 +386,8 @@ public class Lumbinator {
 			
 			try {
 				myPackets.remove(currentPacket);
-			} catch (ConcurrentModificationException e) {
+			}
+			catch (ConcurrentModificationException e) {
 				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 			}
 			
@@ -400,7 +404,8 @@ public class Lumbinator {
 		
 		try {
 			blockPos = currentPacket.positions.poll();
-		} catch (ConcurrentModificationException e) {
+		}
+		catch (ConcurrentModificationException e) {
 			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 		}
 		
@@ -418,7 +423,8 @@ public class Lumbinator {
 				// Set ItemStack in the current slot to null to ensure the leaves don't affect durability
 				try {
 					player.inventory.removeStackFromSlot(iHeldSlot);
-				} catch (ConcurrentModificationException e) {
+				}
+				catch (ConcurrentModificationException e) {
 					SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 				}
 				
@@ -463,7 +469,7 @@ public class Lumbinator {
 					for (Entity entity : dropsClone) {
 						if (entity != null && entity instanceof EntityItem && Globals.isEntityWithinArea(entity, choppingArea)) {
 							if (SettingsLumbinator.bGatherDrops) {
-								player.getServerWorld().spawnEntity(new EntityItem(player.getServerWorld(), currentPacket.oPos.getX(), currentPacket.oPos.getY(), currentPacket.oPos.getZ(), ((EntityItem) entity).getEntityItem()));
+								player.getServerWorld().spawnEntity(new EntityItem(player.getServerWorld(), currentPacket.oPos.getX(), currentPacket.oPos.getY(), currentPacket.oPos.getZ(), ((EntityItem) entity).getItem()));
 							} else {
 								player.getServerWorld().spawnEntity(entity);
 							}
@@ -478,7 +484,8 @@ public class Lumbinator {
 					
 				}
 			}
-		} catch (ConcurrentModificationException e) {
+		}
+		catch (ConcurrentModificationException e) {
 			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 		}
 		

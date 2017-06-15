@@ -176,7 +176,7 @@ public class Cropinator {
 			SettingsCropinator.readPacketData(payLoad);
 		
 		else if (SettingsCropinator.bEnabled) {
-			EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).playerEntity;
+			EntityPlayerMP player = ((NetHandlerPlayServer) event.getHandler()).player;
 			
 			AutoFurrowPacket packet = new AutoFurrowPacket();
 			packet.readPacketData(payLoad);
@@ -196,7 +196,7 @@ public class Cropinator {
 		if (null == server)
 			return;
 		
-		World world = server.worldServerForDimension(player.dimension);
+		World world = server.getWorld(player.dimension);
 		if (world == null)
 			return;
 		
@@ -211,7 +211,8 @@ public class Cropinator {
 			
 			try {
 				blockPos = oPacket.lstPositions.poll();
-			} catch (ConcurrentModificationException e) {
+			}
+			catch (ConcurrentModificationException e) {
 				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 			}
 			
@@ -241,7 +242,8 @@ public class Cropinator {
 				if (curItem.getMaxDamage() <= 0) {
 					try {
 						player.inventory.removeStackFromSlot(player.inventory.currentItem);
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
 					
@@ -272,7 +274,8 @@ public class Cropinator {
 						&& (oBlock == Blocks.GRASS || oBlock == Blocks.DIRT)) {
 					try {
 						oPacket.lstPositions.offer(blockPos);
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
 				} else
@@ -297,7 +300,7 @@ public class Cropinator {
 		if (null == server)
 			return;
 		
-		World world = server.worldServerForDimension(player.dimension);
+		World world = server.getWorld(player.dimension);
 		if (world == null)
 			return;
 		
@@ -312,7 +315,8 @@ public class Cropinator {
 			
 			try {
 				blockPos = oPacket.lstPositions.poll();
-			} catch (ConcurrentModificationException e) {
+			}
+			catch (ConcurrentModificationException e) {
 				SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 			}
 			
@@ -355,7 +359,8 @@ public class Cropinator {
 				if (curItem.getMaxDamage() <= 0) {
 					try {
 						player.inventory.removeStackFromSlot(player.inventory.currentItem);
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
 					
@@ -387,7 +392,8 @@ public class Cropinator {
 							oPacket.isPositionConnected(blockPos)) {
 						try {
 							oPacket.lstPositions.offer(blockPos);
-						} catch (ConcurrentModificationException e) {
+						}
+						catch (ConcurrentModificationException e) {
 							SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 						}
 					}

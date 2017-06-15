@@ -82,12 +82,18 @@ public class ExcavationHelper {
 			int maxX = minX, maxY = minY, maxZ = minZ;
 			
 			for (BlockPos oPos : oPositions) {
-				if (oPos.getX() < minX) minX = oPos.getX();
-				if (oPos.getX() > maxX) maxX = oPos.getX();
-				if (oPos.getY() < minY) minY = oPos.getY();
-				if (oPos.getY() > maxY) maxY = oPos.getY();
-				if (oPos.getZ() < minZ) minZ = oPos.getZ();
-				if (oPos.getZ() > maxZ) maxZ = oPos.getZ();
+				if (oPos.getX() < minX)
+					minX = oPos.getX();
+				if (oPos.getX() > maxX)
+					maxX = oPos.getX();
+				if (oPos.getY() < minY)
+					minY = oPos.getY();
+				if (oPos.getY() > maxY)
+					maxY = oPos.getY();
+				if (oPos.getZ() < minZ)
+					minZ = oPos.getZ();
+				if (oPos.getZ() > maxZ)
+					maxZ = oPos.getZ();
 			}
 			
 			this.excavationArea = new AxisAlignedBB(minX - 2, minY - 2, minZ - 2, maxX + 2, maxY + 2, maxZ + 2);
@@ -111,7 +117,8 @@ public class ExcavationHelper {
 	 */
 	public boolean ExcavateSection() {
 		if (!oPositions.isEmpty()) {
-			if (!bIsExcavating) bIsExcavating = true;
+			if (!bIsExcavating)
+				bIsExcavating = true;
 			
 			for (int indx = 0; indx <= SECTION_LIMIT; indx++)
 				if (!oPositions.isEmpty()) {
@@ -120,10 +127,12 @@ public class ExcavationHelper {
 					boolean bCrash = false;
 					try {
 						workingPos = oPositions.removeFirst();
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 						bCrash = true;
-					} catch (NoSuchElementException e) {
+					}
+					catch (NoSuchElementException e) {
 						bCrash = true;
 					}
 					if (bCrash) {
@@ -162,7 +171,8 @@ public class ExcavationHelper {
 								
 								try {
 									bHarvested = player.interactionManager.tryHarvestBlock(workingPos);
-								} catch (ConcurrentModificationException e) {
+								}
+								catch (ConcurrentModificationException e) {
 									SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 								}
 								
@@ -177,11 +187,10 @@ public class ExcavationHelper {
 										workingPos = workingPos.offset(this.sideHit);
 									
 									// Hacky fix to solve incorrect torch placement
-									iPacket.oPos = new BlockPos(this.sideHit == EnumFacing.EAST
-											? workingPos.north()
-											: (this.sideHit == EnumFacing.WEST
-													? workingPos.north()
-													: workingPos));
+									iPacket.oPos = (this.sideHit == EnumFacing.NORTH
+											|| this.sideHit == EnumFacing.SOUTH
+													? workingPos.west()
+													: workingPos);
 									
 									iPacket.playerID = player.getEntityId();
 									
@@ -198,7 +207,8 @@ public class ExcavationHelper {
 				}
 		}
 		
-		if (oPositions.isEmpty()) bIsExcavating = false;
+		if (oPositions.isEmpty())
+			bIsExcavating = false;
 		
 		return bIsExcavating;
 	}
@@ -206,7 +216,8 @@ public class ExcavationHelper {
 	public void getExcavationBlocks() {
 		try {
 			oPositions.offer(oInitialPos);
-		} catch (ConcurrentModificationException e) {
+		}
+		catch (ConcurrentModificationException e) {
 			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 		}
 		
@@ -463,7 +474,8 @@ public class ExcavationHelper {
 			if (bValidBlock) {
 				try {
 					oPositions.offer(oPos);
-				} catch (ConcurrentModificationException e) {
+				}
+				catch (ConcurrentModificationException e) {
 					SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 				}
 				
@@ -487,7 +499,8 @@ public class ExcavationHelper {
 	public void getShaftBlocks() {
 		try {
 			oPositions.offer(oInitialPos);
-		} catch (ConcurrentModificationException e) {
+		}
+		catch (ConcurrentModificationException e) {
 			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 		}
 		
@@ -585,7 +598,8 @@ public class ExcavationHelper {
 		
 		try {
 			oPositions.offer(oInitialPos);
-		} catch (ConcurrentModificationException e) {
+		}
+		catch (ConcurrentModificationException e) {
 			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 		}
 		
@@ -633,7 +647,7 @@ public class ExcavationHelper {
 					for (Entity entity : dropsClone) {
 						if (entity != null && entity instanceof EntityItem && Globals.isEntityWithinArea(entity, getExcavationArea())) {
 							if (bGatherDrops) {
-								world.spawnEntity(new EntityItem(world, oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ(), ((EntityItem) entity).getEntityItem()));
+								world.spawnEntity(new EntityItem(world, oInitialPos.getX(), oInitialPos.getY(), oInitialPos.getZ(), ((EntityItem) entity).getItem()));
 							} else {
 								world.spawnEntity(entity);
 							}
@@ -648,7 +662,8 @@ public class ExcavationHelper {
 					
 				}
 			}
-		} catch (ConcurrentModificationException e) {
+		}
+		catch (ConcurrentModificationException e) {
 			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 		}
 		
