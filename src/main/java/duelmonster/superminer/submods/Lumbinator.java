@@ -56,7 +56,7 @@ public class Lumbinator {
 	public static final String	MODName		= "Lumbinator";
 	public static final String	ChannelName	= MODID.substring(0, (MODID.length() < 20 ? MODID.length() : 20));
 	
-	public static final int			BREAK_LIMIT			= 8;
+	// public static final int BREAK_LIMIT = 8;
 	public static Globals			myGlobals			= new Globals();
 	public static boolean			bShouldSyncSettings	= true;
 	private static EntityPlayerMP	player				= null;
@@ -281,8 +281,6 @@ public class Lumbinator {
 		
 		// Ensure that it is a Tree ( Has Leaves )
 		TreeHelper oTreeHelper = currentPacket.oTreeHelper = new TreeHelper(player, myGlobals);
-		int yStart = currentPacket.oPos.getY();
-		int yLevel = yStart;
 		
 		currentPacket.sWoodName = oTreeHelper.getUniqueIdentifier(state, currentPacket.metadata);
 		// Get Leaf Name
@@ -295,30 +293,11 @@ public class Lumbinator {
 			oTreeHelper.DetectTreeSize(currentPacket);
 			setChoppingArea(currentPacket);
 			
-			int iMinX = (currentPacket.oPos.getX() - SettingsLumbinator.iLeafRange) - (oTreeHelper.iTreeWidthMinusX == 0 ? 1 : oTreeHelper.iTreeWidthMinusX);
-			int iMaxX = (currentPacket.oPos.getX() + SettingsLumbinator.iLeafRange) + (oTreeHelper.iTreeWidthPlusX == 0 ? 1 : oTreeHelper.iTreeWidthPlusX);
-			int iMinZ = (currentPacket.oPos.getZ() - SettingsLumbinator.iLeafRange) - (oTreeHelper.iTreeWidthMinusZ == 0 ? 1 : oTreeHelper.iTreeWidthMinusZ);
-			int iMaxZ = (currentPacket.oPos.getZ() + SettingsLumbinator.iLeafRange) + (oTreeHelper.iTreeWidthPlusZ == 0 ? 1 : oTreeHelper.iTreeWidthPlusZ);
-			
-			boolean bBelowGot = false;
-			
-			while (yLevel <= oTreeHelper.iTreeHeight) {
-				for (int xPos = iMinX; xPos <= iMaxX; xPos++)
-					for (int zPos = iMinZ; zPos <= iMaxZ; zPos++)
-						bIsTree = oTreeHelper.processPosition(currentPacket, new BlockPos(xPos, yLevel, zPos), bIsTree);
-					
-				if (SettingsLumbinator.bChopTreeBelow && yLevel <= yStart && !bBelowGot) {
-					oTreeHelper.iTreeMinY = yLevel;
-					yLevel--;
-					if (yLevel <= 0) {
-						yLevel = yStart;
-						bBelowGot = true;
-					}
-				} else
-					yLevel++;
-			}
+			for (int yPos = (int) choppingArea.minY; yPos <= (int) choppingArea.maxY; yPos++)
+				for (int xPos = (int) choppingArea.minX; xPos <= (int) choppingArea.maxX; xPos++)
+					for (int zPos = (int) choppingArea.minZ; zPos <= (int) choppingArea.maxZ; zPos++)
+						bIsTree = oTreeHelper.processPosition(currentPacket, new BlockPos(xPos, yPos, zPos), bIsTree);
 		}
-		
 		return bIsTree;
 	}
 	
@@ -364,7 +343,6 @@ public class Lumbinator {
 	}
 	
 	private static void chopTree(SMPacket currentPacket) {
-		int iCount = 0;
 		bIsChopping = true;
 		
 		if (oHeldItem == null) {
@@ -372,10 +350,9 @@ public class Lumbinator {
 			iHeldSlot = player.inventory.currentItem;
 		}
 		
-		while (iCount < BREAK_LIMIT && !currentPacket.positions.isEmpty())
-			if (breakBlock(currentPacket))
-				iCount++;
-			
+		while (!currentPacket.positions.isEmpty())
+			breakBlock(currentPacket);
+		
 		if (currentPacket.positions.isEmpty()) {
 			
 			if (oHeldItem != null && player.inventory.getStackInSlot(iHeldSlot) != oHeldItem) {
@@ -409,7 +386,7 @@ public class Lumbinator {
 			SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 		}
 		
-		if (blockPos == null)
+		if (blockPos == null && !TreeHelper.ensureIsConnectedToTree(currentPacket, blockPos))
 			return false;
 		
 		IBlockState state = player.world.getBlockState(blockPos);
@@ -450,10 +427,10 @@ public class Lumbinator {
 		int iMaxX = (currentPacket.oPos.getX() + SettingsLumbinator.iLeafRange) + (oTreeHelper.iTreeWidthPlusX == 0 ? 1 : oTreeHelper.iTreeWidthPlusX);
 		int iMinZ = (currentPacket.oPos.getZ() - SettingsLumbinator.iLeafRange) - (oTreeHelper.iTreeWidthMinusZ == 0 ? 1 : oTreeHelper.iTreeWidthMinusZ);
 		int iMaxZ = (currentPacket.oPos.getZ() + SettingsLumbinator.iLeafRange) + (oTreeHelper.iTreeWidthPlusZ == 0 ? 1 : oTreeHelper.iTreeWidthPlusZ);
-		int iMinY = (currentPacket.oPos.getY() - oTreeHelper.iTreeMinY);
+		int iMinY = (SettingsLumbinator.bChopTreeBelow ? oTreeHelper.iTreeMinY : currentPacket.oPos.getY());
 		int iMaxY = (currentPacket.oPos.getY() + oTreeHelper.iTreeHeight);
 		
-		choppingArea = new AxisAlignedBB(iMinX - 2, iMinY - 2, iMinZ - 2, iMaxX + 2, iMaxY + 2, iMaxZ + 2);
+		choppingArea = new AxisAlignedBB(iMinX, iMinY, iMinZ, iMaxX, iMaxY, iMaxZ);
 	}
 	
 	public static void spawnDrops(SMPacket currentPacket) {

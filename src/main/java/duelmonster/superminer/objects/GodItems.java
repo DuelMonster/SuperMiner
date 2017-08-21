@@ -221,7 +221,33 @@ public class GodItems {
 		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 		
 		// Hoe: "/give @p 293 1 0 {Unbreakable:1}"
+		oItemStack = new ItemStack(Items.DIAMOND_HOE);
+		oItemStack.setCount(1);
+		oItemStack.setStackDisplayName("Ten Dolla");
+		if (!oItemStack.hasTagCompound())
+			oItemStack.setTagCompound(new NBTTagCompound());
+		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
+		
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		
 		// Shears: "/give @p 359 1 0 {Unbreakable:1,ench:[{id:32,lvl:10}]}"
+		oItemStack = new ItemStack(Items.SHEARS);
+		oItemStack.setCount(1);
+		oItemStack.setStackDisplayName("Shawn");
+		if (!oItemStack.hasTagCompound())
+			oItemStack.setTagCompound(new NBTTagCompound());
+		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
+		
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
+		
 		// Flint & Steel: "/give @p 259 1 0 {Unbreakable:1}"
+		oItemStack = new ItemStack(Items.FLINT_AND_STEEL);
+		oItemStack.setCount(1);
+		oItemStack.setStackDisplayName("Firestarter");
+		if (!oItemStack.hasTagCompound())
+			oItemStack.setTagCompound(new NBTTagCompound());
+		oItemStack.getTagCompound().setBoolean("Unbreakable", true);
+		
+		world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, oItemStack));
 	}
 }

@@ -8,23 +8,17 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 public class KeyBindings {
 	
 	// Declare our KeyBindings
-	public static KeyBinding captivator;
-	
+	public static KeyBinding	captivator;
 	public static KeyBinding	excavator;
 	public static KeyBinding	excavator_toggle;
 	public static KeyBinding	excavator_layer_only_toggle;
-	
 	public static KeyBinding	illuminator;
 	public static KeyBinding	illuminator_place;
-	
-	public static KeyBinding lumbinator;
-	
+	public static KeyBinding	lumbinator;
 	public static KeyBinding	shaftanator;
 	public static KeyBinding	shaftanator_toggle;
-	
-	public static KeyBinding substitutor;
-	
-	public static KeyBinding veinator;
+	public static KeyBinding	substitutor;
+	public static KeyBinding	veinator;
 	
 	public static void init() {
 		// Define the bindings, with unlocalised names "key.???" and

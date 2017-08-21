@@ -206,7 +206,7 @@ public class Cropinator {
 		
 		int iFarmableFound = oPacket.lstPositions.size();
 		int iFarmed = 0;
-		while (iFarmed <= iFarmableFound) {
+		while (iFarmed <= iFarmableFound && !oPacket.lstPositions.isEmpty()) {
 			BlockPos blockPos = null;
 			
 			try {
@@ -221,9 +221,7 @@ public class Cropinator {
 			
 			Block blockAbove = world.getBlockState(blockPos.up()).getBlock();
 			
-			if (blockPos.getY() == oPacket.oPos.getY()
-					&& (blockAbove == Blocks.AIR || blockAbove instanceof IPlantable)
-					&& hasWaterSource(world, blockPos)) {
+			if (blockPos.getY() == oPacket.oPos.getY()) {
 				
 				world.setBlockState(blockPos, Blocks.FARMLAND.getDefaultState().withProperty(BlockFarmland.MOISTURE, Integer.valueOf(7)), 2);
 				Globals.playSound(world, SoundEvents.ITEM_HOE_TILL, blockPos);
@@ -263,17 +261,18 @@ public class Cropinator {
 	private static void getFarmLand(World world, AutoFurrowPacket oPacket) {
 		int iRadius = 8;
 		
-		for (int xOffset = -iRadius; xOffset <= iRadius; ++xOffset)
-			for (int zOffset = -iRadius; zOffset <= iRadius; ++zOffset) {
-				BlockPos blockPos = oPacket.oPos.add(xOffset, 0, zOffset);
+		for (int xPos = oPacket.oPos.getX() - iRadius; xPos <= oPacket.oPos.getX() + iRadius; xPos++)
+			for (int zPos = oPacket.oPos.getZ() - iRadius; zPos <= oPacket.oPos.getZ() + iRadius; zPos++) {
+				BlockPos blockPos = new BlockPos(xPos, oPacket.oPos.getY(), zPos);
 				Block oBlock = world.getBlockState(blockPos).getBlock();
 				
 				if (oBlock != null
 						&& !world.isAirBlock(blockPos)
-						&& world.isAirBlock(blockPos.up())
-						&& (oBlock == Blocks.GRASS || oBlock == Blocks.DIRT)) {
+						&& (world.isAirBlock(blockPos.up()) || world.getBlockState(blockPos.up()).getBlock() instanceof IPlantable)
+						&& (oBlock == Blocks.GRASS || oBlock == Blocks.DIRT || oBlock == Blocks.FARMLAND)) {
 					try {
-						oPacket.lstPositions.offer(blockPos);
+						if (hasWaterSource(world, blockPos))
+							oPacket.lstPositions.offer(blockPos);
 					}
 					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
@@ -284,8 +283,8 @@ public class Cropinator {
 	}
 	
 	private static boolean hasWaterSource(World world, BlockPos oPos) {
-		for (int xOffset = oPos.getX() - 4; xOffset <= oPos.getX() + 4; ++xOffset)
-			for (int yOffset = oPos.getY(); yOffset <= oPos.getY() + 1; ++yOffset)
+		for (int yOffset = oPos.getY() - 1; yOffset <= oPos.getY() + 1; ++yOffset)
+			for (int xOffset = oPos.getX() - 4; xOffset <= oPos.getX() + 4; ++xOffset)
 				for (int zOffset = oPos.getZ() - 4; zOffset <= oPos.getZ() + 4; ++zOffset) {
 					IBlockState state = world.getBlockState(new BlockPos(xOffset, yOffset, zOffset));
 					if (state.getMaterial() == Material.WATER)

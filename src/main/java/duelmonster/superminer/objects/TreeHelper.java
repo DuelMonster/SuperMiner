@@ -116,10 +116,14 @@ public class TreeHelper {
 						iAirCount++;
 				}
 				
-				if (iWidthPlusX > iTreeWidthPlusX) iTreeWidthPlusX = iWidthPlusX;
-				if (iWidthMinusX > iTreeWidthMinusX) iTreeWidthMinusX = iWidthMinusX;
-				if (iWidthPlusZ > iTreeWidthPlusZ) iTreeWidthPlusZ = iWidthPlusZ;
-				if (iWidthMinusZ > iTreeWidthMinusZ) iTreeWidthMinusZ = iWidthMinusZ;
+				if (iWidthPlusX > iTreeWidthPlusX)
+					iTreeWidthPlusX = iWidthPlusX;
+				if (iWidthMinusX > iTreeWidthMinusX)
+					iTreeWidthMinusX = iWidthMinusX;
+				if (iWidthPlusZ > iTreeWidthPlusZ)
+					iTreeWidthPlusZ = iWidthPlusZ;
+				if (iWidthMinusZ > iTreeWidthMinusZ)
+					iTreeWidthMinusZ = iWidthMinusZ;
 				
 				iPrevYLevel = yLeaf;
 				
@@ -177,7 +181,7 @@ public class TreeHelper {
 		return sResult;
 	}
 	
-	public boolean ensureIsConnectedToTree(SMPacket currentPacket, BlockPos nextPos) {
+	public static boolean ensureIsConnectedToTree(SMPacket currentPacket, BlockPos nextPos) {
 		// Ensure we have a direct connection to the current Tree.
 		for (int yConOffset = -1; yConOffset <= 1; yConOffset++)
 			for (int xConOffset = -1; xConOffset <= 1; xConOffset++)
@@ -195,7 +199,7 @@ public class TreeHelper {
 		IBlockState nextState = oPlayer.world.getBlockState(nextPos);
 		Block nextBlock = nextState.getBlock();
 		
-		if (nextBlock != null && nextBlock != Blocks.AIR && ensureIsConnectedToTree(currentPacket, nextPos)) {
+		if (nextBlock != null && nextBlock != Blocks.AIR) {
 			boolean bIsValidWood = (nextState.getMaterial() == Material.WOOD && Globals.isIdInList(nextBlock, myGlobals.lBlockIDs));
 			boolean bIsValidLeaves = (nextState.getMaterial() == Material.LEAVES && Globals.isIdInList(nextBlock, myGlobals.lLeafIDs));
 			String sNextName = getUniqueIdentifier(nextPos);
@@ -209,16 +213,19 @@ public class TreeHelper {
 				if (bIsValidWood || (bIsValidLeaves && SettingsLumbinator.bDestroyLeaves)) {
 					try {
 						currentPacket.positions.offer(nextPos);
-					} catch (ConcurrentModificationException e) {
+					}
+					catch (ConcurrentModificationException e) {
 						SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 					}
 				}
-				if (bIsValidLeaves && !bIsTree) return true;
+				if (bIsValidLeaves && !bIsTree)
+					return true;
 				
 			} else if (SettingsLumbinator.bDestroyLeaves && nextBlock instanceof BlockSnow) {
 				try {
 					currentPacket.positions.offer(nextPos);
-				} catch (ConcurrentModificationException e) {
+				}
+				catch (ConcurrentModificationException e) {
 					SuperMiner_Core.LOGGER.error("ConcurrentModification Exception Caught and Avoided : " + Globals.getStackTrace());
 				}
 			}

@@ -12,7 +12,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar" sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/5991ca87ef1fb5544943d9abc5a9a37583fabe03/annotations-13.0-sources.jar"/>
 	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/minecraft/net/minecraftforge/forge/1.12-14.21.0.2324/stable/32/forgeSrc-1.12-14.21.0.2324.jar" sourcepath="C:/Users/DuelMonster/.gradle/caches/minecraft/net/minecraftforge/forge/1.12-14.21.0.2324/stable/32/forgeSrc-1.12-14.21.0.2324-sources.jar"/>
 	<classpathentry kind="lib" path="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.1/f7be08ec23c21485b9b5a1cf1654c2ec8c58168d/jsr305-3.0.1.jar" sourcepath="C:/Users/DuelMonster/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.1/a2926c057ca3b662b9db194c869bdbe7d3bb8aef/jsr305-3.0.1-sources.jar"/>
