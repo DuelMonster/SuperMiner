@@ -280,7 +280,7 @@ tasks.mods_io.finalizedBy updateVersionInfo
 
 tasks.curseforge.onlyIf { curseForgeApiKey }
 tasks.curseforge.dependsOn release
-tasks.curseforge.finalizedBy updateVersionInfo
+//tasks.curseforge.finalizedBy updateVersionInfo
 
 curseforge {
 	apiKey = curseForgeApiKey
